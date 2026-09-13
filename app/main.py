@@ -229,29 +229,8 @@ def delete_conversation(conv_id):
 # ADMIN / EXTENSION OFFICER ROUTES
 # ═══════════════════════════════════════════════════════════════════
 
-@main_bp.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if session.get('is_admin'):
-        return redirect(url_for('main.admin_dashboard'))
-    error = None
-    if request.method == 'POST':
-        if (request.form.get('username') == ADMIN_USER and
-                request.form.get('password') == ADMIN_PASS):
-            session['is_admin'] = True
-            return redirect(url_for('main.admin_dashboard'))
-        error = 'Invalid credentials'
-    return render_template('admin/login.html', error=error)
 
-
-@main_bp.route('/admin/logout')
-def admin_logout():
-    session.pop('is_admin', None)
-    return redirect(url_for('main.admin_login'))
-
-
-@main_bp.route('/admin')
 @main_bp.route('/admin/dashboard')
-@admin_required
 def admin_dashboard():
     """Extension officer overview dashboard with static demo content."""
     total_farmers = 128
@@ -324,7 +303,6 @@ def admin_dashboard():
 
 
 @main_bp.route('/admin/gov_portal')
-@admin_required
 def gov_portal():
         return render_template('admin/portal.html' )
 
