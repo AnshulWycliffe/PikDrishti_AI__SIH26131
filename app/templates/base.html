@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PikDrishti AI</title>
+
+    <!-- PWA settings -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2E7D32">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AgriVision">
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/icons/icon-192.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/icons/icon-192.png') }}">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="app-container">
+
+
+        <!-- Flash messages -->
+        <div class="flash-messages mt-2 mx-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Bottom Navigation (only if authenticated) -->
+        {% if current_user.is_authenticated %}
+        <nav class="bottom-nav">
+            <a href="{{ url_for('main.dashboard') }}"
+                class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                <i class="bi bi-house-door"></i>
+                <span id="navHomeLabel">Home</span>
+            </a>
+            <a href="{{ url_for('main.scan') }}"
+                class="nav-item {% if request.endpoint == 'main.scan' %}active{% endif %}">
+                <i class="bi bi-camera"></i>
+                <span id="navScanLabel">Scan</span>
+            </a>
+            <!-- Floating Center AI Button -->
+            <a href="{{ url_for('main.assistant') }}"
+                class="nav-item nav-item-floating {% if request.endpoint == 'main.assistant' %}active{% endif %}">
+                <div class="floating-ai-circle">
+                    <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="AI"
+                        style="width: 32px; height: 32px; border-radius: 50%; object-fit: contain;">
+                </div>
+                <span id="navAiLabel">AI</span>
+            </a>
+            <a href="{{ url_for('main.yield_prediction') }}"
+                class="nav-item {% if request.endpoint == 'main.yield_prediction' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span id="navYieldLabel">Yield</span>
+            </a>
+            <a href="{{ url_for('main.farms') }}"
+                class="nav-item {% if request.endpoint == 'main.farms' or request.endpoint == 'main.crops' %}active{% endif %}">
+                <i class="bi bi-person"></i>
+                <span id="navProfileLabel">Profile</span>
+            </a>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Global Language Modal (Marathi & English Only) -->
+    <div class="modal fade" id="globalLangModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-translate me-2"></i>Select Language / भाषा निवडा</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-column gap-2">
+                        <button type="button" id="globalBtnLangMr" class="btn btn-outline-success text-start p-3 rounded-3 d-flex justify-content-between align-items-center" onclick="setAppGlobalLanguage('mr')">
+                            <div>
+                                <div class="fw-bold">मराठी (Marathi)</div>
+                                <small class="text-muted">महाराष्ट्र शासन व भाषिणी AI</small>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-success fs-5 check-icon-mr"></i>
+                        </button>
+                        <button type="button" id="globalBtnLangEn" class="btn btn-outline-secondary text-start p-3 rounded-3 d-flex justify-content-between align-items-center" onclick="setAppGlobalLanguage('en')">
+                            <div>
+                                <div class="fw-bold">English</div>
+                                <small class="text-muted">Precision AI Assistant</small>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-success fs-5 check-icon-en d-none"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PWA Service Worker Registration & Global Language Sync -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").then(function (registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+        function setAppGlobalLanguage(lang) {
+            localStorage.setItem('pikdrishti_lang', lang);
+            updateGlobalLangBadges(lang);
+            const modalEl = document.getElementById('globalLangModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
+            if (typeof applyDashboardLanguage === 'function') applyDashboardLanguage(lang);
+            if (typeof applyProfileLanguage === 'function') applyProfileLanguage(lang);
+            if (typeof applyAssistantLanguage === 'function') applyAssistantLanguage(lang);
+            if (typeof applyScanLanguage === 'function') applyScanLanguage(lang);
+            if (typeof selectAppLang === 'function') selectAppLang(lang);
+            if (typeof applyResultLanguage === 'function') applyResultLanguage(lang);
+            if (typeof applyYieldLanguage === 'function') applyYieldLanguage(lang);
+            if (typeof applyHistoryLanguage === 'function') applyHistoryLanguage(lang);
+        }
+
+        function updateGlobalLangBadges(lang) {
+            // Update document title
+            document.title = lang === 'mr' ? 'पिकदृष्टी AI' : 'PikDrishti AI';
+
+            // Translate bottom navigation labels
+            const navLabels = {
+                mr: { home: "मुख्य", scan: "स्कॅन", ai: "AI", yield: "उत्पादन", profile: "प्रोफाइल" },
+                en: { home: "Home", scan: "Scan", ai: "AI", yield: "Yield", profile: "Profile" }
+            };
+            const nl = navLabels[lang] || navLabels.mr;
+            const elHome = document.getElementById('navHomeLabel'); if (elHome) elHome.innerText = nl.home;
+            const elScan = document.getElementById('navScanLabel'); if (elScan) elScan.innerText = nl.scan;
+            const elAi = document.getElementById('navAiLabel'); if (elAi) elAi.innerText = nl.ai;
+            const elYield = document.getElementById('navYieldLabel'); if (elYield) elYield.innerText = nl.yield;
+            const elProfile = document.getElementById('navProfileLabel'); if (elProfile) elProfile.innerText = nl.profile;
+
+            const topLabels = document.querySelectorAll('#topLangLabel, #currentLangLabel, .top-lang-label');
+            topLabels.forEach(el => {
+                el.innerText = lang === 'mr' ? 'मराठी' : 'EN';
+            });
+
+            const checkMr = document.querySelectorAll('.check-icon-mr');
+            const checkEn = document.querySelectorAll('.check-icon-en');
+            const btnMr = document.querySelectorAll('#globalBtnLangMr, #btnLangMr');
+            const btnEn = document.querySelectorAll('#globalBtnLangEn, #btnLangEn');
+
+            if (lang === 'mr') {
+                checkMr.forEach(el => el.classList.remove('d-none'));
+                checkEn.forEach(el => el.classList.add('d-none'));
+                btnMr.forEach(el => { el.classList.add('btn-outline-success'); el.classList.remove('btn-outline-secondary'); });
+                btnEn.forEach(el => { el.classList.remove('btn-outline-success'); el.classList.add('btn-outline-secondary'); });
+            } else {
+                checkMr.forEach(el => el.classList.add('d-none'));
+                checkEn.forEach(el => el.classList.remove('d-none'));
+                btnMr.forEach(el => { el.classList.remove('btn-outline-success'); el.classList.add('btn-outline-secondary'); });
+                btnEn.forEach(el => { el.classList.add('btn-outline-success'); el.classList.remove('btn-outline-secondary'); });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+            updateGlobalLangBadges(lang);
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

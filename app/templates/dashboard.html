@@ -1,0 +1,1129 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* Farmer Dashboard Styles matching Screen 2 Wireframe */
+    .dashboard-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 12px 16px 85px;
+    }
+
+    /* Top Navigation Bar */
+    .dash-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0 14px;
+    }
+
+    .brand-logo-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .brand-logo-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
+    }
+
+    .brand-name {
+        font-size: 1.18rem;
+        font-weight: 800;
+        color: #1B5E20;
+        letter-spacing: -0.3px;
+        margin: 0;
+    }
+
+    .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Language Switcher Badge */
+    .lang-switcher-btn {
+        background: #E8F5E9;
+        color: #1B5E20;
+        border: 1px solid #C8E6C9;
+        font-weight: 700;
+        font-size: 0.82rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .lang-switcher-btn:hover {
+        background: #C8E6C9;
+        color: #1B5E20;
+    }
+
+    .notify-btn {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid #E0E0E0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #424242;
+        font-size: 1.05rem;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .notify-badge-dot {
+        position: absolute;
+        top: 6px;
+        right: 7px;
+        width: 8px;
+        height: 8px;
+        background-color: #E53935;
+        border-radius: 50%;
+        border: 1.5px solid #ffffff;
+    }
+
+    .avatar-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #FFB300 0%, #FB8C00 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 3px 8px rgba(251, 140, 0, 0.25);
+        border: 2px solid #ffffff;
+    }
+
+    /* Greeting Section */
+    .greeting-box {
+        margin-bottom: 16px;
+    }
+
+    .greeting-title {
+        font-size: 1.32rem;
+        font-weight: 800;
+        color: #212529;
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .greeting-sub {
+        font-size: 0.85rem;
+        color: #616161;
+        margin-bottom: 0;
+    }
+
+    /* Weather & Crop Risk Card */
+    .weather-risk-card {
+        background: linear-gradient(135deg, #EAF7EE 0%, #FFFFFF 100%);
+        border: 1px solid #C8E6C9;
+        border-radius: 18px;
+        padding: 14px 16px;
+        box-shadow: 0 4px 14px rgba(46, 125, 50, 0.06);
+        margin-bottom: 16px;
+    }
+
+    .weather-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .weather-temp-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .weather-icon-lg {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+    }
+
+    .weather-temp-num {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #1B5E20;
+        line-height: 1.1;
+    }
+
+    .weather-condition-text {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #4E6E58;
+    }
+
+    .weather-stats-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+    }
+
+    .weather-pill-stat {
+        font-size: 0.78rem;
+        color: #424242;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .weather-pill-stat strong {
+        color: #1B5E20;
+    }
+
+    .forecast-day-card {
+        background: #fff;
+        border: 1px solid #e8f5e9;
+        border-radius: 12px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .forecast-day-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(46,125,50,0.12);
+    }
+
+    .risk-badge-tag {
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .risk-low {
+        background-color: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid #A5D6A7;
+    }
+
+    .risk-medium {
+        background-color: #FFF3E0;
+        color: #E65100;
+        border: 1px solid #FFE0B2;
+    }
+
+    .risk-high {
+        background-color: #FFEBEE;
+        color: #C62828;
+        border: 1px solid #FFCDD2;
+    }
+
+    /* 2x2 Clean Grid matching Screen 2 Wireframe */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .kpi-card {
+        background: #FFFFFF;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 16px;
+        padding: 14px 14px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        min-height: 98px;
+    }
+
+    .kpi-card:hover, .kpi-card:active {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(46, 125, 50, 0.1);
+        border-color: #A5D6A7;
+        color: inherit;
+    }
+
+    .kpi-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .card-icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .bg-leaf {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .bg-alert {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    .bg-cam {
+        background: #E0F2F1;
+        color: #00796B;
+    }
+
+    .bg-mic {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+
+    .kpi-stat-number {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #212529;
+        line-height: 1;
+    }
+
+    .kpi-title-text {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #212529;
+        margin: 0;
+    }
+
+    /* Advisory Banner */
+    .advisory-tip-banner {
+        background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%);
+        border: 1px solid #FFF176;
+        border-radius: 14px;
+        padding: 10px 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .advisory-icon-wrap {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #FBC02D;
+        color: #3E2723;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .advisory-text-content {
+        flex: 1;
+    }
+
+    .advisory-heading {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #5D4037;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .advisory-desc {
+        font-size: 0.8rem;
+        color: #4E342E;
+        margin: 0;
+        line-height: 1.35;
+    }
+
+    .advisory-speaker-btn {
+        background: transparent;
+        border: none;
+        color: #795548;
+        font-size: 1.05rem;
+        cursor: pointer;
+        padding: 2px;
+    }
+
+    /* Recent Activity List */
+    .section-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #212529;
+        margin: 0;
+    }
+
+    .section-link {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #2E7D32;
+        text-decoration: none;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .activity-card-item {
+        background: #FFFFFF;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 14px;
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+    }
+
+    .activity-card-item:hover {
+        border-color: #C8E6C9;
+        color: inherit;
+    }
+
+    .activity-dot-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .dot-healthy {
+        background-color: #2E7D32;
+    }
+
+    .dot-moderate {
+        background-color: #FB8C00;
+    }
+
+    .dot-danger {
+        background-color: #E53935;
+    }
+
+    .activity-main-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-title {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .activity-meta {
+        font-size: 0.72rem;
+        color: #757575;
+    }
+
+    .activity-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 8px;
+    }
+
+    /* News Strip */
+    .news-horizontal-scroll {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .news-horizontal-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .news-tile-card {
+        min-width: 200px;
+        max-width: 220px;
+        background: #FFFFFF;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 12px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .news-tile-card:hover {
+        color: inherit;
+    }
+
+    .news-tile-img {
+        width: 100%;
+        height: 85px;
+        object-fit: cover;
+        background: #E8F5E9;
+    }
+
+    .news-tile-body {
+        padding: 8px 10px;
+    }
+
+    .news-tile-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #212529;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 2px;
+    }
+
+    .news-tile-date {
+        font-size: 0.68rem;
+        color: #9E9E9E;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- 1. Top Bar -->
+    <div class="dash-topbar">
+        <a href="{{ url_for('main.dashboard') }}" class="brand-logo-wrap">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="brand-logo-icon" alt="PikDrishti AI" style="object-fit: cover;">
+            <h1 class="brand-name" id="dashBrandName">पिकदृष्टी AI</h1>
+        </a>
+
+        <div class="topbar-actions">
+            <!-- Language Button matching Profile page -->
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+                <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+            </button>
+
+            <!-- Alerts Bell -->
+            <a href="{{ url_for('main.history') }}" class="notify-btn" title="Alerts">
+                <i class="bi bi-bell"></i>
+                {% if alerts_count and alerts_count > 0 %}
+                <span class="notify-badge-dot"></span>
+                {% endif %}
+            </a>
+
+            <!-- Avatar -->
+            <a href="{{ url_for('main.farms') }}" class="avatar-btn" title="Profile">
+                {{ current_user.username[0]|upper }}
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Greeting Section -->
+    <div class="greeting-box">
+        <div class="greeting-title" id="farmerGreetingText">
+            नमस्कार, {{ current_user.username }}! 👋
+        </div>
+        <p class="greeting-sub" id="farmerTaglineText">
+            Let's keep your crops healthy.
+        </p>
+    </div>
+
+    <!-- 3. Weather Card (Clickable to open 3-Day Risk Forecast & Geospatial Hotspot Radar) -->
+    <div class="weather-risk-card" data-bs-toggle="modal" data-bs-target="#weatherRiskModal" style="cursor: pointer;" title="View 3-Day Disease Risk Forecast & Hotspot Radar">
+        <div class="weather-header-row">
+            <div class="weather-temp-group">
+                {% if weather and weather.icon %}
+                <img src="{{ weather.icon }}" alt="{{ weather.condition }}" class="weather-icon-lg">
+                {% else %}
+                <i class="bi bi-cloud-sun text-warning" style="font-size: 2.2rem;"></i>
+                {% endif %}
+                <div>
+                    <div style="font-size: 0.72rem; color: #558B2F; font-weight: 700; text-transform: uppercase;" id="lblTodayWeather">
+                        Today's Weather
+                    </div>
+                    <div class="weather-temp-num">
+                        {{ weather.temp_c if weather and weather.temp_c is not none else '28' }}°C
+                    </div>
+                    <div class="weather-condition-text">
+                        {{ weather.condition if weather and weather.condition else 'Partly Cloudy' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="weather-stats-right">
+                <div class="weather-pill-stat">
+                    <span id="lblHumidity">Humidity</span>
+                    <strong>{{ weather.humidity if weather and weather.humidity is not none else '72' }}%</strong>
+                </div>
+                <div class="weather-pill-stat">
+                    <span id="lblRain">Rain Risk</span>
+                    {% set risk_level = weather.risk.level if weather and weather.risk else 'Medium' %}
+                    {% if risk_level == 'Low' %}
+                    <span class="risk-badge-tag risk-low" id="lblRiskBadge">Low</span>
+                    {% elif risk_level == 'High' %}
+                    <span class="risk-badge-tag risk-high" id="lblRiskBadge">High</span>
+                    {% else %}
+                    <span class="risk-badge-tag risk-medium" id="lblRiskBadge">Medium</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: rgba(46, 125, 50, 0.15) !important;">
+            <small class="text-success fw-semibold" id="lblViewRadar">
+                <i class="bi bi-radar me-1"></i>3-Day Risk Forecast &amp; Hotspot Radar
+            </small>
+            <i class="bi bi-arrow-right-circle-fill text-success"></i>
+        </div>
+    </div>
+
+    <!-- 4. Clean 2x2 Grid (Wireframe Screen 2: No Extra Subtext) -->
+    <div class="dashboard-grid">
+        <!-- 1. My Crops -->
+        <a href="{{ url_for('main.crops') }}" class="kpi-card">
+            <div class="kpi-top-row">
+                <div class="card-icon-box bg-leaf">
+                    <i class="bi bi-flower1"></i>
+                </div>
+                <div class="kpi-stat-number">{{ crops_count|default(0) }}</div>
+            </div>
+            <div class="kpi-title-text" id="cardMyCropsTitle">My Crops</div>
+        </a>
+
+        <!-- 2. Alerts -->
+        <a href="{{ url_for('main.history') }}" class="kpi-card">
+            <div class="kpi-top-row">
+                <div class="card-icon-box bg-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="kpi-stat-number text-danger">{{ alerts_count|default(0) }}</div>
+            </div>
+            <div class="kpi-title-text" id="cardAlertsTitle">Alerts</div>
+        </a>
+
+        <!-- 3. Check Crop -->
+        <a href="{{ url_for('main.scan') }}" class="kpi-card">
+            <div class="kpi-top-row">
+                <div class="card-icon-box bg-cam">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+                <i class="bi bi-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+            </div>
+            <div class="kpi-title-text" id="cardScanTitle">Check Crop</div>
+        </a>
+
+        <!-- 4. Ask PikDrishti -->
+        <a href="{{ url_for('main.assistant') }}" class="kpi-card">
+            <div class="kpi-top-row">
+                <div class="card-icon-box bg-mic">
+                    <i class="bi bi-mic-fill"></i>
+                </div>
+                <i class="bi bi-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+            </div>
+            <div class="kpi-title-text" id="cardVoiceTitle">Ask PikDrishti</div>
+        </a>
+    </div>
+
+    <!-- 5. Daily Advisory Banner -->
+    <div class="advisory-tip-banner">
+        <div class="advisory-icon-wrap">
+            <i class="bi bi-lightbulb-fill"></i>
+        </div>
+        <div class="advisory-text-content">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="advisory-heading" id="advisoryHeading">आजचा कृषी सल्ला</div>
+                <button type="button" class="advisory-speaker-btn" id="playAdvisoryBtn" title="Listen" onclick="speakAdvisoryText()">
+                    <i class="bi bi-volume-up-fill" id="advisorySpeakerIcon"></i>
+                </button>
+            </div>
+            <p class="advisory-desc" id="advisoryDescText">
+                कपाशी व सोयाबीन पिकांवर रसशोषक किडींचा प्रादुर्भाव रोखण्यासाठी निंबोळी अर्क (5%) वेळेवर फवारा.
+            </p>
+        </div>
+    </div>
+
+    <!-- Pest Trap Alerts -->
+    {% if critical_traps and critical_traps|length > 0 %}
+    <div class="mb-4">
+        {% for trap in critical_traps %}
+        <div class="alert {{ 'alert-danger' if trap.status == 'Critical' else 'alert-warning' }} d-flex align-items-center mb-2" role="alert" style="border-radius: 12px; font-size: 0.9rem;">
+            <i class="bi {{ 'bi-exclamation-triangle-fill' if trap.status == 'Critical' else 'bi-exclamation-circle-fill' }} fs-4 me-3"></i>
+            <div>
+                <strong>{{ trap.pest_type }} Alert ({{ trap.crop_trap_info.name if trap.crop_trap_info else 'Crop' }}):</strong> 
+                Trap count is {{ trap.pest_count }} ({{ trap.status }}). Please take preventive action immediately.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 6. Recent Activity -->
+    <div class="section-header-flex">
+        <h2 class="section-title" id="lblRecentActivity">Recent Activity</h2>
+        <a href="{{ url_for('main.history') }}" class="section-link" id="lblViewAll">View All <i class="bi bi-chevron-right"></i></a>
+    </div>
+
+    <div class="activity-list">
+        {% if recent_analyses and recent_analyses|length > 0 %}
+            {% for item in recent_analyses %}
+            <a href="{{ url_for('main.disease_result', analysis_id=item.id) }}" class="activity-card-item">
+                {% if item.detected_disease == 'Healthy' or 'Healthy' in item.detected_disease %}
+                <span class="activity-dot-indicator dot-healthy"></span>
+                {% elif item.severity == 'High' or item.severity == 'Critical' %}
+                <span class="activity-dot-indicator dot-danger"></span>
+                {% else %}
+                <span class="activity-dot-indicator dot-moderate"></span>
+                {% endif %}
+
+                <div class="activity-main-info">
+                    <div class="activity-title">
+                        {{ item.detected_crop|default('Crop') }} - {{ item.detected_disease|default('Diagnosis') }}
+                    </div>
+                    <div class="activity-meta">
+                        {{ item.date.strftime('%d %b, %I:%M %p') if item.date else 'Recent' }}
+                    </div>
+                </div>
+
+                <div>
+                    {% if item.detected_disease == 'Healthy' or 'Healthy' in item.detected_disease %}
+                    <span class="activity-badge bg-success-subtle text-success">Healthy</span>
+                    {% elif item.severity == 'High' or item.severity == 'Critical' %}
+                    <span class="activity-badge bg-danger-subtle text-danger">{{ item.severity|default('High') }}</span>
+                    {% else %}
+                    <span class="activity-badge bg-warning-subtle text-warning-emphasis">{{ item.severity|default('Moderate') }}</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <!-- Matching wireframe default cards -->
+            <a href="{{ url_for('main.scan') }}" class="activity-card-item">
+                <span class="activity-dot-indicator dot-moderate"></span>
+                <div class="activity-main-info">
+                    <div class="activity-title">Cotton - Possible Leaf Spot</div>
+                    <div class="activity-meta">Sample Scan</div>
+                </div>
+                <span class="activity-badge bg-warning-subtle text-warning-emphasis">Moderate</span>
+            </a>
+
+            <a href="{{ url_for('main.scan') }}" class="activity-card-item">
+                <span class="activity-dot-indicator dot-healthy"></span>
+                <div class="activity-main-info">
+                    <div class="activity-title">Soybean - Healthy</div>
+                    <div class="activity-meta">Sample Scan</div>
+                </div>
+                <span class="activity-badge bg-success-subtle text-success">Healthy</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- 7. Farmers News -->
+    <div class="section-header-flex mt-2">
+        <h2 class="section-title" id="lblNewsTitle">Farmers News</h2>
+    </div>
+
+    <div class="news-horizontal-scroll mb-3">
+        {% if news_items and news_items|length > 0 %}
+            {% for item in news_items %}
+            <a href="{{ item.link }}" target="_blank" class="news-tile-card">
+                {% if item.image %}
+                <img src="{{ item.image }}" class="news-tile-img" alt="" onerror="this.src='https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&auto=format&fit=crop&q=60'">
+                {% else %}
+                <div class="news-tile-img d-flex align-items-center justify-content-center bg-success-subtle text-success">
+                    <i class="bi bi-newspaper fs-2"></i>
+                </div>
+                {% endif %}
+                <div class="news-tile-body">
+                    <div class="news-tile-title">{{ item.title }}</div>
+                    <div class="news-tile-date">{{ item.published.split(' ')[0] if item.published else 'Today' }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: Weather-Based Risk Forecasting & Geospatial Hotspot Radar -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="weatherRiskModal" tabindex="-1" aria-labelledby="weatherRiskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold text-success mb-1" id="weatherRiskModalLabel">
+                        <i class="bi bi-radar me-2"></i><span id="lblModalRadarTitle">Disease Risk &amp; Hotspot Radar</span>
+                    </h5>
+                    <p class="small text-muted mb-0" id="lblModalRadarSub">Micro-climate disease forecasting &amp; regional outbreak map</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <!-- Nav Tabs -->
+                <ul class="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-3 py-2 fw-semibold small" id="tab-forecast-btn" data-bs-toggle="pill" data-bs-target="#tab-forecast" type="button" role="tab">
+                            <i class="bi bi-calendar3 me-1"></i><span id="tabForecastTitle">3-Day Risk Forecast</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 py-2 fw-semibold small" id="tab-hotspots-btn" data-bs-toggle="pill" data-bs-target="#tab-hotspots" type="button" role="tab">
+                            <i class="bi bi-geo-alt-fill me-1"></i><span id="tabHotspotsTitle">Hotspot Radar</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Tab 1: 3-Day Risk Forecast -->
+                    <div class="tab-pane fade show active" id="tab-forecast" role="tabpanel">
+                        <div id="forecastLoading" class="text-center py-4">
+                            <span class="spinner-border spinner-border-sm text-success me-2"></span>
+                            <small class="text-muted">Loading micro-climate forecast...</small>
+                        </div>
+                        <div id="forecastContainer" class="d-none d-flex flex-column gap-3"></div>
+                    </div>
+
+                    <!-- Tab 2: Geospatial Hotspot Radar -->
+                    <div class="tab-pane fade" id="tab-hotspots" role="tabpanel">
+                        <div class="alert alert-success-subtle border-0 rounded-3 p-2 mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-success fs-5"></i>
+                            <small class="text-success-emphasis fw-semibold" id="hotspotAlertText">
+                                Live disease outbreak telemetry across Maharashtra agricultural clusters.
+                            </small>
+                        </div>
+                        <div id="hotspotsLoading" class="text-center py-4">
+                            <span class="spinner-border spinner-border-sm text-success me-2"></span>
+                            <small class="text-muted">Scanning regional outbreak telemetry...</small>
+                        </div>
+                        <div id="hotspotsContainer" class="d-none d-flex flex-column gap-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-success w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const dashTranslations = {
+        mr: {
+            brandName: "पिकदृष्टी AI",
+            label: "मराठी",
+            greeting: "नमस्कार, {{ current_user.username }}! 👋",
+            tagline: "आपली पिके निरोगी आणि समृद्ध ठेवूया.",
+            todayWeather: "आजचे हवामान",
+            humidity: "आर्द्रता",
+            rain: "पाऊस धोका",
+            myCrops: "माझी पिके",
+            alerts: "धोका सूचना",
+            scan: "पीक तपासा",
+            voice: "पिकदृष्टीला विचारा",
+            advisoryHead: "आजचा कृषी सल्ला",
+            advisoryText: "कपाशी व सोयाबीन पिकांवर रसशोषक किडींचा प्रादुर्भाव रोखण्यासाठी निंबोळी अर्क (5%) वेळेवर फवारा.",
+            recentAct: "अलीकडील तपासणी",
+            viewAll: "सर्व पहा",
+            newsTitle: "शेतकरी बातम्या",
+            viewRadar: "३-दिवसीय रोग अंदाज व प्रादुर्भाव रडार",
+            modalRadarTitle: "हवामान रोग अंदाज व प्रादुर्भाव रडार",
+            modalRadarSub: "सूक्ष्म-हवामान रोग अंदाज आणि प्रादेशिक प्रादुर्भाव नकाशा",
+            tabForecastTitle: "३-दिवसीय अंदाज",
+            tabHotspotsTitle: "महाराष्ट्र रडार",
+            hotspotAlert: "महाराष्ट्र कृषी पट्ट्यातील थेट रोग प्रादुर्भाव रडार माहिती."
+        },
+        en: {
+            brandName: "PikDrishti AI",
+            label: "English",
+            greeting: "Hello, {{ current_user.username }}! 👋",
+            tagline: "Let's keep your crops healthy.",
+            todayWeather: "Today's Weather",
+            humidity: "Humidity",
+            rain: "Rain Risk",
+            myCrops: "My Crops",
+            alerts: "Alerts",
+            scan: "Check Crop",
+            voice: "Ask PikDrishti",
+            advisoryHead: "Today's Advisory",
+            advisoryText: "Spray 5% neem extract on cotton and soybean crops to prevent sucking pests.",
+            recentAct: "Recent Activity",
+            viewAll: "View All",
+            newsTitle: "Farmers News",
+            viewRadar: "3-Day Risk Forecast & Hotspot Radar",
+            modalRadarTitle: "Disease Risk & Hotspot Radar",
+            modalRadarSub: "Micro-climate disease forecasting & regional outbreak map",
+            tabForecastTitle: "3-Day Risk Forecast",
+            tabHotspotsTitle: "Hotspot Radar",
+            hotspotAlert: "Live disease outbreak telemetry across Maharashtra agricultural clusters."
+        }
+    };
+
+    function setDashboardLanguage(lang) {
+        localStorage.setItem('pikdrishti_lang', lang);
+        applyDashboardLanguage(lang);
+    }
+
+    function applyDashboardLanguage(lang) {
+        const dict = dashTranslations[lang] || dashTranslations.mr;
+        const g = id => document.getElementById(id);
+
+        // Update brand name
+        if (g('dashBrandName')) g('dashBrandName').innerText = dict.brandName;
+
+        // Update top bar label (also done by base updateGlobalLangBadges, kept for redundancy)
+        if (g('topLangLabel')) g('topLangLabel').innerText = dict.label;
+
+        if (g('farmerGreetingText')) g('farmerGreetingText').innerHTML = dict.greeting;
+        if (g('farmerTaglineText')) g('farmerTaglineText').innerText = dict.tagline;
+        if (g('lblTodayWeather')) g('lblTodayWeather').innerText = dict.todayWeather;
+        if (g('lblHumidity')) g('lblHumidity').innerText = dict.humidity;
+        if (g('lblRain')) g('lblRain').innerText = dict.rain;
+
+        if (g('cardMyCropsTitle')) g('cardMyCropsTitle').innerText = dict.myCrops;
+        if (g('cardAlertsTitle')) g('cardAlertsTitle').innerText = dict.alerts;
+        if (g('cardScanTitle')) g('cardScanTitle').innerText = dict.scan;
+        if (g('cardVoiceTitle')) g('cardVoiceTitle').innerText = dict.voice;
+
+        if (g('advisoryHeading')) g('advisoryHeading').innerText = dict.advisoryHead;
+        if (g('advisoryDescText')) g('advisoryDescText').innerText = dict.advisoryText;
+        if (g('lblRecentActivity')) g('lblRecentActivity').innerText = dict.recentAct;
+        if (g('lblViewAll')) g('lblViewAll').innerHTML = `${dict.viewAll} <i class="bi bi-chevron-right"></i>`;
+        if (g('lblNewsTitle')) g('lblNewsTitle').innerText = dict.newsTitle;
+
+        if (g('lblViewRadar')) g('lblViewRadar').innerHTML = `<i class="bi bi-radar me-1"></i>${dict.viewRadar}`;
+        if (g('lblModalRadarTitle')) g('lblModalRadarTitle').innerText = dict.modalRadarTitle;
+        if (g('lblModalRadarSub')) g('lblModalRadarSub').innerText = dict.modalRadarSub;
+        if (g('tabForecastTitle')) g('tabForecastTitle').innerText = dict.tabForecastTitle;
+        if (g('tabHotspotsTitle')) g('tabHotspotsTitle').innerText = dict.tabHotspotsTitle;
+        if (g('hotspotAlertText')) g('hotspotAlertText').innerText = dict.hotspotAlert;
+    }
+
+    let advisoryPlaying = false;
+
+    function speakAdvisoryText() {
+        const text = document.getElementById('advisoryDescText')?.innerText?.trim();
+        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const speakerIcon = document.getElementById('advisorySpeakerIcon');
+        const btn = document.getElementById('playAdvisoryBtn');
+
+        if (!text || !speakerIcon || !('speechSynthesis' in window)) {
+            if (speakerIcon) speakerIcon.className = 'bi bi-volume-mute-fill text-danger';
+            return;
+        }
+
+        // If currently paused → resume
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+            advisoryPlaying = true;
+            speakerIcon.className = 'bi bi-pause-fill text-success';
+            return;
+        }
+
+        // If currently speaking → pause
+        if (advisoryPlaying && window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
+            advisoryPlaying = false;
+            speakerIcon.className = 'bi bi-volume-up-fill';
+            return;
+        }
+
+        // Otherwise start fresh
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang === 'mr' ? 'mr-IN' : 'en-IN';
+        utterance.rate = 0.9;
+
+        utterance.onstart = () => {
+            advisoryPlaying = true;
+            speakerIcon.className = 'bi bi-pause-fill text-success';
+        };
+        utterance.onend = () => {
+            advisoryPlaying = false;
+            speakerIcon.className = 'bi bi-volume-up-fill';
+        };
+        utterance.onerror = () => {
+            advisoryPlaying = false;
+            speakerIcon.className = 'bi bi-volume-up-fill';
+        };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Weather Risk Forecasting & Hotspot Radar API Fetchers
+    // ═══════════════════════════════════════════════════════════════════════════
+    let riskForecastLoaded = false;
+    let hotspotsLoaded = false;
+
+    const weatherModalEl = document.getElementById('weatherRiskModal');
+    if (weatherModalEl) {
+        weatherModalEl.addEventListener('show.bs.modal', function () {
+            if (!riskForecastLoaded) loadRiskForecast();
+            if (!hotspotsLoaded) loadGeospatialHotspots();
+        });
+    }
+
+    function loadRiskForecast() {
+        const loading = document.getElementById('forecastLoading');
+        const container = document.getElementById('forecastContainer');
+        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+
+        fetch('/api/weather/risk-forecast')
+            .then(r => r.json())
+            .then(data => {
+                if (loading) loading.classList.add('d-none');
+                if (!container) return;
+                container.classList.remove('d-none');
+                container.innerHTML = '';
+
+                if (data.success && data.forecast && data.forecast.length > 0) {
+                    data.forecast.forEach((day, idx) => {
+                        const riskBadgeClass = day.risk.badge_class || 'bg-warning text-dark';
+                        const riskSummary = lang === 'mr' ? day.risk.summary_mr : day.risk.summary_en;
+                        const recommendation = lang === 'mr' ? day.risk.recommendation_mr : day.risk.recommendation_en;
+                        const dayLabel = idx === 0 ? (lang === 'mr' ? 'आज (Today)' : 'Today') : (idx === 1 ? (lang === 'mr' ? 'उद्या (Tomorrow)' : 'Tomorrow') : day.date);
+
+                        // Determine if any disease risk is high enough to warn
+                        const maxDisease = Math.max(
+                            day.disease_indices?.blight_risk_pct || 0,
+                            day.disease_indices?.mildew_risk_pct || 0,
+                            day.disease_indices?.rust_risk_pct || 0
+                        );
+                        const warnHtml = maxDisease >= 60
+                            ? `<div class="d-flex align-items-center gap-1 mt-2 px-2 py-1 rounded-2" style="background:rgba(255,80,80,0.10);border-left:3px solid #e53935;">
+                                   <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:0.8rem;"></i>
+                                   <span class="small fw-semibold text-danger" style="font-size:0.76rem;">${lang === 'mr' ? 'रोग धोका जास्त' : 'High disease risk'} — ${maxDisease}%</span>
+                               </div>` : '';
+
+                        const card = document.createElement('div');
+                        card.className = 'forecast-day-card p-3 rounded-3';
+                        card.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="fw-bold" style="font-size:0.95rem;">${dayLabel}</div>
+                                    <div class="text-muted" style="font-size:0.78rem;">${day.condition}</div>
+                                </div>
+                                <span class="badge ${riskBadgeClass} rounded-pill px-2 py-1">${riskSummary}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 mt-2" style="font-size:0.82rem;">
+                                <span><i class="bi bi-thermometer-half text-danger"></i> <strong>${day.avg_temp_c}°C</strong></span>
+                                <span><i class="bi bi-droplet text-primary"></i> <strong>${day.humidity}%</strong></span>
+                                <span><i class="bi bi-cloud-drizzle text-info"></i> <strong>${day.chance_of_rain}%</strong></span>
+                            </div>
+                            ${warnHtml}
+                            <div class="mt-2 text-muted" style="font-size:0.75rem;line-height:1.4;">
+                                <i class="bi bi-lightbulb text-warning me-1"></i>${recommendation}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    riskForecastLoaded = true;
+                }
+            })
+            .catch(err => {
+                console.error("Forecast load error:", err);
+                if (loading) loading.innerHTML = '<small class="text-danger">Failed to load forecast data</small>';
+            });
+    }
+
+    function loadGeospatialHotspots() {
+        const loading = document.getElementById('hotspotsLoading');
+        const container = document.getElementById('hotspotsContainer');
+        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+
+        fetch('/api/geospatial/hotspots')
+            .then(r => r.json())
+            .then(data => {
+                if (loading) loading.classList.add('d-none');
+                if (!container) return;
+                container.classList.remove('d-none');
+                container.innerHTML = '';
+
+                if (data.success && data.hotspots && data.hotspots.length > 0) {
+                    data.hotspots.forEach(cluster => {
+                        const isHigh = cluster.threat_level === 'High';
+                        const badgeClass = isHigh ? 'bg-danger text-white' : (cluster.threat_level === 'Moderate' ? 'bg-warning text-dark' : 'bg-success text-white');
+                        const advisory = lang === 'mr' ? cluster.advisory_mr : cluster.advisory_en;
+
+                        const card = document.createElement('div');
+                        card.className = 'p-3 bg-white rounded-3 border shadow-sm';
+                        card.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-geo-alt-fill text-danger me-1"></i>${cluster.cluster_name}</h6>
+                                    <small class="text-muted">Crops: ${cluster.primary_crops.join(', ')}</small>
+                                </div>
+                                <span class="badge ${badgeClass} rounded-pill px-2">${cluster.threat_level} Risk</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 my-2 small">
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-bug me-1 text-danger"></i>${cluster.primary_threat}
+                                </span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-broadcast me-1 text-primary"></i>${cluster.radius_km} km radius
+                                </span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-people me-1 text-success"></i>${cluster.reported_cases} cases
+                                </span>
+                            </div>
+                            <div class="small text-muted bg-light p-2 rounded-2" style="font-size:0.75rem;">
+                                <i class="bi bi-info-circle-fill text-success me-1"></i>${advisory}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    hotspotsLoaded = true;
+                }
+            })
+            .catch(err => {
+                console.error("Hotspots load error:", err);
+                if (loading) loading.innerHTML = '<small class="text-danger">Failed to load hotspot data</small>';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        applyDashboardLanguage(savedLang);
+    });
+</script>
+{% endblock %}

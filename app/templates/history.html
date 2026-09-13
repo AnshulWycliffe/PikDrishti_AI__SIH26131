@@ -1,0 +1,641 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 16px 80px 16px;
+    }
+
+    /* Hero Header */
+    .history-hero {
+        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 22px 24px;
+        box-shadow: 0 10px 25px rgba(27, 94, 32, 0.22);
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-hero::after {
+        content: '';
+        position: absolute;
+        right: -25px;
+        bottom: -25px;
+        width: 130px;
+        height: 130px;
+        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* KPI Summary Stats */
+    .hist-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 576px) {
+        .hist-kpi-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+    }
+
+    .hist-kpi-box {
+        background: #ffffff;
+        border: 1px solid #eef2f5;
+        border-radius: 16px;
+        padding: 14px 12px;
+        text-align: center;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.03);
+    }
+
+    .hist-kpi-num {
+        font-size: 1.6rem;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .hist-kpi-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Analytics Chart Card */
+    .chart-card {
+        background: #ffffff;
+        border: 1px solid #eef2f5;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+
+    /* Tab Switcher */
+    .custom-pill-nav {
+        background: #f1f5f9;
+        border-radius: 50px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+        margin-bottom: 18px;
+    }
+
+    .custom-pill-nav .nav-link {
+        border-radius: 50px;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #64748b;
+        border: none;
+        flex: 1;
+        text-align: center;
+        transition: all 0.22s ease;
+    }
+
+    .custom-pill-nav .nav-link.active {
+        background: #2E7D32;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    }
+
+    /* Filter Chips */
+    .filter-chips-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .filter-chip-btn {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 50px;
+        padding: 5px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .filter-chip-btn.active {
+        background: #E8F5E9;
+        border-color: #2E7D32;
+        color: #1B5E20;
+    }
+
+    /* Scan Record Card */
+    .scan-record-card {
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 14px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.22s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .scan-record-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+        border-color: #cbd5e1;
+        color: inherit;
+    }
+
+    .scan-thumb-box {
+        width: 62px;
+        height: 62px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .scan-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .scan-info-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .scan-disease-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .scan-crop-tag {
+        font-size: 0.78rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .scan-meta-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* Severity badges */
+    .badge-sev-healthy {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+    .badge-sev-mild {
+        background: #fef9c3;
+        color: #854d0e;
+        border: 1px solid #fef08a;
+    }
+    .badge-sev-mod {
+        background: #ffedd5;
+        color: #9a3412;
+        border: 1px solid #fed7aa;
+    }
+    .badge-sev-severe {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    /* Yield record card */
+    .yield-record-card {
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+
+    <!-- 1. Hero Header -->
+    <div class="history-hero">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 mb-2 fw-semibold" style="font-size: 0.75rem;">
+                    <i class="bi bi-clock-history me-1"></i>
+                    <span id="txtHeroTelemetryBadge">Farm Telemetry &amp; Logs</span>
+                </span>
+                <h3 class="fw-bold mb-1" id="txtHeroTitle">तपासणी व उत्पादन इतिहास</h3>
+                <p class="mb-0 opacity-90 small" id="txtHeroSub">मागील सर्व पीक रोग स्कॅन आणि उत्पादन अंदाज अहवालांचे संकलन.</p>
+            </div>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold text-nowrap" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+                <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. KPI Summary Stats Row -->
+    {% set alert_count = namespace(total=0) %}
+    {% for r in disease_history %}
+        {% if r.detected_disease and r.detected_disease != 'Healthy' and 'Healthy' not in r.detected_disease %}
+            {% set alert_count.total = alert_count.total + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    <div class="hist-kpi-grid">
+        <div class="hist-kpi-box">
+            <div class="hist-kpi-num text-success">{{ disease_history|length }}</div>
+            <div class="hist-kpi-label" id="lblTotalScans">एकूण स्कॅन</div>
+        </div>
+        <div class="hist-kpi-box">
+            <div class="hist-kpi-num text-danger">{{ alert_count.total }}</div>
+            <div class="hist-kpi-label" id="lblDiseaseAlerts">रोग आढळलेले</div>
+        </div>
+        <div class="hist-kpi-box">
+            <div class="hist-kpi-num text-primary">{{ yield_history|length }}</div>
+            <div class="hist-kpi-label" id="lblYieldLogs">उत्पादन नोंदी</div>
+        </div>
+    </div>
+
+    <!-- 3. Yield Trend Chart Card -->
+    <div class="chart-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h6 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-graph-up text-success me-2"></i>
+                    <span id="txtChartTitle">उत्पादन ट्रेंड (Yield Forecast Timeline)</span>
+                </h6>
+                <div class="text-muted" style="font-size: 0.75rem;" id="txtChartSub">टन प्रति एकर उत्पादन अंदाज प्रगती</div>
+            </div>
+            <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small">टन / एकर</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+            <canvas id="yieldChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 4. Tab Navigation -->
+    <div class="custom-pill-nav" role="tablist">
+        <button class="nav-link active" id="disease-tab" data-bs-toggle="tab" data-bs-target="#disease" type="button" role="tab">
+            <i class="bi bi-camera-fill me-1"></i>
+            <span id="tabTitleDisease">पीक रोग तपासणी (Scans)</span>
+            <span class="badge bg-light text-dark ms-1">{{ disease_history|length }}</span>
+        </button>
+        <button class="nav-link" id="yield-tab" data-bs-toggle="tab" data-bs-target="#yield" type="button" role="tab">
+            <i class="bi bi-graph-up-arrow me-1"></i>
+            <span id="tabTitleYield">उत्पादन अंदाज (Yield)</span>
+            <span class="badge bg-light text-dark ms-1">{{ yield_history|length }}</span>
+        </button>
+    </div>
+
+    <!-- 5. Tab Contents -->
+    <div class="tab-content" id="historyTabsContent">
+
+        <!-- Disease Scans Tab -->
+        <div class="tab-pane fade show active" id="disease" role="tabpanel">
+
+            <!-- Filter Chips -->
+            <div class="filter-chips-row">
+                <button type="button" class="filter-chip-btn active" onclick="filterScans('all', this)" id="chipFilterAll">सर्व तपासण्या (All)</button>
+                <button type="button" class="filter-chip-btn" onclick="filterScans('alert', this)" id="chipFilterAlert">⚠️ रोग आढळलेले (Alerts)</button>
+                <button type="button" class="filter-chip-btn" onclick="filterScans('healthy', this)" id="chipFilterHealthy">🌿 निरोगी (Healthy)</button>
+            </div>
+
+            {% if disease_history %}
+            <div id="scansList">
+                {% for record in disease_history %}
+                {% set is_healthy = (record.detected_disease == 'Healthy' or 'Healthy' in (record.detected_disease or '')) %}
+                {% set sev = (record.severity or 'moderate')|lower %}
+                <a href="{{ url_for('main.disease_result', analysis_id=record.id) }}"
+                   class="scan-record-card scan-item"
+                   data-type="{{ 'healthy' if is_healthy else 'alert' }}">
+                    <!-- Thumbnail -->
+                    <div class="scan-thumb-box">
+                        {% if record.image_path %}
+                        <img src="{{ url_for('static', filename=record.image_path) }}"
+                             alt="{{ record.detected_disease }}"
+                             class="scan-thumb-img"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/icons/icon-192.png') }}';">
+                        {% else %}
+                        <i class="bi bi-flower1 fs-3 text-success"></i>
+                        {% endif %}
+                    </div>
+
+                    <!-- Info -->
+                    <div class="scan-info-main">
+                        <div class="scan-disease-name">
+                            {{ record.detected_disease }}
+                        </div>
+                        <div class="scan-crop-tag">
+                            🌾 <strong>{{ record.crop_display }}</strong>
+                            {% if record.confidence %}
+                            &bull; {{ (record.confidence * 100)|round(0)|int }}% खात्री
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Meta / Badge -->
+                    <div class="scan-meta-right">
+                        {% if is_healthy %}
+                        <span class="badge badge-sev-healthy rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
+                            निरोगी
+                        </span>
+                        {% elif 'mild' in sev or 'हल्का' in sev %}
+                        <span class="badge badge-sev-mild rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
+                            कमी
+                        </span>
+                        {% elif 'severe' in sev or 'गंभीर' in sev %}
+                        <span class="badge badge-sev-severe rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
+                            गंभीर
+                        </span>
+                        {% else %}
+                        <span class="badge badge-sev-mod rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
+                            मध्यम
+                        </span>
+                        {% endif %}
+                        <div class="text-muted" style="font-size: 0.7rem;">
+                            {{ record.date.strftime('%d %b %Y') }}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border border-light p-4">
+                <i class="bi bi-camera fs-1 text-success opacity-50 d-block mb-2"></i>
+                <h6 class="fw-bold text-dark" id="txtNoScansTitle">कोणतीही रोग तपासणी नोंद आढळली नाही.</h6>
+                <p class="small text-muted mb-3" id="txtNoScansSub">तुमच्या पिकांच्या पानांचा फोटो काढून रोगांचे निदान करा.</p>
+                <a href="{{ url_for('main.scan') }}" class="btn btn-sm btn-success rounded-pill px-4 fw-semibold" id="btnStartScanCta">
+                    <i class="bi bi-camera me-1"></i>आताच स्कॅन करा
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Yield History Tab -->
+        <div class="tab-pane fade" id="yield" role="tabpanel">
+            {% if yield_history %}
+                {% for record in yield_history %}
+                <div class="yield-record-card">
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                            🌾 {{ record.crop_info.name if record.crop_info else (record.detected_crop or 'पीक') }}
+                            {% if record.crop_info and record.crop_info.variety %}
+                            <span class="text-muted fw-normal small">({{ record.crop_info.variety }})</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-calendar3 me-1"></i>{{ record.date.strftime('%d %b %Y, %I:%M %p') }}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill mb-1" style="font-size: 0.85rem;">
+                            {{ record.predicted_yield_per_acre }} टन / एकर
+                        </span>
+                        <div class="text-muted small fw-semibold">
+                            एकूण: <strong>{{ record.total_yield }}</strong> टन
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border border-light p-4">
+                <i class="bi bi-graph-up-arrow fs-1 text-success opacity-50 d-block mb-2"></i>
+                <h6 class="fw-bold text-dark" id="txtNoYieldTitle">कोणताही उत्पादन अंदाज नोंदवलेला नाही.</h6>
+                <p class="small text-muted mb-3" id="txtNoYieldSub">तुमच्या शेतासाठी अचूक उत्पादन अंदाज त्वरित मोजा.</p>
+                <a href="{{ url_for('main.yield_prediction') }}" class="btn btn-sm btn-success rounded-pill px-4 fw-semibold" id="btnStartYieldCta">
+                    <i class="bi bi-calculator me-1"></i>उत्पादन मोजा
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Scan Filter Chips Logic
+    // ═══════════════════════════════════════════════════════════════════════════
+    function filterScans(type, btn) {
+        document.querySelectorAll('.filter-chip-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const items = document.querySelectorAll('.scan-item');
+        items.forEach(item => {
+            if (type === 'all' || item.dataset.type === type) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Chart.js Setup
+    // ═══════════════════════════════════════════════════════════════════════════
+    document.addEventListener("DOMContentLoaded", function () {
+        const yieldData = [];
+        const labels = [];
+
+        {% for record in yield_history | reverse %}
+            labels.push('{{ record.date.strftime("%d %b") }}');
+            yieldData.push({{ record.predicted_yield_per_acre or 0 }});
+        {% endfor %}
+
+        const ctx = document.getElementById('yieldChart').getContext('2d');
+
+        if (yieldData.length > 0) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 180);
+            gradient.addColorStop(0, 'rgba(46, 125, 50, 0.28)');
+            gradient.addColorStop(1, 'rgba(46, 125, 50, 0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'टन/एकर',
+                        data: yieldData,
+                        borderColor: '#2E7D32',
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#2E7D32',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 12 },
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' टन प्रति एकर';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Friendly Empty State Chart
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [{
+                        data: [2.5, 3.2, 2.8, 3.8],
+                        backgroundColor: '#e2e8f0',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'अद्याप नोंदी उपलब्ध नाहीत (Sample Timeline)', color: '#94a3b8' }
+                    },
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Bilingual Static Localization (Marathi / English)
+    // ═══════════════════════════════════════════════════════════════════════════
+    const historyTranslations = {
+        mr: {
+            heroTitle: "तपासणी व उत्पादन इतिहास",
+            heroSub: "मागील सर्व पीक रोग स्कॅन आणि उत्पादन अंदाज अहवालांचे संकलन.",
+            telemetryBadge: "शेत तपासणी व अहवाल",
+            lblTotalScans: "एकूण स्कॅन",
+            lblDiseaseAlerts: "रोग आढळलेले",
+            lblYieldLogs: "उत्पादन नोंदी",
+            txtChartTitle: "उत्पादन ट्रेंड (Yield Forecast Timeline)",
+            txtChartSub: "टन प्रति एकर उत्पादन अंदाज प्रगती",
+            tabTitleDisease: "पीक रोग तपासणी (Scans)",
+            tabTitleYield: "उत्पादन अंदाज (Yield)",
+            chipFilterAll: "सर्व तपासण्या (All)",
+            chipFilterAlert: "⚠️ रोग आढळलेले (Alerts)",
+            chipFilterHealthy: "🌿 निरोगी (Healthy)",
+            txtNoScansTitle: "कोणतीही रोग तपासणी नोंद आढळली नाही.",
+            txtNoScansSub: "तुमच्या पिकांच्या पानांचा फोटो काढून रोगांचे निदान करा.",
+            btnStartScanCta: "आताच स्कॅन करा",
+            txtNoYieldTitle: "कोणताही उत्पादन अंदाज नोंदवलेला नाही.",
+            txtNoYieldSub: "तुमच्या शेतासाठी अचूक उत्पादन अंदाज त्वरित मोजा.",
+            btnStartYieldCta: "उत्पादन मोजा"
+        },
+        en: {
+            heroTitle: "History & Farm Telemetry",
+            heroSub: "Archive of past crop disease inspections and production forecast reports.",
+            telemetryBadge: "Farm Telemetry & Logs",
+            lblTotalScans: "Total Scans",
+            lblDiseaseAlerts: "Disease Alerts",
+            lblYieldLogs: "Yield Logs",
+            txtChartTitle: "Yield Forecast Timeline",
+            txtChartSub: "Tonnes per acre historical trend",
+            tabTitleDisease: "Disease Scans",
+            tabTitleYield: "Yield Forecasts",
+            chipFilterAll: "All Scans",
+            chipFilterAlert: "⚠️ Disease Alerts",
+            chipFilterHealthy: "🌿 Healthy",
+            txtNoScansTitle: "No disease scan records found.",
+            txtNoScansSub: "Snap a leaf photo to diagnose crop diseases immediately.",
+            btnStartScanCta: "Scan Leaf Now",
+            txtNoYieldTitle: "No yield predictions recorded yet.",
+            txtNoYieldSub: "Calculate precision harvest yield for your farmland.",
+            btnStartYieldCta: "Calculate Yield"
+        }
+    };
+
+    function applyHistoryLanguage(lang) {
+        const dict = historyTranslations[lang] || historyTranslations.mr;
+        const g = id => document.getElementById(id);
+
+        if (g('txtHeroTitle')) g('txtHeroTitle').innerText = dict.heroTitle;
+        if (g('txtHeroSub')) g('txtHeroSub').innerText = dict.heroSub;
+        if (g('txtHeroTelemetryBadge')) g('txtHeroTelemetryBadge').innerText = dict.telemetryBadge;
+        if (g('lblTotalScans')) g('lblTotalScans').innerText = dict.lblTotalScans;
+        if (g('lblDiseaseAlerts')) g('lblDiseaseAlerts').innerText = dict.lblDiseaseAlerts;
+        if (g('lblYieldLogs')) g('lblYieldLogs').innerText = dict.lblYieldLogs;
+        if (g('txtChartTitle')) g('txtChartTitle').innerText = dict.txtChartTitle;
+        if (g('txtChartSub')) g('txtChartSub').innerText = dict.txtChartSub;
+        if (g('tabTitleDisease')) g('tabTitleDisease').innerText = dict.tabTitleDisease;
+        if (g('tabTitleYield')) g('tabTitleYield').innerText = dict.tabTitleYield;
+        if (g('chipFilterAll')) g('chipFilterAll').innerText = dict.chipFilterAll;
+        if (g('chipFilterAlert')) g('chipFilterAlert').innerText = dict.chipFilterAlert;
+        if (g('chipFilterHealthy')) g('chipFilterHealthy').innerText = dict.chipFilterHealthy;
+        if (g('txtNoScansTitle')) g('txtNoScansTitle').innerText = dict.txtNoScansTitle;
+        if (g('txtNoScansSub')) g('txtNoScansSub').innerText = dict.txtNoScansSub;
+        if (g('btnStartScanCta')) g('btnStartScanCta').innerHTML = `<i class="bi bi-camera me-1"></i>${dict.btnStartScanCta}`;
+        if (g('txtNoYieldTitle')) g('txtNoYieldTitle').innerText = dict.txtNoYieldTitle;
+        if (g('txtNoYieldSub')) g('txtNoYieldSub').innerText = dict.txtNoYieldSub;
+        if (g('btnStartYieldCta')) g('btnStartYieldCta').innerHTML = `<i class="bi bi-calculator me-1"></i>${dict.btnStartYieldCta}`;
+    }
+
+    // Auto-apply on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        applyHistoryLanguage(savedLang);
+    });
+</script>
+{% endblock %}

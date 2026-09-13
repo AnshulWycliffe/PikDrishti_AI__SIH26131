@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extension Worker Dashboard — PikDrishti AI</title>
+
+  <!-- UX4G 3.0 -->
+  <link rel="stylesheet" href="https://cdn.ux4g.gov.in/UX4G@3.0.18/index.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3wM0qQw9f2w8wZ3QY5Yw6Q2j1n0=" crossorigin="">
+  <script src="https://cdn.ux4g.gov.in/UX4G@3.0.18/index.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    :root{
+      --green:#159447;
+      --green-dark:#087443;
+      --green-soft:#eaf8f0;
+      --navy:#10243b;
+      --muted:#617487;
+      --border:#dfe8e5;
+      --bg:#f4f8f6;
+      --white:#fff;
+      --red:#e53935;
+      --orange:#f5a400;
+      --blue:#1976d2;
+      --sidebar:#132a30;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--navy);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    a{text-decoration:none;color:inherit}
+    button,select{font:inherit}
+
+    .app{
+      min-height:100vh;
+      display:flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar{
+      position:fixed;
+      inset:0 auto 0 0;
+      width:252px;
+      background:linear-gradient(180deg,#132b31 0%,#10252b 100%);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      z-index:20;
+    }
+
+    .brand{
+      padding:22px 20px 18px;
+      border-bottom:1px solid rgba(255,255,255,.09);
+    }
+    .brand-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand-logo{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      color:var(--green);
+      font-size:24px;
+    }
+    .brand-name{
+      font-size:21px;
+      font-weight:800;
+      letter-spacing:-.5px;
+    }
+    .brand-sub{
+      font-size:11px;
+      color:#d2dfdc;
+      margin-top:2px;
+      line-height:1.4;
+    }
+
+    .nav{
+      padding:15px 10px;
+      flex:1;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      gap:15px;
+      height:52px;
+      padding:0 16px;
+      border-radius:8px;
+      color:#e3ecea;
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:5px;
+      transition:.18s ease;
+    }
+    .nav a:hover{background:rgba(255,255,255,.07)}
+    .nav a.active{
+      background:linear-gradient(90deg,#17a050,#079047);
+      color:#fff;
+      box-shadow:0 5px 16px rgba(0,150,75,.18);
+    }
+    .nav-icon{
+      width:24px;
+      text-align:center;
+      font-size:20px;
+    }
+    .nav-count{
+      margin-left:auto;
+      width:24px;height:24px;
+      display:grid;place-items:center;
+      border-radius:50%;
+      background:#ef3d3d;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .support-card{
+      margin:12px 16px 18px;
+      padding:18px 15px;
+      border:1px solid rgba(154,215,190,.2);
+      border-radius:8px;
+      background:rgba(50,133,104,.16);
+      text-align:center;
+    }
+    .support-icon{font-size:36px;color:#42c77b;margin-bottom:5px}
+    .support-title{font-weight:800;font-size:13px}
+    .support-copy{font-size:11px;color:#c4d5d1;line-height:1.5;margin-top:3px}
+
+    .logout{
+      padding:0 28px 20px;
+      color:#eef5f3;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:13px;
+    }
+
+    /* MAIN */
+    .main{
+      margin-left:252px;
+      width:calc(100% - 252px);
+      min-height:100vh;
+    }
+
+    .topbar{
+      height:78px;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 30px;
+    }
+
+    .location-select{
+      min-width:215px;
+      border:1px solid #dce6e2;
+      background:#fff;
+      border-radius:10px;
+      padding:11px 14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#13243a;
+      font-weight:700;
+      font-size:14px;
+    }
+    .location-icon{color:var(--green);font-size:19px}
+    .top-actions{display:flex;align-items:center;gap:20px}
+    .notification{
+      position:relative;
+      font-size:23px;
+      color:#18283a;
+    }
+    .notification-badge{
+      position:absolute;
+      top:-7px;right:-8px;
+      width:19px;height:19px;
+      border-radius:50%;
+      background:#ef3d3d;color:#fff;
+      display:grid;place-items:center;
+      font-size:10px;font-weight:800;
+      border:2px solid #fff;
+    }
+    .profile{
+      border-left:1px solid #e5ece9;
+      padding-left:20px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .avatar{
+      width:42px;height:42px;border-radius:50%;
+      background:linear-gradient(145deg,#e8dfd2,#9c8066);
+      display:grid;place-items:center;
+      font-size:24px;
+    }
+    .profile-name{font-size:14px;font-weight:800}
+    .profile-role{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .content{
+      padding:22px 30px 34px;
+    }
+
+    .hero{
+      min-height:84px;
+      position:relative;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin-bottom:16px;
+      overflow:hidden;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;
+      right:0;top:-15px;
+      width:52%;
+      height:115px;
+      background:
+        radial-gradient(circle at 25% 70%,#c5e8d3 0 18%,transparent 19%),
+        radial-gradient(circle at 45% 65%,#a8d9bd 0 16%,transparent 17%),
+        linear-gradient(180deg,transparent 50%,#dff2e7 51% 100%);
+      opacity:.75;
+      z-index:0;
+      pointer-events:none;
+    }
+    .hero-copy,.today{position:relative;z-index:1}
+    .hero h1{
+      margin:0;
+      font-size:31px;
+      letter-spacing:-1px;
+      font-weight:800;
+    }
+    .hero p{
+      margin:4px 0 0;
+      color:#52677b;
+      font-size:17px;
+    }
+    .today{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:9px;
+      padding:10px 14px;
+      font-size:13px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    /* KPI */
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .kpi{
+      min-height:123px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      padding:20px 17px;
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      box-shadow:0 3px 10px rgba(22,45,36,.025);
+    }
+    .kpi.green{background:linear-gradient(120deg,#f8fffa,#eefaf4)}
+    .kpi.blue{background:linear-gradient(120deg,#fbfdff,#eef6ff)}
+    .kpi.orange{background:linear-gradient(120deg,#fffdfa,#fff8ea)}
+    .kpi.red{background:linear-gradient(120deg,#fffafa,#fff1f1)}
+    .kpi-icon{
+      width:48px;height:48px;border-radius:11px;
+      display:grid;place-items:center;font-size:25px;
+      flex:none;
+    }
+    .green .kpi-icon{background:#ddf4e5;color:#13924b}
+    .blue .kpi-icon{background:#e2efff;color:#2479d4}
+    .orange .kpi-icon{background:#fff0d5;color:#f39a12}
+    .red .kpi-icon{background:#ffe0e0;color:#e63c3c}
+    .kpi-label{font-size:14px;font-weight:700;margin-bottom:6px}
+    .kpi-value{font-size:27px;font-weight:850;line-height:1}
+    .kpi-foot{font-size:12px;color:#617487;margin-top:7px}
+    .trend{
+      display:inline-block;
+      margin-left:6px;
+      padding:4px 7px;
+      border-radius:7px;
+      font-weight:800;
+      font-size:11px;
+    }
+    .trend.up{background:#dff5e8;color:#148244}
+    .trend.bad{background:#ffe5e5;color:#db3b3b}
+
+    /* PANELS */
+    .grid-main{
+      display:grid;
+      grid-template-columns:1.42fr 1fr;
+      gap:14px;
+      margin-bottom:14px;
+    }
+    .bottom-grid{
+      display:grid;
+      grid-template-columns:1.05fr 1fr 1.05fr;
+      gap:14px;
+    }
+    .panel{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:10px;
+      box-shadow:0 3px 10px rgba(22,45,36,.025);
+      overflow:hidden;
+    }
+    .panel-head{
+      min-height:51px;
+      padding:14px 14px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .panel-title{
+      font-size:18px;
+      font-weight:800;
+    }
+    .view-all{
+      color:#098346;
+      font-size:13px;
+      font-weight:800;
+    }
+    .panel-body{padding:0 12px 13px}
+
+    /* TABLE */
+    .case-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    .case-table th{
+      background:#f1f5f7;
+      color:#53677b;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      padding:9px 8px;
+      text-align:left;
+      font-weight:800;
+    }
+    .case-table td{
+      padding:10px 8px;
+      border-bottom:1px solid #edf1ef;
+      vertical-align:middle;
+    }
+    .case-table tr:last-child td{border-bottom:0}
+    .case-table tbody tr:hover{background:#fbfdfc}
+    .farmer{
+      display:flex;align-items:center;gap:8px;
+      min-width:120px;
+    }
+    .mini-avatar{
+      width:27px;height:27px;border-radius:50%;
+      display:grid;place-items:center;
+      background:linear-gradient(145deg,#f0e9df,#b49b82);
+      font-size:16px;flex:none;
+    }
+    .farmer strong{display:block;font-size:11px}
+    .farmer small{display:block;color:#718292;font-size:9px;margin-top:1px}
+    .crop{
+      display:flex;align-items:center;gap:7px;
+      white-space:nowrap;
+    }
+    .crop-icon{font-size:19px}
+    .status{
+      display:inline-flex;
+      padding:5px 10px;
+      border-radius:8px;
+      font-size:10px;
+      font-weight:800;
+    }
+    .pending{background:#fff1d8;color:#e78b00}
+    .verified{background:#ddf4e4;color:#128148}
+    .progress{background:#e4efff;color:#166dcc}
+    .action{
+      border:1px solid #159447;
+      color:#0a7e40;
+      background:#fff;
+      padding:7px 13px;
+      border-radius:7px;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .action.primary{background:#159447;color:#fff}
+
+    /* REAL MAP */
+    .real-map{
+      margin:0;
+      height:263px;
+      width:100%;
+      border-radius:8px;
+      overflow:hidden;
+      border:1px solid #d8e4dd;
+      z-index:1;
+    }
+    .leaflet-container{
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:#e7f0e9;
+    }
+    .leaflet-control-zoom a{
+      color:#17392d !important;
+      font-weight:800;
+    }
+    .leaflet-popup-content-wrapper{
+      border-radius:9px;
+    }
+    .map-popup-title{
+      font-weight:800;
+      color:#163c2d;
+      margin-bottom:4px;
+    }
+    .map-popup-risk{
+      font-size:12px;
+      font-weight:800;
+    }
+    .risk-high{color:#d93434}
+    .risk-medium{color:#d98a00}
+    .risk-low{color:#168148}
+    .map-marker{
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      border:3px solid rgba(255,255,255,.95);
+      box-shadow:0 2px 7px rgba(0,0,0,.28);
+    }
+    .map-marker.high{background:#e53935}
+    .map-marker.medium{background:#f5a400}
+    .map-marker.low{background:#159447}
+    .map-legend{
+      background:rgba(255,255,255,.96);
+      border-radius:7px;
+      padding:7px 9px;
+      box-shadow:0 1px 7px rgba(0,0,0,.15);
+      font-size:11px;
+      line-height:1.6;
+    }
+    .map-legend-row{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .map-legend-dot{
+      width:10px;height:10px;border-radius:50%;
+      display:inline-block;
+    }
+    .map-legend-dot.high{background:#e53935}
+    .map-legend-dot.medium{background:#f5a400}
+    .map-legend-dot.low{background:#159447}
+    .map-note{
+      font-size:10px;
+      color:#6b7e75;
+      margin-top:8px;
+    }
+    .legend{display:none}
+
+    /* BOTTOM */
+    .activity{padding:0 14px 10px}
+    .activity-row{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 0;border-bottom:1px solid #edf1ef;
+    }
+    .activity-row:last-child{border-bottom:0}
+    .activity-icon{
+      width:36px;height:36px;border-radius:9px;
+      background:#eaf8ef;color:#159447;
+      display:grid;place-items:center;font-size:18px;flex:none;
+    }
+    .activity-copy{flex:1;font-size:11px}
+    .activity-copy strong{font-size:12px;display:block}
+    .activity-copy span{color:#617487;display:block;margin-top:2px}
+    .activity-rate{font-size:13px;font-weight:800;color:#14934c}
+    .activity-rate.red{color:#df3c3c}
+
+    .donut-wrap{
+      min-height:207px;
+      display:flex;align-items:center;justify-content:center;gap:20px;
+      padding:8px 10px 15px;
+    }
+    .donut{
+      width:143px;height:143px;border-radius:50%;
+      background:conic-gradient(
+        #159447 0 32%,
+        #74c857 32% 56%,
+        #f4bc13 56% 74%,
+        #8b5bd5 74% 88%,
+        #3985e8 88% 100%
+      );
+      position:relative;display:grid;place-items:center;flex:none;
+    }
+    .donut:after{
+      content:"";position:absolute;inset:28px;background:#fff;border-radius:50%;
+    }
+    .donut-text{position:relative;z-index:1;text-align:center}
+    .donut-text strong{display:block;font-size:21px}
+    .donut-text span{font-size:10px;color:#617487}
+    .crop-legend{display:grid;gap:10px;font-size:12px;min-width:100px}
+    .crop-legend div{display:flex;align-items:center;gap:7px;justify-content:space-between}
+    .crop-legend i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}
+    .c1{background:#159447}.c2{background:#74c857}.c3{background:#f4bc13}.c4{background:#8b5bd5}.c5{background:#3985e8}
+
+    .visits{padding:0 13px 10px}
+    .visit{
+      display:grid;grid-template-columns:48px 1fr auto;
+      gap:10px;align-items:center;
+      padding:9px 0;border-bottom:1px solid #edf1ef;
+    }
+    .visit:last-child{border-bottom:0}
+    .date{
+      background:#edf9f2;border-radius:7px;text-align:center;
+      padding:6px 2px;color:#148347;font-weight:800;
+      font-size:11px;
+    }
+    .date strong{display:block;font-size:17px;line-height:1}
+    .visit-copy strong{display:block;font-size:11px}
+    .visit-copy span{display:block;color:#617487;font-size:10px;margin-top:2px}
+    .visit .action{padding:7px 14px;background:#159447;color:#fff}
+
+    .footer-note{
+      text-align:center;color:#789087;font-size:11px;margin-top:22px;
+    }
+
+    @media(max-width:1200px){
+      .kpis{grid-template-columns:repeat(2,1fr)}
+      .grid-main{grid-template-columns:1fr}
+      .bottom-grid{grid-template-columns:1fr 1fr}
+      .bottom-grid .panel:last-child{grid-column:1/-1}
+    }
+    @media(max-width:800px){
+      .sidebar{width:72px}
+      .brand{padding:15px 10px}
+      .brand-name,.brand-sub,.nav a span,.support-card,.logout span{display:none}
+      .brand-row{justify-content:center}
+      .nav a{justify-content:center;padding:0}
+      .nav-icon{margin:0}
+      .main{margin-left:72px;width:calc(100% - 72px)}
+      .topbar{padding:0 16px}
+      .profile-name,.profile-role{display:none}
+      .content{padding:18px 15px}
+      .hero{display:block}
+      .today{margin-top:12px;width:max-content}
+      .kpis,.bottom-grid{grid-template-columns:1fr}
+      .bottom-grid .panel:last-child{grid-column:auto}
+    }
+    @media(max-width:560px){
+      .location-select{min-width:0}
+      .location-select span:last-child{display:none}
+      .topbar{height:68px}
+      .case-table{min-width:680px}
+      .panel-body{overflow-x:auto}
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar" aria-label="Extension worker navigation">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-logo">🌿</div>
+        <div>
+          <div class="brand-name">PikDrishti AI</div>
+          <div class="brand-sub">For Healthy Crops<br>Prosperous Maharashtra</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#" class="active"><span class="nav-icon">▣</span><span>Dashboard</span></a>
+      <a href="#"><span class="nav-icon">♟</span><span>Farmers</span></a>
+      <a href="#"><span class="nav-icon">▤</span><span>Field Reports</span></a>
+      <a href="#"><span class="nav-icon">♟</span><span>Disease Cases</span></a>
+      <a href="#"><span class="nav-icon">⌖</span><span>Map View</span></a>
+      <a href="#"><span class="nav-icon">♙</span><span>Expert Validation</span></a>
+      <a href="#"><span class="nav-icon">▱</span><span>Messages</span><span class="nav-count">3</span></a>
+      <a href="#"><span class="nav-icon">⚙</span><span>Settings</span></a>
+    </nav>
+
+    <div class="support-card">
+      <div class="support-icon">🌱</div>
+      <div class="support-title">Support Farmers</div>
+      <div class="support-copy">Build Resilient Farms<br>Stronger Maharashtra</div>
+    </div>
+
+    <a class="logout" href="#"><span style="font-size:22px">↪</span><span>Logout</span></a>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="location-select" type="button" aria-label="Select location">
+        <span class="location-icon">●</span>
+        <span>Taluka: Nashik</span>
+        <span style="margin-left:auto">⌄</span>
+      </button>
+
+      <div class="top-actions">
+        <button class="notification" type="button" aria-label="Notifications">
+          ♧
+          <span class="notification-badge">3</span>
+        </button>
+        <div class="profile">
+          <div class="avatar">👨🏽</div>
+          <div>
+            <div class="profile-name">Ramesh Patil</div>
+            <div class="profile-role">Extension Worker</div>
+          </div>
+          <span>⌄</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="hero">
+        <div class="hero-copy">
+          <h1>Extension Worker Dashboard</h1>
+          <p>Support farmers. Validate cases. Take action.</p>
+        </div>
+        <div class="today">▣ &nbsp; Today, 13 Sep 2026</div>
+      </div>
+
+      <section class="kpis" aria-label="Dashboard statistics">
+        <article class="kpi green">
+          <div class="kpi-icon">♟</div>
+          <div>
+            <div class="kpi-label">Farmers Linked</div>
+            <div class="kpi-value">1,248 <span class="trend up">↑ 12%</span></div>
+            <div class="kpi-foot">+132 this month</div>
+          </div>
+        </article>
+
+        <article class="kpi blue">
+          <div class="kpi-icon">▤</div>
+          <div>
+            <div class="kpi-label">Active Alerts</div>
+            <div class="kpi-value">43 <span class="trend bad">↑ 8%</span></div>
+            <div class="kpi-foot">+6 since last week</div>
+          </div>
+        </article>
+
+        <article class="kpi orange">
+          <div class="kpi-icon">!</div>
+          <div>
+            <div class="kpi-label">Pending Validation</div>
+            <div class="kpi-value">18 <span class="trend bad">↑ 17%</span></div>
+            <div class="kpi-foot">Needs your review</div>
+          </div>
+        </article>
+
+        <article class="kpi red">
+          <div class="kpi-icon">!</div>
+          <div>
+            <div class="kpi-label">High Risk Cases</div>
+            <div class="kpi-value">18 <span class="trend bad">↑ 50%</span></div>
+            <div class="kpi-foot">Immediate attention</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid-main">
+        <article class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Recent Cases</div>
+            <a href="#" class="view-all">View All →</a>
+          </div>
+          <div class="panel-body">
+            <table class="case-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Farmer</th>
+                  <th>Crop</th>
+                  <th>Disease / Pest</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>01</td>
+                  <td><div class="farmer"><div class="mini-avatar">👨🏽</div><div><strong>Ramesh Patil</strong><small>⌖ Kalwan</small></div></div></td>
+                  <td><div class="crop"><span class="crop-icon">☁</span>Cotton</div></td>
+                  <td>Leaf Spot</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action primary">Validate</button></td>
+                </tr>
+                <tr>
+                  <td>02</td>
+                  <td><div class="farmer"><div class="mini-avatar">👨🏽</div><div><strong>Suhas More</strong><small>⌖ Deola</small></div></div></td>
+                  <td><div class="crop"><span class="crop-icon">🌿</span>Soybean</div></td>
+                  <td>Rust</td>
+                  <td><span class="status verified">Verified</span></td>
+                  <td><button class="action">View</button></td>
+                </tr>
+                <tr>
+                  <td>03</td>
+                  <td><div class="farmer"><div class="mini-avatar">👨🏽</div><div><strong>Lata Shinde</strong><small>⌖ Surgana</small></div></div></td>
+                  <td><div class="crop"><span class="crop-icon">🌽</span>Maize</div></td>
+                  <td>Fall Armyworm</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action primary">Validate</button></td>
+                </tr>
+                <tr>
+                  <td>04</td>
+                  <td><div class="farmer"><div class="mini-avatar">👨🏽</div><div><strong>Vilas Jadhav</strong><small>⌖ Niphad</small></div></div></td>
+                  <td><div class="crop"><span class="crop-icon">🌿</span>Tur</div></td>
+                  <td>Pod Borer</td>
+                  <td><span class="status progress">In Progress</span></td>
+                  <td><button class="action">View</button></td>
+                </tr>
+                <tr>
+                  <td>05</td>
+                  <td><div class="farmer"><div class="mini-avatar">👨🏽</div><div><strong>Sunita Pawar</strong><small>⌖ Igatpuri</small></div></div></td>
+                  <td><div class="crop"><span class="crop-icon">🧅</span>Onion</div></td>
+                  <td>Thrips</td>
+                  <td><span class="status verified">Verified</span></td>
+                  <td><button class="action">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Disease Hotspot Map (Your Region)</div>
+            <div style="display:flex;gap:7px">
+              <button class="action">＋ View Full Map</button>
+              <button class="action" aria-label="Expand map">⛶</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="diseaseHotspotMap" class="real-map" role="application"
+                 aria-label="Interactive disease hotspot map for Nashik region"></div>
+            <div class="map-note">Interactive map • OpenStreetMap data • Hotspots are illustrative until connected to live backend surveillance data.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Farmer Activity</div>
+            <button class="action">This Week　⌄</button>
+          </div>
+          <div class="activity">
+            <div class="activity-row">
+              <div class="activity-icon">♟</div>
+              <div class="activity-copy"><strong>12 new farmers linked</strong><span>Compared to last week</span></div>
+              <div class="activity-rate">+20%</div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-icon">▣</div>
+              <div class="activity-copy"><strong>48 field reports submitted</strong><span>Farm visits and crop observations</span></div>
+              <div class="activity-rate">+12%</div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-icon">🌿</div>
+              <div class="activity-copy"><strong>32 cases validated</strong><span>Your contributions</span></div>
+              <div class="activity-rate">+8%</div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-icon" style="background:#fff0e0;color:#ed9412">!</div>
+              <div class="activity-copy"><strong>7 high risk alerts in your area</strong><span>Requires field visit</span></div>
+              <div class="activity-rate red">+75%</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div class="panel-title">Crop-wise Cases</div></div>
+          <div class="donut-wrap">
+            <div class="donut"><div class="donut-text"><strong>376</strong><span>Total Cases</span></div></div>
+            <div class="crop-legend">
+              <div><span><i class="c1"></i>Cotton</span><b>32%</b></div>
+              <div><span><i class="c2"></i>Soybean</span><b>24%</b></div>
+              <div><span><i class="c3"></i>Maize</span><b>18%</b></div>
+              <div><span><i class="c4"></i>Tur</span><b>14%</b></div>
+              <div><span><i class="c5"></i>Onion</span><b>12%</b></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Upcoming Field Visits</div>
+            <a href="#" class="view-all">View All →</a>
+          </div>
+          <div class="visits">
+            <div class="visit">
+              <div class="date"><strong>14</strong>Sep</div>
+              <div class="visit-copy"><strong>⌖ Village: Kalwan</strong><span>Farmer: Ramesh Patil</span><span>Issue: Leaf Spot (Cotton)</span></div>
+              <button class="action primary">View</button>
+            </div>
+            <div class="visit">
+              <div class="date"><strong>15</strong>Sep</div>
+              <div class="visit-copy"><strong>⌖ Village: Deola</strong><span>Farmer: Lata Shinde</span><span>Issue: Rust (Soybean)</span></div>
+              <button class="action primary">View</button>
+            </div>
+            <div class="visit">
+              <div class="date"><strong>16</strong>Sep</div>
+              <div class="visit-copy"><strong>⌖ Village: Surgana</strong><span>Farmer: Ganesh More</span><span>Issue: Fall Armyworm (Maize)</span></div>
+              <button class="action primary">View</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <div class="footer-note">PikDrishti AI · Supporting Extension Workers for a Healthier Maharashtra</div>
+    </section>
+  </main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const map = L.map("diseaseHotspotMap", {
+    center: [20.0059, 73.7897],
+    zoom: 9,
+    zoomControl: true,
+    scrollWheelZoom: false
+  });
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  const locations = [
+    { name:"Kalwan", lat:20.5014, lng:74.0294, risk:"High", cases:18, cls:"high" },
+    { name:"Deola", lat:20.4628, lng:74.3230, risk:"Medium", cases:11, cls:"medium" },
+    { name:"Niphad", lat:20.0843, lng:74.1105, risk:"Low", cases:6, cls:"low" },
+    { name:"Surgana", lat:20.5597, lng:73.6253, risk:"Medium", cases:9, cls:"medium" },
+    { name:"Sinnar", lat:19.8456, lng:73.9980, risk:"High", cases:14, cls:"high" },
+    { name:"Igatpuri", lat:19.6952, lng:73.5620, risk:"High", cases:12, cls:"high" },
+    { name:"Trimbakeshwar", lat:19.9397, lng:73.5307, risk:"Low", cases:5, cls:"low" },
+    { name:"Nashik", lat:20.0059, lng:73.7897, risk:"Medium", cases:16, cls:"medium" }
+  ];
+
+  function markerIcon(cls) {
+    return L.divIcon({
+      className: "",
+      html: '<div class="map-marker ' + cls + '"></div>',
+      iconSize: [22,22],
+      iconAnchor: [11,11],
+      popupAnchor: [0,-10]
+    });
+  }
+
+  locations.forEach(function (p) {
+    L.marker([p.lat, p.lng], { icon: markerIcon(p.cls) })
+      .addTo(map)
+      .bindPopup(
+        '<div class="map-popup-title">' + p.name + '</div>' +
+        '<div class="map-popup-risk risk-' + p.cls + '">' + p.risk + ' Risk</div>' +
+        '<div>' + p.cases + ' reported cases</div>'
+      );
+  });
+
+  L.control.scale({ imperial:false }).addTo(map);
+
+  const legend = L.control({position:"bottomright"});
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "map-legend");
+    div.innerHTML =
+      '<div class="map-legend-row"><span class="map-legend-dot high"></span> High Risk</div>' +
+      '<div class="map-legend-row"><span class="map-legend-dot medium"></span> Medium Risk</div>' +
+      '<div class="map-legend-row"><span class="map-legend-dot low"></span> Low Risk</div>';
+    return div;
+  };
+  legend.addTo(map);
+});
+</script>
+
+</body>
+</html>

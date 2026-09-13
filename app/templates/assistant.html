@@ -1,0 +1,1068 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* Voice Assistant Theme & Glassmorphism */
+    :root {
+        --assistant-green: #1B5E20;
+        --assistant-green-light: #2E7D32;
+        --assistant-green-bubble: #1E6B38;
+        --assistant-pulse: rgba(46, 125, 50, 0.35);
+    }
+
+    .assistant-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100dvh - 72px);
+        max-width: 768px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .assistant-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #198754;
+        font-size: 1.15rem;
+    }
+
+    .lang-badge {
+        background: #E8F5E9;
+        color: #1E6B38;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        border: 1px solid #C8E6C9;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Chat Stream */
+    .chat-stream {
+        flex: 1;
+        overflow-y: auto;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        scroll-behavior: smooth;
+    }
+
+    /* Chat Bubbles */
+    .msg-bot-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        max-width: 90%;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .msg-user-container {
+        display: flex;
+        justify-content: flex-end;
+        align-self: flex-end;
+        max-width: 85%;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .bot-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #E8F5E9;
+        color: #1E6B38;
+        border: 1.5px solid #2E7D32;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .bot-bubble {
+        background: #FFFFFF;
+        color: #212529;
+        padding: 10px 14px;
+        border-radius: 16px;
+        border-top-left-radius: 4px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        position: relative;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        max-width: 100%;
+    }
+
+    /* Scoped Markdown formatting inside bot bubbles */
+    .bot-bubble .markdown-body {
+        font-size: 0.88rem !important;
+        line-height: 1.45 !important;
+        color: #212529 !important;
+        background: transparent !important;
+        font-family: inherit !important;
+    }
+
+    .bot-bubble .markdown-body p {
+        margin-bottom: 6px !important;
+        font-size: 0.88rem !important;
+    }
+
+    .bot-bubble .markdown-body p:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .bot-bubble .markdown-body h1,
+    .bot-bubble .markdown-body h2,
+    .bot-bubble .markdown-body h3,
+    .bot-bubble .markdown-body h4 {
+        font-size: 0.94rem !important;
+        font-weight: 700 !important;
+        color: #1B5E20 !important;
+        margin-top: 6px !important;
+        margin-bottom: 4px !important;
+        padding-bottom: 0 !important;
+        border-bottom: none !important;
+    }
+
+    .bot-bubble .markdown-body ul,
+    .bot-bubble .markdown-body ol {
+        padding-left: 18px !important;
+        margin-top: 4px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .bot-bubble .markdown-body li {
+        margin-bottom: 2px !important;
+        font-size: 0.86rem !important;
+    }
+
+    .bot-bubble .markdown-body strong {
+        color: #1B5E20;
+        font-weight: 700;
+    }
+
+    .user-bubble {
+        background: linear-gradient(135deg, #1E6B38 0%, #155724 100%);
+        color: #FFFFFF;
+        padding: 9px 14px;
+        border-radius: 16px;
+        border-top-right-radius: 4px !important;
+        box-shadow: 0 3px 10px rgba(27, 94, 32, 0.2);
+        font-size: 0.88rem;
+        line-height: 1.4;
+    }
+
+    .tts-btn {
+        background: #F1F8E9;
+        color: #1E6B38;
+        border: 1px solid #C8E6C9;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 4px;
+        float: right;
+        font-size: 0.82rem;
+    }
+
+    .tts-btn:hover {
+        background: #C8E6C9;
+        transform: scale(1.08);
+    }
+
+    .tts-btn.playing {
+        background: #2E7D32;
+        color: white;
+        animation: pulse 1s infinite alternate;
+    }
+
+    /* Suggestion Chips */
+    .quick-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        overflow-x: auto;
+        padding: 4px 16px 8px;
+        scrollbar-width: none;
+    }
+
+    .quick-chips::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chip-item {
+        white-space: nowrap;
+        background: #FFFFFF;
+        color: #2E7D32;
+        border: 1px solid #A5D6A7;
+        font-size: 0.8rem;
+        padding: 5px 12px;
+        border-radius: 16px;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+        transition: all 0.2s ease;
+    }
+
+    .chip-item:hover {
+        background: #E8F5E9;
+        border-color: #2E7D32;
+        transform: translateY(-1px);
+    }
+
+    /* Compact Bottom Side-by-Side Panel */
+    .bottom-input-panel {
+        background: rgba(255, 255, 255, 0.98);
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 10px 14px 14px;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    /* Sound Equalizer Waveform */
+    .waveform-box {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 18px;
+        width: 100%;
+    }
+
+    .waveform-box.active {
+        display: flex;
+    }
+
+    .wave-bar {
+        width: 3px;
+        height: 4px;
+        background: #2E7D32;
+        border-radius: 2px;
+        animation: waveAnim 0.7s ease-in-out infinite alternate;
+    }
+
+    .waveform-box .wave-bar:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .waveform-box .wave-bar:nth-child(2) {
+        animation-delay: 0.3s;
+    }
+
+    .waveform-box .wave-bar:nth-child(3) {
+        animation-delay: 0.5s;
+    }
+
+    .waveform-box .wave-bar:nth-child(4) {
+        animation-delay: 0.2s;
+    }
+
+    .waveform-box .wave-bar:nth-child(5) {
+        animation-delay: 0.6s;
+    }
+
+    .waveform-box .wave-bar:nth-child(6) {
+        animation-delay: 0.4s;
+    }
+
+    .waveform-box .wave-bar:nth-child(7) {
+        animation-delay: 0.2s;
+    }
+
+    .waveform-box .wave-bar:nth-child(8) {
+        animation-delay: 0.5s;
+    }
+
+    @keyframes waveAnim {
+        0% {
+            height: 4px;
+        }
+
+        100% {
+            height: 16px;
+        }
+    }
+
+    /* Side by Side Input Row */
+    .side-by-side-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .chat-input-pill {
+        background: #F8F9FA;
+        border: 1px solid #E0E0E0;
+        border-radius: 28px;
+        padding: 4px 12px;
+        display: flex;
+        align-items: center;
+        flex: 1;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .chat-input-pill input {
+        border: none;
+        background: transparent;
+        font-size: 0.92rem;
+        padding: 6px 4px;
+        flex: 1;
+        outline: none;
+    }
+
+    /* Compact Side Mic Button */
+    .side-mic-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .side-mic-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .side-mic-btn.recording {
+        background: linear-gradient(135deg, #D32F2F 0%, #C62828 100%);
+        animation: pulseRecord 1.2s infinite;
+    }
+
+    @keyframes pulseRecord {
+        0% {
+            transform: scale(0.96);
+            box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
+        }
+
+        70% {
+            transform: scale(1.06);
+            box-shadow: 0 0 0 10px rgba(211, 47, 47, 0);
+        }
+
+        100% {
+            transform: scale(0.96);
+            box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+        }
+    }
+
+    .side-send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #198754;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .side-send-btn:hover {
+        background: #157347;
+    }
+
+    /* Language Selection Dropdown */
+    .lang-dropdown-pill {
+        background: #F1F8E9;
+        border: 1px solid #C8E6C9;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1E6B38;
+        cursor: pointer;
+        outline: none;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assistant-container">
+
+    <!-- Header bar -->
+    <div class="assistant-header">
+        <div class="brand-title">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 32px; height: 32px; border-radius: 8px; object-fit: contain;" alt="PikDrishti AI">
+            <div>
+                <span id="assistantBrandName">पिकदृष्टी AI</span>
+                <div id="assistantBrandSub" style="font-size: 0.72rem; font-weight: 400; color: #6c757d; line-height: 1;">व्हॉइस असिस्टंट</div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Chat History button -->
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold" onclick="toggleHistoryDrawer()" title="Chat History">
+                <i class="bi bi-clock-history me-1"></i><span class="d-none d-sm-inline">History</span>
+            </button>
+            <!-- New Chat -->
+            <a href="{{ url_for('main.new_conversation') }}" class="btn btn-sm btn-success rounded-pill px-3 fw-semibold" title="New Chat">
+                <i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">New</span>
+            </a>
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+                <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat History Drawer (slides up from bottom) -->
+    <div id="historyDrawer" style="
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 1050;
+        background: white; border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 30px rgba(0,0,0,0.18);
+        transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: 70vh; overflow: hidden; display: flex; flex-direction: column;
+    ">
+        <div style="padding: 14px 18px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="fw-bold mb-0 text-success"><i class="bi bi-clock-history me-2"></i>Chat History</h6>
+                <span class="badge bg-light text-muted border">{{ all_conversations|length if all_conversations else 0 }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url_for('main.new_conversation') }}" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-semibold">
+                    <i class="bi bi-plus-lg me-1"></i>New Chat
+                </a>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="toggleHistoryDrawer()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div style="overflow-y: auto; flex: 1; padding: 6px 0;">
+            {% if all_conversations %}
+                {% for conv in all_conversations %}
+                {% set first_user_msg = conv.messages.filter_by(role='user').first() %}
+                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-light"
+                     style="background: {{ '#E8F5E9' if conv.id == active_conv_id else 'white' }};
+                            border-left: 4px solid {{ '#2E7D32' if conv.id == active_conv_id else 'transparent' }};">
+                    <a href="{{ url_for('main.assistant', conv=conv.id) }}"
+                       style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; flex: 1; min-width: 0;">
+                        <i class="bi bi-chat-dots{{ '-fill text-success' if conv.id == active_conv_id else ' text-muted' }}" style="font-size: 1.1rem;"></i>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="fw-semibold small text-truncate" style="color: {{ '#1B5E20' if conv.id == active_conv_id else '#212529' }};">
+                                {% if first_user_msg and first_user_msg.content %}
+                                    {{ first_user_msg.content[:45] }}{% if first_user_msg.content|length > 45 %}...{% endif %}
+                                {% else %}
+                                    Chat #{{ conv.id }}
+                                {% endif %}
+                                {% if conv.id == active_conv_id %}<span class="badge bg-success ms-1" style="font-size: 0.65rem;">Active</span>{% endif %}
+                            </div>
+                            <div class="text-muted" style="font-size: 0.73rem;">
+                                {{ conv.start_time.strftime('%d %b %Y, %I:%M %p') }} &bull; {{ conv.messages.count() }} msg{{ 's' if conv.messages.count() != 1 else '' }}
+                            </div>
+                        </div>
+                    </a>
+                    <form method="POST" action="{{ url_for('main.delete_conversation', conv_id=conv.id) }}" onsubmit="return confirm('Delete this conversation?');" class="ms-2 mb-0">
+                        <button type="submit" class="btn btn-sm btn-link text-danger p-1" title="Delete conversation">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-muted py-5 small">
+                    <i class="bi bi-chat-square-text d-block fs-3 mb-2 opacity-50"></i>
+                    No conversations yet.<br>
+                    <a href="{{ url_for('main.new_conversation') }}" class="btn btn-sm btn-outline-success rounded-pill mt-2">Start a conversation</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div id="historyOverlay" onclick="toggleHistoryDrawer()" style="
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1040; backdrop-filter: blur(1px);
+    "></div>
+
+    {% if context_analysis %}
+    <div class="px-3 pt-2">
+        <div class="p-2 px-3 rounded-3 d-flex align-items-center justify-content-between"
+             style="background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border: 1px solid #c8e6c9; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+            <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                <span class="badge bg-success" style="font-size: 0.72rem;"><i class="bi bi-shield-check me-1"></i>Scan Context</span>
+                <div class="small fw-bold text-dark text-truncate">
+                    {{ context_analysis.crop_display }} &bull; <span class="text-success">{{ context_analysis.detected_disease }}</span>
+                    <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">{{ context_analysis.severity or 'Moderate' }}</span>
+                </div>
+            </div>
+            <a href="{{ url_for('main.disease_result', analysis_id=context_analysis.id) }}"
+               class="btn btn-sm btn-outline-success rounded-pill py-0 px-2 fw-semibold" style="font-size: 0.75rem; white-space: nowrap;">
+                View Scan <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Chat Stream -->
+    <div id="chatBox" class="chat-stream">
+
+        <!-- Welcome Message in selected language -->
+        {% if not chat_history %}
+        <div class="msg-bot-container">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="bot-avatar" alt="PikDrishti AI">
+            <div class="bot-bubble">
+                <div class="markdown-body" id="welcomeMsgText">
+                    नमस्कार! मी **PikDrishti AI** आहे. तुमच्या पिकांबद्दल काही विचारायचे आहे का? तुम्ही बोलू शकता किंवा लिहू शकता.
+                </div>
+                <button type="button" class="tts-btn" title="Listen / ऐका" onclick="playCurrentElementText(this)">
+                    <i class="bi bi-volume-up"></i>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Persistent History -->
+        {% for msg in chat_history %}
+            {% if msg.role == 'user' %}
+            <div class="msg-user-container">
+                <div class="user-bubble">
+                    {{ msg.content }}
+                </div>
+            </div>
+            {% elif msg.role == 'ai' %}
+            <div class="msg-bot-container">
+                <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="bot-avatar" alt="PikDrishti AI">
+                <div class="bot-bubble">
+                    <div class="markdown-body">
+                        {{ msg.content }}
+                    </div>
+                    <button type="button" class="tts-btn" title="Listen / ऐका" onclick="playCurrentElementText(this)">
+                        <i class="bi bi-volume-up"></i>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="msg-bot-container d-none">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="bot-avatar" alt="PikDrishti AI">
+            <div class="bot-bubble d-flex align-items-center gap-1 py-2 px-3">
+                <div class="spinner-grow spinner-grow-sm text-success" role="status"></div>
+                <div class="spinner-grow spinner-grow-sm text-success" role="status" style="animation-delay: 0.2s"></div>
+                <div class="spinner-grow spinner-grow-sm text-success" role="status" style="animation-delay: 0.4s"></div>
+                <span class="ms-2 text-muted small" id="indicatorText">कृषी सल्ला तयार करत आहे...</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick Question Chips -->
+    <div class="quick-chips">
+        {% if context_analysis %}
+        <span class="chip-item"
+            onclick="sendQuickPrompt('या {{ context_analysis.crop_display }} वरील {{ context_analysis.detected_disease }} रोगावर कोणते रासायनिक औषध फवारावे?')">
+            💊 औषध फवारणी
+        </span>
+        <span class="chip-item"
+            onclick="sendQuickPrompt('{{ context_analysis.crop_display }} वरील या रोगासाठी सेंद्रिय किंवा घरगुती उपाय काय आहेत?')">
+            🌿 सेंद्रिय उपाय
+        </span>
+        <span class="chip-item"
+            onclick="sendQuickPrompt('हा रोग इतर झाडांवर पसरू नये म्हणून काय प्रतिबंधात्मक काळजी घ्यावी?')">
+            🛡️ पसरण्यापासून रोखा
+        </span>
+        <span class="chip-item"
+            onclick="sendQuickPrompt('या रोगाच्या काळात पाणी आणि खत व्यवस्थापन कसे ठेवावे?')">
+            💧 खत व पाणी नियोजन
+        </span>
+        {% else %}
+        <span class="chip-item"
+            onclick="sendQuickPrompt('माझ्या कापसाच्या पानांवर डाग पडले आहेत याचे कारण काय असू शकते?')">
+            🌱 कापूस पानांवर डाग
+        </span>
+        <span class="chip-item" onclick="sendQuickPrompt('टोमॅटो पिकावर Early Blight रोगाचा प्रादुर्भाव कसा रोखावा?')">
+            🍅 टोमॅटो रोग नियंत्रण
+        </span>
+        <span class="chip-item" onclick="sendQuickPrompt('सोयाबीनसाठी योग्य खत आणि पाणी व्यवस्थापन सांगा.')">
+            🌾 सोयाबीन खत नियोजन
+        </span>
+        <span class="chip-item" onclick="sendQuickPrompt('बटाटा Late Blight साठी सेंद्रिय उपाय काय आहेत?')">
+            🥔 बटाटा करपा उपाय
+        </span>
+        {% endif %}
+    </div>
+
+    <!-- Side-by-Side Voice & Text Input Panel -->
+    <div class="bottom-input-panel">
+
+        <!-- Mini Waveform Visualizer (Appears when recording / speaking) -->
+        <div class="waveform-box" id="waveformBox">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <span class="text-success small ms-2 fw-semibold" id="waveformLabel">Listening...</span>
+        </div>
+
+        <!-- Side-by-side row: Input + Mic + Send -->
+        <form id="chatForm" onsubmit="handleFormSubmit(event)" class="side-by-side-row mb-0">
+            <input type="hidden" id="conversationId" value="{{ conversation_id }}">
+
+            <div class="chat-input-pill">
+                <input type="text" id="chatInput" placeholder="येथे विचारा किंवा बोला..." autocomplete="off">
+            </div>
+
+            <!-- Side Mic Button -->
+            <button class="side-mic-btn" id="sideMicBtn" type="button" title="Voice / बोला"
+                onclick="toggleVoiceRecording()">
+                <i class="bi bi-mic-fill" id="micIconState"></i>
+            </button>
+
+            <!-- Send Button -->
+            <button class="side-send-btn" type="submit" id="sendBtn" title="Send / पाठवा">
+                <i class="bi bi-send-fill text-white"></i>
+            </button>
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // State management
+    let currentLanguage = 'mr'; // Marathi default
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioStream = null;
+    let currentAudioPlayer = null;
+
+    const chatBox = document.getElementById('chatBox');
+    const chatInput = document.getElementById('chatInput');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const indicatorText = document.getElementById('indicatorText');
+    const conversationIdInput = document.getElementById('conversationId');
+    const sideMicBtn = document.getElementById('sideMicBtn');
+    const micIconState = document.getElementById('micIconState');
+    const waveformBox = document.getElementById('waveformBox');
+    const waveformLabel = document.getElementById('waveformLabel');
+    const langSelectTop = document.getElementById('langSelectTop');
+
+    // Language labels dictionary
+    const langDict = {
+        mr: {
+            brandName: "पिकदृष्टी AI",
+            brandSub: "व्हॉइस असिस्टंट",
+            micListening: "ऐकत आहे... (Listening)",
+            micProcessing: "भाषिणी प्रक्रिया चालू आहे...",
+            placeholder: "येथे विचारा किंवा बोला...",
+            indicator: "कृषी सल्ला तयार करत आहे...",
+            welcome: "नमस्कार! मी **पिकदृष्टी AI** आहे. तुमच्या पिकांबद्दल काही विचारायचे आहे का? तुम्ही बोलू शकता किंवा लिहू शकता."
+        },
+        en: {
+            brandName: "PikDrishti AI",
+            brandSub: "Voice Assistant",
+            micListening: "Listening...",
+            micProcessing: "Processing via Bhashini AI...",
+            placeholder: "Ask a question or tap mic...",
+            indicator: "Generating agricultural advice...",
+            welcome: "Hello! I am **PikDrishti AI**. How can I help you with your crops today? You can speak or type."
+        }
+    };
+
+    function changeLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('pikdrishti_lang', lang);
+        if (langSelectTop) langSelectTop.value = lang;
+
+        const dict = langDict[lang] || langDict.mr;
+        if (chatInput) chatInput.placeholder = dict.placeholder;
+        if (indicatorText) indicatorText.innerText = dict.indicator;
+
+        const brandEl = document.getElementById('assistantBrandName');
+        if (brandEl) brandEl.innerText = dict.brandName;
+
+        const subEl = document.getElementById('assistantBrandSub');
+        if (subEl) subEl.innerText = dict.brandSub;
+
+        const welcomeText = document.getElementById('welcomeMsgText');
+        if (welcomeText && !welcomeText.dataset.userChatted) {
+            welcomeText.innerHTML = marked.parse(dict.welcome);
+        }
+    }
+    window.applyAssistantLanguage = changeLanguage;
+
+    let historyDrawerOpen = false;
+    function toggleHistoryDrawer() {
+        const drawer = document.getElementById('historyDrawer');
+        const overlay = document.getElementById('historyOverlay');
+        if (!drawer || !overlay) return;
+        historyDrawerOpen = !historyDrawerOpen;
+        if (historyDrawerOpen) {
+            drawer.style.transform = 'translateY(0)';
+            overlay.style.display = 'block';
+        } else {
+            drawer.style.transform = 'translateY(100%)';
+            overlay.style.display = 'none';
+        }
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Render markdown in chat history
+    function renderChatElements() {
+        document.querySelectorAll('.markdown-body').forEach(div => {
+            if (div.dataset.rendered) return;
+            const raw = div.textContent.trim().replace(/^ {4}/gm, '');
+            div.innerHTML = DOMPurify.sanitize(marked.parse(raw, { breaks: true, gfm: true }));
+            div.dataset.rendered = 'true';
+        });
+        scrollToBottom();
+    }
+    renderChatElements();
+
+    // Quick prompt chip clicked
+    function sendQuickPrompt(promptText) {
+        chatInput.value = promptText;
+        handleSendMessage(promptText);
+    }
+
+    // Form submit handler
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        handleSendMessage(text);
+        chatInput.value = '';
+    }
+
+    // Send user message
+    function handleSendMessage(messageText) {
+        const welcomeText = document.getElementById('welcomeMsgText');
+        if (welcomeText) welcomeText.dataset.userChatted = 'true';
+
+        appendUserMessage(messageText);
+
+        // Show typing indicator
+        typingIndicator.classList.remove('d-none');
+        scrollToBottom();
+
+        fetch('/api/assistant/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: messageText,
+                conversation_id: conversationIdInput.value,
+                language: currentLanguage
+            })
+        })
+            .then(async resp => {
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || `Server error: ${resp.status}`);
+                return data;
+            })
+            .then(data => {
+                typingIndicator.classList.add('d-none');
+                if (data.success) {
+                    if (data.conversation_id && !conversationIdInput.value) {
+                        conversationIdInput.value = data.conversation_id;
+                    }
+                    appendBotMessage(data.response);
+                    // Trigger Bhashini TTS synthesis & playback
+                    requestBhasiniTTS(data.response);
+                } else {
+                    appendBotMessage("Error: " + (data.error || "Could not fetch AI response."));
+                }
+            })
+            .catch(err => {
+                typingIndicator.classList.add('d-none');
+                console.error("Chat error:", err);
+                appendBotMessage("Error: " + err.message);
+            });
+    }
+
+    // UI Message Appenders
+    function appendUserMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'msg-user-container';
+        div.innerHTML = `<div class="user-bubble">${DOMPurify.sanitize(text)}</div>`;
+        chatBox.insertBefore(div, typingIndicator);
+        scrollToBottom();
+    }
+
+    function appendBotMessage(content) {
+        const div = document.createElement('div');
+        div.className = 'msg-bot-container';
+        const parsedHtml = DOMPurify.sanitize(marked.parse(content || '', { breaks: true, gfm: true }));
+        div.innerHTML = `
+            <img src="/static/images/icons/icon-192.png" class="bot-avatar" alt="PikDrishti AI">
+            <div class="bot-bubble">
+                <div class="markdown-body">
+                    ${parsedHtml}
+                </div>
+                <button type="button" class="tts-btn" title="Listen / ऐका" onclick="playCurrentElementText(this)">
+                    <i class="bi bi-volume-up"></i>
+                </button>
+            </div>
+        `;
+        chatBox.insertBefore(div, typingIndicator);
+        scrollToBottom();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Voice Recording & Fallback Handlers
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    let activeRecognition = null;
+
+    async function toggleVoiceRecording() {
+        stopAllAudio();
+
+        if (isRecording) {
+            stopVoiceRecording();
+        } else {
+            startWebSpeechRecognitionFallback();
+        }
+    }
+
+    function startWebSpeechRecognitionFallback() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Speech recognition is not supported in this browser.");
+            return;
+        }
+
+        stopVoiceRecording();
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        activeRecognition = new SpeechRecognition();
+
+        activeRecognition.lang = currentLanguage === 'mr' ? 'mr-IN' : 'en-IN';
+        activeRecognition.continuous = false;
+        activeRecognition.interimResults = false;
+
+        sideMicBtn.classList.add('recording');
+        micIconState.className = 'bi bi-stop-fill';
+        waveformBox.classList.add('active');
+        waveformLabel.innerText = (langDict[currentLanguage] || langDict.mr).micListening;
+        isRecording = true;
+
+        activeRecognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            if (transcript) {
+                chatInput.value = transcript;
+                handleSendMessage(transcript);
+            }
+        };
+
+        activeRecognition.onerror = function (event) {
+            console.warn("Speech error:", event.error);
+            stopVoiceRecording();
+        };
+
+        activeRecognition.onend = function () {
+            stopVoiceRecording();
+        };
+
+        try {
+            activeRecognition.start();
+        } catch (e) {
+            console.error(e);
+            stopVoiceRecording();
+        }
+    }
+
+    function stopVoiceRecording() {
+        if (activeRecognition) {
+            try {
+                activeRecognition.abort();
+                activeRecognition.stop();
+            } catch (e) {}
+            activeRecognition = null;
+        }
+        sideMicBtn.classList.remove('recording');
+        micIconState.className = 'bi bi-mic-fill';
+        waveformBox.classList.remove('active');
+        isRecording = false;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Bhashini Text-To-Speech (TTS) & Audio Play/Pause Handling
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    let currentPlayingButton = null;
+
+    function stopAllAudio() {
+        if (currentAudioPlayer) {
+            try {
+                currentAudioPlayer.pause();
+                currentAudioPlayer.currentTime = 0;
+            } catch (e) {}
+            currentAudioPlayer = null;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        waveformBox.classList.remove('active');
+
+        if (currentPlayingButton) {
+            currentPlayingButton.classList.remove('playing');
+            const icon = currentPlayingButton.querySelector('i');
+            if (icon) icon.className = 'bi bi-volume-up';
+            currentPlayingButton = null;
+        }
+    }
+
+    async function requestBhasiniTTS(text, sourceButton) {
+        const cleanText = text.replace(/[#*_`\[\]\(\)]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500);
+        try {
+            const resp = await fetch('/api/bhasini/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: cleanText,
+                    language: currentLanguage
+                })
+            });
+            const data = await resp.json();
+            if (data.success && data.audio_base64) {
+                playBase64Audio(data.audio_base64, sourceButton);
+            } else {
+                speakViaBrowserTTS(cleanText, sourceButton);
+            }
+        } catch (e) {
+            speakViaBrowserTTS(cleanText, sourceButton);
+        }
+    }
+
+    function playBase64Audio(base64Data, button) {
+        if (currentAudioPlayer) {
+            currentAudioPlayer.pause();
+            currentAudioPlayer = null;
+        }
+
+        const audioSrc = base64Data.startsWith('data:') ? base64Data : `data:audio/wav;base64,${base64Data}`;
+        currentAudioPlayer = new Audio(audioSrc);
+
+        waveformBox.classList.add('active');
+        waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : "Playing Audio...";
+
+        currentAudioPlayer.onended = () => {
+            stopAllAudio();
+        };
+        currentAudioPlayer.onpause = () => {
+            if (!currentAudioPlayer || currentAudioPlayer.paused) {
+                waveformBox.classList.remove('active');
+                if (button) {
+                    button.classList.remove('playing');
+                    const icon = button.querySelector('i');
+                    if (icon) icon.className = 'bi bi-volume-up';
+                }
+            }
+        };
+        currentAudioPlayer.onerror = () => {
+            stopAllAudio();
+        };
+
+        currentAudioPlayer.play().catch(e => {
+            console.log("Audio play error:", e);
+            stopAllAudio();
+        });
+    }
+
+    function playCurrentElementText(button) {
+        // Toggle pause/stop if already playing on this button
+        if (button === currentPlayingButton) {
+            stopAllAudio();
+            return;
+        }
+
+        stopAllAudio();
+
+        const botBubble = button.closest('.bot-bubble');
+        const markdownBody = botBubble ? botBubble.querySelector('.markdown-body') : null;
+        if (!markdownBody) return;
+
+        const text = markdownBody.textContent.trim();
+        currentPlayingButton = button;
+        button.classList.add('playing');
+        const icon = button.querySelector('i');
+        if (icon) icon.className = 'bi bi-pause-fill text-danger';
+
+        requestBhasiniTTS(text, button);
+    }
+
+    function speakViaBrowserTTS(text, button) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = currentLanguage === 'mr' ? 'mr-IN' : 'en-IN';
+            utterance.rate = 0.95;
+
+            waveformBox.classList.add('active');
+            waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : "Playing Audio...";
+
+            utterance.onend = () => {
+                stopAllAudio();
+            };
+            utterance.onerror = () => {
+                stopAllAudio();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            stopAllAudio();
+        }
+    }
+
+    // Initialize saved persistent language on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        changeLanguage(savedLang);
+    });
+</script>
+{% endblock %}

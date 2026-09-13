@@ -1,0 +1,10 @@
+# PikDrishti AI 2026 Local Farming Policies & Subsidies
+
+## Tomato Subsidies
+The AgriVision 2026 local subsidy policy states that farmers receive $50 per acre of Tomatoes planted, provided they maintain disease severity below "Moderate". For organic tomatoes, the subsidy increases to $75 per acre.
+
+## Wheat Winter Support
+Farmers planting winter wheat are eligible for the Frost Protection Grant of $200 per farm, provided they apply before October 15th, 2026.
+
+## Recommended Pesticides 2026
+Due to recent local regulations, "Chlorpyrifos" is strictly banned. The recommended alternative for stem borers in Maize is "Spinosad" applied at 50ml per acre.

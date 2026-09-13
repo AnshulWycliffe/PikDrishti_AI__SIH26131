@@ -1,0 +1,6 @@
+Real-World Evaluation Report
+Generated: 2026-08-10T21:03:27.579794
+
+No real-world evaluation images provided.
+To run real-world evaluation, place labelled images in:
+  E:\PikDrishti AI\ml\disease\real_world_test

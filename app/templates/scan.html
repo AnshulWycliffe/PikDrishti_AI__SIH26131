@@ -1,0 +1,800 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-green: #1B5E20;
+        --brand-green-light: #2E7D32;
+        --brand-accent: #4CAF50;
+    }
+
+    .scan-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 12px 16px 85px;
+    }
+
+    /* Header matching Screen 3 Wireframe */
+    .scan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .scan-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .back-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #212529;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #F8F9FA;
+        transform: translateX(-2px);
+    }
+
+    .scan-heading {
+        font-weight: 700;
+        font-size: 1.18rem;
+        color: #198754;
+        margin-bottom: 0;
+    }
+
+    /* Language Switcher Badge */
+    .lang-switcher-btn {
+        background: #E8F5E9;
+        color: #1B5E20;
+        border: 1px solid #C8E6C9;
+        font-weight: 700;
+        font-size: 0.82rem;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .lang-switcher-btn:hover {
+        background: #C8E6C9;
+        color: #1B5E20;
+    }
+
+    /* 3-Step Progress Stepper */
+    .stepper-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 22px;
+        padding: 0 10px;
+    }
+
+    .stepper-line {
+        position: absolute;
+        top: 16px;
+        left: 36px;
+        right: 36px;
+        height: 2px;
+        background: #E0E0E0;
+        z-index: 1;
+    }
+
+    .stepper-progress {
+        position: absolute;
+        top: 16px;
+        left: 36px;
+        width: 0%;
+        height: 2px;
+        background: #2E7D32;
+        z-index: 2;
+        transition: width 0.3s ease;
+    }
+
+    .step-item {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 2px solid #E0E0E0;
+        color: #6C757D;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .step-item.active .step-circle {
+        background: #2E7D32;
+        border-color: #2E7D32;
+        color: #FFFFFF;
+        box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+    }
+
+    .step-label {
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: #6C757D;
+    }
+
+    .step-item.active .step-label {
+        color: #1E6B38;
+        font-weight: 700;
+    }
+
+    /* Upload Box Card */
+    .upload-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .preview-box {
+        border: 2px dashed #C8E6C9;
+        background: #F9FDF9;
+        border-radius: 16px;
+        height: 210px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .preview-box:hover {
+        background: #F1F8E9;
+        border-color: #81C784;
+    }
+
+    .preview-box.has-image {
+        border-style: solid;
+        border-color: #A5D6A7;
+    }
+
+    .preview-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #E8F5E9;
+        color: #2E7D32;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+    }
+
+    .preview-text {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #2E7D32;
+        margin-bottom: 2px;
+    }
+
+    .preview-subtext {
+        font-size: 0.76rem;
+        color: #757575;
+    }
+
+    .preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .retake-badge {
+        position: absolute;
+        bottom: 12px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        backdrop-filter: blur(4px);
+    }
+
+    /* Dual Action Buttons below preview */
+    .dual-action-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .btn-camera-action {
+        flex: 1;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .btn-camera-action:hover {
+        background: linear-gradient(135deg, #388E3C 0%, #1E6B38 100%);
+        color: white;
+    }
+
+    .btn-upload-action {
+        flex: 1;
+        background: #FFFFFF;
+        color: #2E7D32;
+        border: 1.5px solid #A5D6A7;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-upload-action:hover {
+        background: #E8F5E9;
+        border-color: #2E7D32;
+        color: #1B5E20;
+    }
+
+    /* Details Form Card */
+    .form-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .form-group-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #212529;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .custom-select-pill {
+        border-radius: 12px;
+        border: 1.5px solid #E0E0E0;
+        padding: 9px 14px;
+        font-size: 0.88rem;
+        background-color: #F9FAFB;
+    }
+
+    .custom-select-pill:focus {
+        border-color: #2E7D32;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+    }
+
+    /* Location Button */
+    .location-btn-pill {
+        background: #F1F8E9;
+        color: #1E6B38;
+        border: 1px solid #C8E6C9;
+        border-radius: 12px;
+        padding: 9px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .location-btn-pill:hover {
+        background: #DCEDC8;
+    }
+
+    /* Symptoms Voice Input Box */
+    .symptoms-wrapper {
+        position: relative;
+        background: #F9FAFB;
+        border: 1.5px solid #E0E0E0;
+        border-radius: 12px;
+        padding: 8px 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .symptoms-wrapper:focus-within {
+        border-color: #2E7D32;
+        background-color: #FFFFFF;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+    }
+
+    .symptoms-input {
+        border: none;
+        background: transparent;
+        font-size: 0.88rem;
+        width: 100%;
+        outline: none;
+        resize: none;
+        min-height: 44px;
+        line-height: 1.4;
+    }
+
+    .voice-dictate-btn {
+        background: #E8F5E9;
+        color: #1E6B38;
+        border: 1px solid #C8E6C9;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .voice-dictate-btn.listening {
+        background: #D32F2F;
+        color: white;
+        border-color: #D32F2F;
+        animation: pulseRecord 1.2s infinite;
+    }
+
+    /* Big Submit Button */
+    .btn-analyze-submit {
+        background: linear-gradient(135deg, #2E7D32 0%, #155724 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 13px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        box-shadow: 0 6px 18px rgba(46, 125, 50, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .btn-analyze-submit:hover {
+        background: linear-gradient(135deg, #388E3C 0%, #1B5E20 100%);
+        color: white;
+    }
+
+    .btn-analyze-submit:disabled {
+        opacity: 0.75;
+    }
+
+    @keyframes pulseRecord {
+        0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+        70% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(211, 47, 47, 0); }
+        100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scan-container">
+
+    <!-- Top Header Bar with Persistent Language Switcher -->
+    <div class="scan-header">
+        <div class="scan-title-group">
+            <a href="{{ url_for('main.dashboard') }}" class="back-btn" title="Back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="scan-heading" id="lblScanPageTitle">Crop Health Check</h1>
+        </div>
+
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span id="scanCurrentLangLabel" class="top-lang-label">मराठी</span>
+        </button>
+    </div>
+
+    <!-- Stepper Progress Indicator (1. Upload -> 2. Details -> 3. Analyze) -->
+    <div class="stepper-container">
+        <div class="stepper-line"></div>
+        <div class="stepper-progress" id="stepperProgress"></div>
+
+        <!-- Step 1 -->
+        <div class="step-item active" id="step1">
+            <div class="step-circle">1</div>
+            <span class="step-label" id="lblStep1">Upload</span>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-item" id="step2">
+            <div class="step-circle">2</div>
+            <span class="step-label" id="lblStep2">Details</span>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-item" id="step3">
+            <div class="step-circle">3</div>
+            <span class="step-label" id="lblStep3">Analyze</span>
+        </div>
+    </div>
+
+    <!-- Main Scan Form -->
+    <form id="scanForm">
+
+        <!-- Upload / Capture Card -->
+        <div class="upload-card">
+            
+            <!-- Dashed Preview Area -->
+            <div id="imagePreviewContainer" class="preview-box" onclick="triggerCameraInput()">
+                <div id="imagePlaceholder" class="text-center">
+                    <div class="preview-icon-wrapper mx-auto">
+                        <i class="bi bi-image"></i>
+                    </div>
+                    <div class="preview-text" id="lblPreviewText">Upload or Capture Image</div>
+                    <div class="preview-subtext" id="lblPreviewSub">of your crop leaf</div>
+                </div>
+                
+                <img id="imagePreview" src="" alt="Crop Leaf Preview" class="preview-img d-none">
+                <div id="retakeBadge" class="retake-badge d-none">
+                    <i class="bi bi-arrow-repeat me-1"></i> <span id="lblChangePhoto">Change Photo</span>
+                </div>
+            </div>
+
+            <!-- Hidden File Inputs -->
+            <input type="file" id="cameraInput" name="image_camera" accept="image/*" capture="environment" class="d-none" onchange="handleImageSelected(this)">
+            <input type="file" id="galleryInput" name="image" accept="image/*" class="d-none" onchange="handleImageSelected(this)">
+
+            <!-- Dual Action Buttons -->
+            <div class="dual-action-row">
+                <button type="button" class="btn-camera-action" onclick="triggerCameraInput()">
+                    <i class="bi bi-camera-fill"></i> <span id="btnTakePhotoText">Take Photo</span>
+                </button>
+                <button type="button" class="btn-upload-action" onclick="triggerGalleryInput()">
+                    <i class="bi bi-folder2-open"></i> <span id="btnUploadPhotoText">Upload Image</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Crop & Location Details Card -->
+        <div class="form-card">
+
+            <!-- Select Crop -->
+            <div class="mb-3">
+                <label class="form-group-label" id="lblSelectCrop">Select Crop *</label>
+                <select class="form-select custom-select-pill" name="crop_id" id="cropSelect">
+                    <option value="" id="optAutoDetect">-- Auto-detect / पीक निवडा --</option>
+                    {% for crop in crops %}
+                        <option value="{{ crop.id }}">{{ crop.name }} {% if crop.variety %}({{ crop.variety }}){% endif %}</option>
+                    {% endfor %}
+                    <option value="cotton">कापूस (Cotton)</option>
+                    <option value="soybean">सोयाबीन (Soybean)</option>
+                    <option value="tomato">टोमॅटो (Tomato)</option>
+                    <option value="potato">बटाटा (Potato)</option>
+                    <option value="pepper">मिरची (Pepper / Bell)</option>
+                    <option value="tur">तूर (Tur / Pigeon Pea)</option>
+                </select>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+                <label class="form-group-label" id="lblYourLocation">Your Location</label>
+                <div class="location-box">
+                    <button type="button" class="location-btn-pill" id="locationBtn" onclick="fetchCurrentLocation()">
+                        <i class="bi bi-geo-alt-fill text-success"></i>
+                        <span id="locationLabel">Use Current Location</span>
+                    </button>
+                    <input type="hidden" name="location" id="locationField">
+                </div>
+            </div>
+
+            <!-- Describe Symptoms with Voice Mic -->
+            <div class="mb-2">
+                <label class="form-group-label" id="lblDescribeSymptoms">Describe symptoms (optional)</label>
+                <div class="symptoms-wrapper">
+                    <textarea class="symptoms-input" id="symptomsText" name="farmer_observation" rows="2" placeholder="e.g. पानांवर डाग आहेत, पाने पिवळी पडली आहेत..."></textarea>
+                    <button type="button" class="voice-dictate-btn" id="symptomMicBtn" title="Speak symptoms" onclick="toggleSymptomVoice()">
+                        <i class="bi bi-mic-fill" id="symptomMicIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Analyze Submit Button -->
+        <button type="submit" id="analyzeBtn" class="btn-analyze-submit">
+            <i class="bi bi-stars"></i>
+            <span id="btnText">Analyze Crop</span>
+            <div id="btnSpinner" class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status"></div>
+        </button>
+
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedImageFile = null;
+
+    // Scan dictionary (Marathi & English)
+    const scanTranslations = {
+        mr: {
+            label: "मराठी",
+            title: "पीक आरोग्य तपासणी",
+            step1: "फोटो",
+            step2: "तपशील",
+            step3: "तपासा",
+            previewText: "पिकाचा फोटो घ्या किंवा अपलोड करा",
+            previewSub: "पानाचा स्पष्ट फोटो",
+            changePhoto: "फोटो बदला",
+            takePhoto: "फोटो काढा",
+            uploadPhoto: "गॅलरीतून निवडा",
+            selectCrop: "पीक निवडा *",
+            autoDetect: "-- आपोआप ओळखा / पीक निवडा --",
+            yourLocation: "तुमचे स्थान",
+            useLocation: "वर्तमान स्थान वापरा",
+            symptoms: "लक्षणे सांगा (ऐच्छिक)",
+            symptomsPlaceholder: "उदा. पानांवर डाग आहेत, पाने पिवळी पडत आहेत...",
+            analyzeBtn: "पीक रोग निदान करा",
+            analyzingBtn: "AI द्वारे तपासणी सुरू आहे...",
+            alertPhotoReq: "कृपया पिकाचा फोटो घ्या किंवा अपलोड करा"
+        },
+        en: {
+            label: "English",
+            title: "Crop Health Check",
+            step1: "Upload",
+            step2: "Details",
+            step3: "Analyze",
+            previewText: "Upload or Capture Image",
+            previewSub: "of your crop leaf",
+            changePhoto: "Change Photo",
+            takePhoto: "Take Photo",
+            uploadPhoto: "Upload Image",
+            selectCrop: "Select Crop *",
+            autoDetect: "-- Auto-detect / Select Crop --",
+            yourLocation: "Your Location",
+            useLocation: "Use Current Location",
+            symptoms: "Describe symptoms (optional)",
+            symptomsPlaceholder: "e.g. Brown spots on leaves, yellowing...",
+            analyzeBtn: "Analyze Crop",
+            analyzingBtn: "Analyzing Crop with AI...",
+            alertPhotoReq: "Please take or upload a crop photo"
+        }
+    };
+
+    function setGlobalLanguage(lang) {
+        localStorage.setItem('pikdrishti_lang', lang);
+        applyScanLanguage(lang);
+    }
+
+    function applyScanLanguage(lang) {
+        const dict = scanTranslations[lang] || scanTranslations.mr;
+        document.getElementById('scanCurrentLangLabel').innerText = dict.label;
+        document.getElementById('lblScanPageTitle').innerText = dict.title;
+        document.getElementById('lblStep1').innerText = dict.step1;
+        document.getElementById('lblStep2').innerText = dict.step2;
+        document.getElementById('lblStep3').innerText = dict.step3;
+
+        document.getElementById('lblPreviewText').innerText = dict.previewText;
+        document.getElementById('lblPreviewSub').innerText = dict.previewSub;
+        document.getElementById('lblChangePhoto').innerText = dict.changePhoto;
+        document.getElementById('btnTakePhotoText').innerText = dict.takePhoto;
+        document.getElementById('btnUploadPhotoText').innerText = dict.uploadPhoto;
+
+        document.getElementById('lblSelectCrop').innerText = dict.selectCrop;
+        document.getElementById('optAutoDetect').innerText = dict.autoDetect;
+        document.getElementById('lblYourLocation').innerText = dict.yourLocation;
+        document.getElementById('locationLabel').innerText = dict.useLocation;
+        document.getElementById('lblDescribeSymptoms').innerText = dict.symptoms;
+        document.getElementById('symptomsText').placeholder = dict.symptomsPlaceholder;
+        document.getElementById('btnText').innerText = dict.analyzeBtn;
+    }
+
+    function triggerCameraInput() {
+        document.getElementById('cameraInput').click();
+    }
+
+    function triggerGalleryInput() {
+        document.getElementById('galleryInput').click();
+    }
+
+    function handleImageSelected(input) {
+        if (input.files && input.files[0]) {
+            selectedImageFile = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                document.getElementById('imagePlaceholder').classList.add('d-none');
+                const previewImg = document.getElementById('imagePreview');
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('d-none');
+                document.getElementById('retakeBadge').classList.remove('d-none');
+                document.getElementById('imagePreviewContainer').classList.add('has-image');
+
+                document.getElementById('step2').classList.add('active');
+                document.getElementById('stepperProgress').style.width = '44%';
+            };
+
+            reader.readAsDataURL(selectedImageFile);
+        }
+    }
+
+    function fetchCurrentLocation() {
+        const label = document.getElementById('locationLabel');
+        if ("geolocation" in navigator) {
+            label.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Locating...';
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lon = pos.coords.longitude.toFixed(4);
+                    label.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> GPS: ${lat}, ${lon} (Maharashtra)`;
+                    document.getElementById('locationField').value = `${lat},${lon}`;
+                },
+                (err) => {
+                    label.innerText = 'Nashik, Maharashtra';
+                    document.getElementById('locationField').value = 'Nashik, Maharashtra';
+                },
+                { timeout: 8000 }
+            );
+        } else {
+            label.innerText = 'Nashik, Maharashtra';
+        }
+    }
+
+    document.getElementById('scanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const dict = scanTranslations[currentLang] || scanTranslations.mr;
+
+        if (!selectedImageFile) {
+            alert(dict.alertPhotoReq);
+            triggerCameraInput();
+            return;
+        }
+
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const btn = document.getElementById('analyzeBtn');
+
+        btnText.innerText = dict.analyzingBtn;
+        btnSpinner.classList.remove('d-none');
+        btn.disabled = true;
+
+        document.getElementById('step3').classList.add('active');
+        document.getElementById('stepperProgress').style.width = '87%';
+
+        const formData = new FormData();
+        formData.append('image', selectedImageFile);
+        formData.append('crop_id', document.getElementById('cropSelect').value);
+        formData.append('farmer_observation', document.getElementById('symptomsText').value);
+        formData.append('location', document.getElementById('locationField').value);
+
+        fetch('/api/disease/analyze', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.analysis_id) {
+                window.location.href = '/disease-result/' + data.analysis_id;
+            } else {
+                const msg = data.error || data.message || 'Analysis failed. Please try again.';
+                alert(msg);
+                btnText.innerText = dict.analyzeBtn;
+                btnSpinner.classList.add('d-none');
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Analysis error. Please try again.');
+            btnText.innerText = dict.analyzeBtn;
+            btnSpinner.classList.add('d-none');
+            btn.disabled = false;
+        });
+    });
+
+    // Voice Dictation for Symptoms
+    const symptomMicBtn = document.getElementById('symptomMicBtn');
+    const symptomMicIcon = document.getElementById('symptomMicIcon');
+    const symptomsText = document.getElementById('symptomsText');
+    let symptomRecognition = null;
+    let isSymptomListening = false;
+
+    function toggleSymptomVoice() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Speech recognition is not supported in this browser.");
+            return;
+        }
+
+        if (isSymptomListening && symptomRecognition) {
+            symptomRecognition.stop();
+            return;
+        }
+
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        symptomRecognition = new SpeechRecognition();
+        symptomRecognition.lang = currentLang === 'mr' ? 'mr-IN' : 'en-IN';
+        symptomRecognition.continuous = false;
+        symptomRecognition.interimResults = false;
+
+        symptomRecognition.onstart = function() {
+            isSymptomListening = true;
+            symptomMicBtn.classList.add('listening');
+            symptomMicIcon.className = 'bi bi-stop-fill';
+            symptomsText.placeholder = currentLang === 'mr' ? "ऐकत आहे..." : "Listening...";
+        };
+
+        symptomRecognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            symptomsText.value += (symptomsText.value ? ' ' : '') + transcript;
+        };
+
+        symptomRecognition.onerror = function(event) {
+            console.warn("Speech error:", event.error);
+        };
+
+        symptomRecognition.onend = function() {
+            isSymptomListening = false;
+            symptomMicBtn.classList.remove('listening');
+            symptomMicIcon.className = 'bi bi-mic-fill';
+            const dict = scanTranslations[currentLang] || scanTranslations.mr;
+            symptomsText.placeholder = dict.symptomsPlaceholder;
+        };
+
+        try {
+            symptomRecognition.start();
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    // Load persistent language on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        applyScanLanguage(savedLang);
+    });
+</script>
+{% endblock %}

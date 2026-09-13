@@ -1,0 +1,733 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .yield-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 16px 80px 16px;
+    }
+
+    /* Hero Header */
+    .yield-hero-card {
+        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 65%, #388E3C 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 22px 24px;
+        box-shadow: 0 10px 25px rgba(27, 94, 32, 0.22);
+        margin-bottom: 22px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .yield-hero-card::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        bottom: -30px;
+        width: 140px;
+        height: 140px;
+        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .hero-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .hero-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(8px);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        margin-bottom: 8px;
+    }
+
+    /* Main Form Card */
+    .glass-config-card {
+        background: #ffffff;
+        border: 1px solid #eef2f5;
+        border-radius: 18px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        margin-bottom: 22px;
+    }
+
+    .section-title-tag {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1B5E20;
+        margin-bottom: 14px;
+    }
+
+    .custom-select-box {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #1e293b;
+        transition: all 0.2s ease;
+    }
+
+    .custom-select-box:focus {
+        border-color: #2E7D32;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+        outline: none;
+    }
+
+    /* Severity Chip Grid */
+    .severity-chips-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    @media (max-width: 576px) {
+        .severity-chips-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .severity-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 12px 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.22s ease;
+        background: #ffffff;
+        position: relative;
+    }
+
+    .severity-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .severity-card.active {
+        border-color: #2E7D32;
+        background: #E8F5E9;
+    }
+
+    .severity-card.active.sev-none {
+        border-color: #2E7D32;
+        background: #e8f5e9;
+    }
+    .severity-card.active.sev-mild {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+    .severity-card.active.sev-mod {
+        border-color: #f97316;
+        background: #fff7ed;
+    }
+    .severity-card.active.sev-sev {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .sev-icon {
+        font-size: 1.4rem;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .sev-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .sev-sub {
+        font-size: 0.72rem;
+        color: #64748b;
+    }
+
+    /* Calculate Button */
+    .btn-calc-yield {
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 14px 28px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        box-shadow: 0 6px 18px rgba(46, 125, 50, 0.32);
+        transition: all 0.25s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-calc-yield:hover {
+        background: linear-gradient(135deg, #1B5E20 0%, #0d3810 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(46, 125, 50, 0.4);
+        color: white;
+    }
+
+    /* Result Showcase */
+    .result-showcase-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 2px solid #a7f3d0;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+        padding: 24px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+        .kpi-stat-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .kpi-box {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+
+    .kpi-box.highlight {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border-color: #a7f3d0;
+    }
+
+    .kpi-box.warning-box {
+        background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+        border-color: #fed7aa;
+    }
+
+    .kpi-val {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
+    }
+
+    .kpi-lbl {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-top: 4px;
+    }
+
+    /* Progress comparison */
+    .loss-progress-wrap {
+        background: #f1f5f9;
+        border-radius: 10px;
+        height: 14px;
+        overflow: hidden;
+        margin: 8px 0;
+        display: flex;
+    }
+
+    .bar-achieved {
+        background: linear-gradient(90deg, #10b981, #059669);
+        height: 100%;
+        transition: width 0.8s ease;
+    }
+
+    .bar-lost {
+        background: linear-gradient(90deg, #f87171, #ef4444);
+        height: 100%;
+        transition: width 0.8s ease;
+    }
+
+    /* History List Card */
+    .past-pred-card {
+        background: #ffffff;
+        border: 1px solid #f1f5f9;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+
+    .past-pred-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="yield-container">
+
+    <!-- 1. Hero Header -->
+    <div class="yield-hero-card">
+        <div class="hero-top-row">
+            <div>
+                <span class="hero-badge-pill">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span id="txtAiModelBadge">ML Yield Estimator v2.0</span>
+                </span>
+                <h3 class="fw-bold mb-1" id="txtHeroTitle">पीक उत्पादन अंदाज (Yield Prediction)</h3>
+                <p class="mb-0 opacity-90 small" id="txtHeroSub">तुमच्या शेताचे क्षेत्र, पीक आणि रोग प्रादुर्भावानुसार संभाव्य उत्पादनाचा अचूक अंदाज घ्या.</p>
+            </div>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold text-nowrap" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+                <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+            </button>
+        </div>
+
+        {% if primary_farm and primary_farm.area %}
+        <div class="mt-3 pt-3 border-top border-white border-opacity-25 d-flex align-items-center gap-3 flex-wrap small">
+            <div><i class="bi bi-geo-alt-fill me-1"></i><strong>{{ primary_farm.name or 'शेती' }}</strong> ({{ primary_farm.location or 'महाराष्ट्र' }})</div>
+            <div><i class="bi bi-rulers me-1"></i><strong>{{ primary_farm.area }}</strong> <span id="lblAcresText">एकर क्षेत्र</span></div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 2. Prediction Form -->
+    <div class="glass-config-card">
+        <form id="yieldForm">
+
+            <!-- Crop Selector -->
+            <div class="mb-4">
+                <label class="section-title-tag">
+                    <i class="bi bi-flower1"></i>
+                    <span id="lblSelectCrop">पीक निवडा (Select Crop)</span>
+                </label>
+                <select class="form-select custom-select-box" name="crop_id" id="cropSelect" required>
+                    <option value="" disabled selected id="optChooseCrop">शेतातील पीक निवडा...</option>
+                    {% for crop in crops %}
+                        <option value="{{ crop.id }}" data-name="{{ crop.name }}" data-variety="{{ crop.variety }}">
+                            🌾 {{ crop.name }} (व्हरायटी: {{ crop.variety or 'हायब्रीड' }})
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if not crops %}
+                <div class="alert alert-warning small py-2 px-3 mt-2 rounded-3">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    <span id="txtNoCropsNotice">प्रथम प्रोफाइल पृष्ठावर जाऊन पीक नोंदणी करा.</span>
+                    <a href="{{ url_for('main.farms') }}" class="fw-bold text-dark ms-1">नोंदणी करा &rarr;</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Disease Scan Link -->
+            <div class="mb-4">
+                <label class="section-title-tag text-warning">
+                    <i class="bi bi-shield-exclamation"></i>
+                    <span id="lblRecentScan">नुकतीच झालेली रोग तपासणी (Recent Disease Scan)</span>
+                </label>
+                <select class="form-select custom-select-box" name="disease_analysis_id" id="analysisSelect">
+                    <option value="" id="optHealthyScan">कोणताही रोग नाही / पीक निरोगी आहे (Healthy Crop)</option>
+                    {% for analysis in recent_analyses %}
+                        <option value="{{ analysis.id }}" data-severity="{{ analysis.severity or 'moderate' }}">
+                            📅 {{ analysis.date.strftime('%d %b %Y') }} &bull; {{ analysis.crop_display }} - {{ analysis.detected_disease }} ({{ analysis.severity or 'मध्यम' }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Interactive Severity Chips -->
+            <div class="mb-4">
+                <label class="section-title-tag text-muted">
+                    <i class="bi bi-speedometer2"></i>
+                    <span id="lblSeverityTitle">रोगाची तीव्रता आणि संभाव्य घट (Disease Severity Impact)</span>
+                </label>
+                <div class="severity-chips-grid">
+                    <div class="severity-card active sev-none" onclick="setSeverity('', this)">
+                        <span class="sev-icon">🌿</span>
+                        <div class="sev-title" id="sevTitleNone">निरोगी</div>
+                        <div class="sev-sub" id="sevSubNone">0% नुकसान</div>
+                    </div>
+                    <div class="severity-card sev-mild" onclick="setSeverity('mild', this)">
+                        <span class="sev-icon">🌱</span>
+                        <div class="sev-title" id="sevTitleMild">कमी प्रादुर्भाव</div>
+                        <div class="sev-sub" id="sevSubMild">-10% घट</div>
+                    </div>
+                    <div class="severity-card sev-mod" onclick="setSeverity('moderate', this)">
+                        <span class="sev-icon">🟡</span>
+                        <div class="sev-title" id="sevTitleMod">मध्यम प्रादुर्भाव</div>
+                        <div class="sev-sub" id="sevSubMod">-30% घट</div>
+                    </div>
+                    <div class="severity-card sev-sev" onclick="setSeverity('severe', this)">
+                        <span class="sev-icon">🔴</span>
+                        <div class="sev-title" id="sevTitleSev">गंभीर प्रादुर्भाव</div>
+                        <div class="sev-sub" id="sevSubSev">-60% घट</div>
+                    </div>
+                </div>
+                <input type="hidden" name="disease_severity" id="severityInput" value="">
+            </div>
+
+            <!-- Environmental Factor Tags (Visual Badges) -->
+            <div class="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2 small text-muted">
+                    <i class="bi bi-info-circle-fill text-success"></i>
+                    <span id="txtSoilBadge">माती: <strong>काळी पोयटा (pH 6.5)</strong> &bull; हवामान निर्देशांक: <strong>अनुकूल</strong></span>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">AI Optimized</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="predictBtn" class="btn-calc-yield w-100">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span id="btnText">उत्पादन मोजा (Calculate Yield)</span>
+                <div id="btnSpinner" class="spinner-border spinner-border-sm text-white d-none" role="status"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- 3. Dynamic Result Showcase Card (Hidden initially) -->
+    <div id="resultCard" class="result-showcase-card d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-success mb-0">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span id="txtResultTitle">उत्पादन अंदाज विश्लेषण (Yield Forecast Report)</span>
+            </h5>
+            <span class="badge bg-success rounded-pill px-3 py-1" id="txtAiVerified">AI Verified</span>
+        </div>
+
+        <!-- 3 KPI Stat Boxes -->
+        <div class="kpi-stat-grid">
+            <div class="kpi-box highlight">
+                <div class="kpi-val text-success" id="yieldPerAcre">--</div>
+                <div class="kpi-lbl" id="lblPerAcre">टन / एकर (Per Acre)</div>
+            </div>
+            <div class="kpi-box highlight">
+                <div class="kpi-val text-dark" id="totalYield">--</div>
+                <div class="kpi-lbl" id="lblTotalFarm">एकूण शेत उत्पादन (Total Tonnes)</div>
+            </div>
+            <div class="kpi-box" id="impactKpiBox">
+                <div class="kpi-val text-muted" id="yieldLossStat">0%</div>
+                <div class="kpi-lbl" id="lblImpactStat">रोगामुळे घट (Yield Loss)</div>
+            </div>
+        </div>
+
+        <!-- Visual Harvest Potential vs Loss Bar -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between small fw-bold mb-1">
+                <span class="text-success"><i class="bi bi-check2-circle me-1"></i><span id="txtActualHarvest">संभाव्य काढणी (Projected Harvest)</span></span>
+                <span class="text-danger" id="txtLossLabel"><i class="bi bi-x-circle me-1"></i>नुकसान (Potential Loss): <span id="lossTonnesText">0 टन</span></span>
+            </div>
+            <div class="loss-progress-wrap">
+                <div class="bar-achieved" id="progressAchieved" style="width: 100%;"></div>
+                <div class="bar-lost" id="progressLost" style="width: 0%;"></div>
+            </div>
+            <div class="d-flex justify-content-between text-muted" style="font-size: 0.72rem;">
+                <span id="lblBasePotential">मूळ क्षमता (Potential): <strong id="baseYieldVal">--</strong> टन/एकर</span>
+                <span id="lblNetRealized">अपेक्षित प्राप्ती: <strong id="netRealizedVal">100%</strong></span>
+            </div>
+        </div>
+
+        <!-- Disease Warning Alert if penalty applied -->
+        <div id="penaltyWarning" class="alert alert-warning border-0 rounded-3 d-flex align-items-center gap-3 mb-3 d-none">
+            <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
+            <div>
+                <strong class="d-block text-dark" id="txtWarningTitle">रोगामुळे उत्पादनात घट संभाव्य आहे!</strong>
+                <span class="small text-muted" id="txtWarningDesc">तात्काळ योग्य कीटकनाशक / बुरशीनाशक फवारणी करून उर्वरित पीक वाचवा.</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 flex-wrap">
+            <a id="btnAskAiRecovery" href="{{ url_for('main.assistant') }}" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold small flex-fill text-center">
+                <i class="bi bi-chat-dots-fill me-1"></i>
+                <span id="txtAskAiRecovery">उत्पादन घट रोखण्यासाठी सल्ला विचारा (Ask AI)</span>
+            </a>
+            <button type="button" onclick="window.print()" class="btn btn-light rounded-pill px-3 py-2 fw-semibold small text-muted">
+                <i class="bi bi-printer me-1"></i>
+                <span id="txtPrintReport">प्रिंट / सेव्ह</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. Past Prediction History -->
+    {% if past_predictions %}
+    <div class="mt-4">
+        <h6 class="fw-bold text-dark mb-3">
+            <i class="bi bi-clock-history me-2 text-success"></i>
+            <span id="txtHistoryTitle">मागील उत्पादन अंदाज (Past Estimates)</span>
+        </h6>
+        {% for p in past_predictions %}
+        <div class="past-pred-card">
+            <div>
+                <div class="fw-bold text-dark small">
+                    🌾 {{ p.crop_info.name if p.crop_info else 'पीक' }}
+                    {% if p.crop_info and p.crop_info.variety %}
+                    <span class="text-muted fw-normal">({{ p.crop_info.variety }})</span>
+                    {% endif %}
+                </div>
+                <div class="text-muted" style="font-size: 0.72rem;">
+                    {{ p.date.strftime('%d %b %Y, %I:%M %p') }}
+                </div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success-subtle text-success fw-bold px-2 py-1" style="font-size: 0.85rem;">
+                    {{ p.predicted_yield_per_acre }} टन/एकर
+                </span>
+                <div class="text-muted" style="font-size: 0.72rem;">
+                    एकूण: <strong>{{ p.total_yield }}</strong> टन
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Severity Chips & Selection Logic
+    // ═══════════════════════════════════════════════════════════════════════════
+    function setSeverity(val, cardEl) {
+        document.getElementById('severityInput').value = val;
+        document.querySelectorAll('.severity-card').forEach(c => c.classList.remove('active'));
+        if (cardEl) cardEl.classList.add('active');
+    }
+
+    // Sync severity when disease scan is selected
+    document.getElementById('analysisSelect').addEventListener('change', function() {
+        const selected = this.options[this.selectedIndex];
+        const severity = (selected.getAttribute('data-severity') || '').toLowerCase();
+        const severityInput = document.getElementById('severityInput');
+        const cards = document.querySelectorAll('.severity-card');
+
+        cards.forEach(c => c.classList.remove('active'));
+
+        if (severity.includes('mild') || severity.includes('हल्का')) {
+            severityInput.value = 'mild';
+            document.querySelector('.sev-mild')?.classList.add('active');
+        } else if (severity.includes('mod') || severity.includes('मध्यम')) {
+            severityInput.value = 'moderate';
+            document.querySelector('.sev-mod')?.classList.add('active');
+        } else if (severity.includes('sev') || severity.includes('गंभीर')) {
+            severityInput.value = 'severe';
+            document.querySelector('.sev-sev')?.classList.add('active');
+        } else {
+            severityInput.value = '';
+            document.querySelector('.sev-none')?.classList.add('active');
+        }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Form Submit & Yield Calculation
+    // ═══════════════════════════════════════════════════════════════════════════
+    document.getElementById('yieldForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const btn = document.getElementById('predictBtn');
+
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        btnText.innerText = currentLang === 'mr' ? 'अंदाज काढत आहे...' : 'Calculating...';
+        btnSpinner.classList.remove('d-none');
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+
+        fetch('{{ url_for("api.predict_yield") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Set Values
+                document.getElementById('yieldPerAcre').innerText = data.yield_per_acre;
+                document.getElementById('totalYield').innerText = data.total_yield;
+
+                const penaltyPct = data.penalty_percent || 0;
+                const lossTonnes = data.loss_tonnes || 0;
+                const baseYield = data.base_yield_per_acre || data.yield_per_acre;
+
+                // KPI Stat Box 3
+                const impactBox = document.getElementById('impactKpiBox');
+                const lossStat = document.getElementById('yieldLossStat');
+                lossStat.innerText = penaltyPct > 0 ? `-${penaltyPct}%` : '0%';
+
+                if (penaltyPct > 0) {
+                    impactBox.className = 'kpi-box warning-box';
+                    lossStat.className = 'kpi-val text-danger';
+                } else {
+                    impactBox.className = 'kpi-box highlight';
+                    lossStat.className = 'kpi-val text-success';
+                }
+
+                // Progress Bar
+                const achievedPct = 100 - penaltyPct;
+                document.getElementById('progressAchieved').style.width = `${achievedPct}%`;
+                document.getElementById('progressLost').style.width = `${penaltyPct}%`;
+
+                document.getElementById('lossTonnesText').innerText = `${lossTonnes} टन`;
+                document.getElementById('baseYieldVal').innerText = baseYield;
+                document.getElementById('netRealizedVal').innerText = `${achievedPct}%`;
+
+                // Warning card
+                const warningCard = document.getElementById('penaltyWarning');
+                if (data.penalty_applied) {
+                    warningCard.classList.remove('d-none');
+                } else {
+                    warningCard.classList.add('d-none');
+                }
+
+                // Setup Ask AI CTA link with selected crop
+                const cropSelect = document.getElementById('cropSelect');
+                const selectedCropName = cropSelect.options[cropSelect.selectedIndex]?.dataset?.name || '';
+                const askAiBtn = document.getElementById('btnAskAiRecovery');
+                if (askAiBtn) {
+                    askAiBtn.href = `{{ url_for('main.assistant') }}?prompt=${encodeURIComponent(selectedCropName + ' पिकावरील उत्पादन घट रोखण्यासाठी उपाय सांगा')}`;
+                }
+
+                // Reveal Result Card
+                const resultCard = document.getElementById('resultCard');
+                resultCard.classList.remove('d-none');
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                alert('Prediction failed: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Network error occurred.');
+        })
+        .finally(() => {
+            btnText.innerText = currentLang === 'mr' ? 'उत्पादन मोजा (Calculate Yield)' : 'Calculate Yield';
+            btnSpinner.classList.add('d-none');
+            btn.disabled = false;
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Bilingual Static Localization (Marathi / English)
+    // ═══════════════════════════════════════════════════════════════════════════
+    const yieldTranslations = {
+        mr: {
+            heroTitle: "पीक उत्पादन अंदाज (Yield Prediction)",
+            heroSub: "तुमच्या शेताचे क्षेत्र, पीक आणि रोग प्रादुर्भावानुसार संभाव्य उत्पादनाचा अचूक अंदाज घ्या.",
+            aiBadge: "ML Yield Estimator v2.0",
+            acresText: "एकर क्षेत्र",
+            selectCrop: "पीक निवडा (Select Crop)",
+            chooseCrop: "शेतातील पीक निवडा...",
+            recentScan: "नुकतीच झालेली रोग तपासणी (Recent Disease Scan)",
+            healthyScan: "कोणताही रोग नाही / पीक निरोगी आहे (Healthy Crop)",
+            severityTitle: "रोगाची तीव्रता आणि संभाव्य घट (Disease Severity Impact)",
+            sevTitleNone: "निरोगी", sevSubNone: "0% नुकसान",
+            sevTitleMild: "कमी प्रादुर्भाव", sevSubMild: "-10% घट",
+            sevTitleMod: "मध्यम प्रादुर्भाव", sevSubMod: "-30% घट",
+            sevTitleSev: "गंभीर प्रादुर्भाव", sevSubSev: "-60% घट",
+            soilBadge: "माती: <strong>काळी पोयटा (pH 6.5)</strong> &bull; हवामान निर्देशांक: <strong>अनुकूल</strong>",
+            btnCalc: "उत्पादन मोजा (Calculate Yield)",
+            resultTitle: "उत्पादन अंदाज विश्लेषण (Yield Forecast Report)",
+            lblPerAcre: "टन / एकर (Per Acre)",
+            lblTotalFarm: "एकूण शेत उत्पादन (Total Tonnes)",
+            lblImpactStat: "रोगामुळे घट (Yield Loss)",
+            txtActualHarvest: "संभाव्य काढणी (Projected Harvest)",
+            txtWarningTitle: "रोगामुळे उत्पादनात घट संभाव्य आहे!",
+            txtWarningDesc: "तात्काळ योग्य कीटकनाशक / बुरशीनाशक फवारणी करून उर्वरित पीक वाचवा.",
+            txtAskAiRecovery: "उत्पादन घट रोखण्यासाठी सल्ला विचारा (Ask AI)",
+            txtPrintReport: "प्रिंट / सेव्ह",
+            historyTitle: "मागील उत्पादन अंदाज (Past Estimates)"
+        },
+        en: {
+            heroTitle: "Crop Yield Prediction",
+            heroSub: "Accurately forecast total harvest production based on land area, crop variety, and disease telemetry.",
+            aiBadge: "ML Yield Estimator v2.0",
+            acresText: "Acres registered",
+            selectCrop: "Select Crop",
+            chooseCrop: "Choose a crop...",
+            recentScan: "Recent Disease Scan Telemetry",
+            healthyScan: "No recent disease / Healthy Crop",
+            severityTitle: "Disease Severity & Loss Impact",
+            sevTitleNone: "Healthy", sevSubNone: "0% Loss",
+            sevTitleMild: "Mild", sevSubMild: "-10% Loss",
+            sevTitleMod: "Moderate", sevSubMod: "-30% Loss",
+            sevTitleSev: "Severe", sevSubSev: "-60% Loss",
+            soilBadge: "Soil: <strong>Clay Loam (pH 6.5)</strong> &bull; Weather Index: <strong>Optimal</strong>",
+            btnCalc: "Calculate Yield Forecast",
+            resultTitle: "Yield Forecast Report",
+            lblPerAcre: "Tonnes / Acre",
+            lblTotalFarm: "Total Farm Production (Tonnes)",
+            lblImpactStat: "Disease Loss Impact",
+            txtActualHarvest: "Projected Harvest Yield",
+            txtWarningTitle: "Yield reduction projected due to disease outbreak!",
+            txtWarningDesc: "Apply recommended fungicide/IPM treatment immediately to safeguard remaining yield.",
+            txtAskAiRecovery: "Ask AI How to Protect & Recover Yield",
+            txtPrintReport: "Print / Save",
+            historyTitle: "Past Yield Predictions"
+        }
+    };
+
+    function applyYieldLanguage(lang) {
+        const dict = yieldTranslations[lang] || yieldTranslations.mr;
+        const g = id => document.getElementById(id);
+
+        if (g('txtHeroTitle')) g('txtHeroTitle').innerText = dict.heroTitle;
+        if (g('txtHeroSub')) g('txtHeroSub').innerText = dict.heroSub;
+        if (g('txtAiModelBadge')) g('txtAiModelBadge').innerText = dict.aiBadge;
+        if (g('lblAcresText')) g('lblAcresText').innerText = dict.acresText;
+        if (g('lblSelectCrop')) g('lblSelectCrop').innerText = dict.selectCrop;
+        if (g('optChooseCrop')) g('optChooseCrop').innerText = dict.chooseCrop;
+        if (g('lblRecentScan')) g('lblRecentScan').innerText = dict.recentScan;
+        if (g('optHealthyScan')) g('optHealthyScan').innerText = dict.healthyScan;
+        if (g('lblSeverityTitle')) g('lblSeverityTitle').innerText = dict.severityTitle;
+
+        if (g('sevTitleNone')) g('sevTitleNone').innerText = dict.sevTitleNone;
+        if (g('sevSubNone')) g('sevSubNone').innerText = dict.sevSubNone;
+        if (g('sevTitleMild')) g('sevTitleMild').innerText = dict.sevTitleMild;
+        if (g('sevSubMild')) g('sevSubMild').innerText = dict.sevSubMild;
+        if (g('sevTitleMod')) g('sevTitleMod').innerText = dict.sevTitleMod;
+        if (g('sevSubMod')) g('sevSubMod').innerText = dict.sevSubMod;
+        if (g('sevTitleSev')) g('sevTitleSev').innerText = dict.sevTitleSev;
+        if (g('sevSubSev')) g('sevSubSev').innerText = dict.sevSubSev;
+
+        if (g('txtSoilBadge')) g('txtSoilBadge').innerHTML = dict.soilBadge;
+        if (g('btnText')) g('btnText').innerText = dict.btnCalc;
+        if (g('txtResultTitle')) g('txtResultTitle').innerText = dict.resultTitle;
+        if (g('lblPerAcre')) g('lblPerAcre').innerText = dict.lblPerAcre;
+        if (g('lblTotalFarm')) g('lblTotalFarm').innerText = dict.lblTotalFarm;
+        if (g('lblImpactStat')) g('lblImpactStat').innerText = dict.lblImpactStat;
+        if (g('txtActualHarvest')) g('txtActualHarvest').innerText = dict.txtActualHarvest;
+        if (g('txtWarningTitle')) g('txtWarningTitle').innerText = dict.txtWarningTitle;
+        if (g('txtWarningDesc')) g('txtWarningDesc').innerText = dict.txtWarningDesc;
+        if (g('txtAskAiRecovery')) g('txtAskAiRecovery').innerText = dict.txtAskAiRecovery;
+        if (g('txtPrintReport')) g('txtPrintReport').innerText = dict.txtPrintReport;
+        if (g('txtHistoryTitle')) g('txtHistoryTitle').innerText = dict.historyTitle;
+    }
+
+    // Initialize saved language
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        applyYieldLanguage(savedLang);
+    });
+</script>
+{% endblock %}

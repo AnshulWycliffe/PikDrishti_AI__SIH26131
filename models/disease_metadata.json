@@ -1,0 +1,73 @@
+{
+  "model_name": "AgriVision Disease Classifier",
+  "version": "1.0.0",
+  "architecture": "EfficientNetB0",
+  "image_size": [
+    224,
+    224
+  ],
+  "confidence_threshold": 0.7,
+  "classes": [
+    "Pepper__bell___Bacterial_spot",
+    "Pepper__bell___healthy",
+    "Potato___Early_blight",
+    "Potato___Late_blight",
+    "Potato___healthy",
+    "Tomato_Bacterial_spot",
+    "Tomato_Early_blight",
+    "Tomato_Late_blight",
+    "Tomato_Leaf_Mold",
+    "Tomato_Septoria_leaf_spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite",
+    "Tomato__Target_Spot",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus",
+    "Tomato__Tomato_mosaic_virus",
+    "Tomato_healthy"
+  ],
+  "num_classes": 15,
+  "train_counts": {
+    "Pepper__bell___Bacterial_spot": 697,
+    "Pepper__bell___healthy": 1034,
+    "Potato___Early_blight": 700,
+    "Potato___Late_blight": 700,
+    "Potato___healthy": 106,
+    "Tomato_Bacterial_spot": 1488,
+    "Tomato_Early_blight": 700,
+    "Tomato_Late_blight": 1336,
+    "Tomato_Leaf_Mold": 666,
+    "Tomato_Septoria_leaf_spot": 1239,
+    "Tomato_Spider_mites_Two_spotted_spider_mite": 1173,
+    "Tomato__Target_Spot": 982,
+    "Tomato__Tomato_YellowLeaf__Curl_Virus": 2245,
+    "Tomato__Tomato_mosaic_virus": 261,
+    "Tomato_healthy": 1113
+  },
+  "class_weights": {
+    "0": 1.3811573409851745,
+    "1": 0.9310122501611864,
+    "2": 1.3752380952380951,
+    "3": 1.3752380952380951,
+    "4": 9.081761006289309,
+    "5": 0.6469534050179212,
+    "6": 1.3752380952380951,
+    "7": 0.720558882235529,
+    "8": 1.4454454454454455,
+    "9": 0.77697067527576,
+    "10": 0.8206876953680022,
+    "11": 0.9803122878479293,
+    "12": 0.4288047512991834,
+    "13": 3.6883780332056193,
+    "14": 0.8649296196466008
+  },
+  "training": {
+    "initial_epochs": 15,
+    "fine_tune_epochs": 10,
+    "batch_size": 32,
+    "initial_lr": 0.001,
+    "fine_tune_lr": 1e-05,
+    "fine_tune_layers": 30,
+    "dropout": 0.3,
+    "seed": 42
+  },
+  "trained_at": "2026-08-10T18:28:04.929422"
+}

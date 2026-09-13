@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PikDrishti AI — Public Crop Health Analytics</title>
+
+<!-- Government-style portal prototype inspired by the public information architecture
+     of the Maharashtra Agriculture Department website. -->
+<link rel="preconnect" href="https://cdn.ux4g.gov.in">
+<link rel="stylesheet" href="https://cdn.ux4g.gov.in/UX4G@3.0.18/index.css">
+<style>
+:root{
+  --gov-green:#0b5d3b;
+  --gov-dark:#08462d;
+  --gov-light:#eef6f0;
+  --gold:#d8a62a;
+  --orange:#e07a2d;
+  --text:#25332c;
+  --muted:#66756d;
+  --border:#d8e0db;
+  --bg:#f5f7f5;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--bg)}
+a{color:inherit;text-decoration:none}
+.container{width:min(1180px,94%);margin:auto}
+
+/* Top government utility strip */
+.utility{
+  background:#f1f1f1;border-bottom:1px solid #ddd;font-size:12px;color:#444
+}
+.utility .container{display:flex;justify-content:space-between;align-items:center;min-height:34px}
+.utility-links{display:flex;gap:18px;align-items:center}
+.utility-links a:hover{text-decoration:underline}
+
+/* Masthead */
+.masthead{background:#fff;border-bottom:1px solid #d9dfdb}
+.masthead-inner{min-height:112px;display:flex;align-items:center;gap:18px}
+.gov-logo{width:78px;height:78px;object-fit:contain;flex:none}
+.mol-logo{width:48px;height:48px;object-fit:contain;flex:none}
+.brand-copy{flex:1}
+.brand-copy .mr{font-size:23px;font-weight:700;color:var(--gov-dark);line-height:1.25}
+.brand-copy .en{font-size:18px;font-weight:700;color:#35443d;margin-top:4px}
+.brand-copy .project{font-size:13px;color:var(--muted);margin-top:7px}
+.header-actions{display:flex;align-items:center;gap:8px}
+.header-btn{border:1px solid #cbd6cf;background:#fff;border-radius:3px;padding:8px 11px;font-size:12px}
+.header-btn:hover{background:var(--gov-light)}
+
+/* Main navigation */
+.navbar{background:var(--gov-green);color:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12)}
+.nav-inner{display:flex;align-items:stretch;overflow:auto}
+.nav-item{padding:14px 15px;font-size:13px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.13)}
+.nav-item:hover,.nav-item.active{background:var(--gov-dark)}
+.nav-home{font-size:17px;padding-left:18px;padding-right:18px}
+
+/* Ticker */
+.ticker{background:#fff;border-bottom:1px solid var(--border)}
+.ticker-inner{display:flex;min-height:40px;align-items:center}
+.ticker-label{background:var(--orange);color:#fff;font-weight:700;font-size:12px;padding:9px 14px;margin-right:15px}
+.ticker-text{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Breadcrumb */
+.breadcrumb{font-size:12px;color:#6a756f;padding:12px 0}
+
+/* Hero */
+.hero{background:linear-gradient(105deg,#0a5738,#13815a);color:#fff;border-radius:4px;overflow:hidden}
+.hero-inner{display:grid;grid-template-columns:1.55fr .9fr;min-height:250px}
+.hero-copy{padding:36px 38px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.84}
+.hero h1{font-size:31px;line-height:1.15;margin:9px 0 10px}
+.hero p{max-width:690px;color:#e8f5ee;line-height:1.65;font-size:14px;margin:0 0 22px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:10px 15px;border-radius:3px;font-size:12px;font-weight:700}
+.btn-light{background:#fff;color:var(--gov-dark)}
+.btn-outline{border:1px solid rgba(255,255,255,.7);color:#fff}
+.hero-side{background:rgba(0,0,0,.13);padding:30px;display:flex;align-items:center}
+.hero-side-card{width:100%;border:1px solid rgba(255,255,255,.2);padding:20px;background:rgba(255,255,255,.06)}
+.hero-side-card strong{display:block;font-size:15px;margin-bottom:7px}
+.hero-side-card span{font-size:12px;line-height:1.6;color:#d9eee3}
+
+/* Section headings */
+.section{padding:25px 0}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}
+.section-title{font-size:21px;color:var(--gov-dark);margin:0}
+.section-subtitle{font-size:12px;color:var(--muted);margin-top:5px}
+.more{font-size:12px;color:var(--gov-green);font-weight:700}
+
+/* Service tiles */
+.services{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.service{background:#fff;border:1px solid var(--border);padding:17px 12px;min-height:110px;text-align:center;border-radius:3px}
+.service-icon{font-size:26px;margin-bottom:9px}
+.service strong{display:block;font-size:12px;color:var(--gov-dark)}
+.service span{font-size:10px;color:var(--muted);display:block;margin-top:5px;line-height:1.35}
+
+/* Analytics */
+.analytics-panel{background:#fff;border:1px solid var(--border);border-radius:4px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;padding:15px;border-bottom:1px solid var(--border);background:#fafcfa}
+select,.input{height:36px;border:1px solid #ccd7d0;background:#fff;border-radius:3px;padding:0 10px;font-size:12px;color:#33423b}
+.filter-btn{height:36px;background:var(--gov-green);border:0;color:#fff;border-radius:3px;padding:0 16px;font-size:12px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:15px}
+.kpi{border:1px solid var(--border);padding:17px;background:#fff}
+.kpi-label{font-size:11px;color:var(--muted)}
+.kpi-value{font-size:26px;font-weight:700;color:var(--gov-dark);margin-top:6px}
+.kpi-note{font-size:10px;color:#6e7c75;margin-top:4px}
+
+.map-grid{display:grid;grid-template-columns:1.5fr .8fr;gap:15px;padding:0 15px 15px}
+
+.navic-map{height:430px;border:1px solid var(--border);border-radius:3px;background:#fff;overflow:hidden}
+.navic-map-head{height:58px;padding:10px 14px;border-bottom:1px solid var(--border);background:#fff;display:flex;justify-content:space-between;align-items:center}
+.navic-map-head strong{display:block;font-size:13px;color:var(--gov-dark)}
+.navic-map-head span{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.navic-status{font-size:9px!important;color:#19704a!important;background:#e7f4ec;padding:5px 8px;border-radius:10px;font-weight:700}
+#mahaMap{height:330px;width:100%;background:#eaf0ec}
+.navic-map-footer{height:42px;padding:8px 13px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-top:1px solid var(--border);font-size:9px;color:var(--muted)}
+
+.panel-box{border:1px solid var(--border);background:#fff}
+.panel-box h3{font-size:14px;margin:0;padding:13px 15px;border-bottom:1px solid var(--border);color:var(--gov-dark)}
+.risk-list{padding:6px 15px}
+.risk-row{display:grid;grid-template-columns:1fr 55px 55px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0ee;font-size:12px}
+.risk-row:last-child{border-bottom:0}
+.risk-bar{height:7px;background:#e5ebe7;border-radius:10px;overflow:hidden}
+.risk-bar i{display:block;height:100%;background:#c86638}
+.badge{font-size:10px;padding:4px 7px;border-radius:10px;text-align:center}
+.high{background:#fde9df;color:#9b3f1e}.medium{background:#fff3d2;color:#8c6500}.low{background:#e4f3e9;color:#1d6b43}
+
+/* Content columns */
+.content-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:15px}
+.card{background:#fff;border:1px solid var(--border);border-radius:3px}
+.card-title{padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;color:var(--gov-dark);font-weight:700}
+.notice-list{padding:0 16px}
+.notice{display:grid;grid-template-columns:75px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid #edf0ee}
+.notice:last-child{border:0}
+.date{font-size:10px;color:#fff;background:var(--gov-green);height:max-content;padding:6px;text-align:center;border-radius:2px}
+.notice strong{font-size:12px;line-height:1.45}
+.notice small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.chart{padding:17px}
+.chart-bars{height:185px;display:flex;align-items:end;gap:12px;border-bottom:1px solid #ccd7d0;padding:0 8px}
+.bar-col{flex:1;text-align:center}
+.bar{width:70%;margin:auto;background:#3d8b68;border-radius:2px 2px 0 0}
+.bar-col span{display:block;font-size:9px;color:var(--muted);margin-top:6px}
+.legend{display:flex;gap:14px;margin-top:12px;font-size:10px;color:var(--muted)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3d8b68;margin-right:5px}
+
+/* Links */
+.link-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.link-card{background:#fff;border:1px solid var(--border);padding:14px;font-size:12px;color:#3b5147}
+.link-card strong{display:block;color:var(--gov-dark);margin-bottom:5px}
+.link-card:hover{border-color:#9ab6a7;background:#fbfdfb}
+
+/* Footer */
+.footer{margin-top:20px;background:#17372a;color:#dfece5}
+.footer-top{padding:28px 0;display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:28px}
+.footer h4{margin:0 0 12px;font-size:13px;color:#fff}
+.footer p,.footer a{font-size:11px;line-height:1.7;color:#c8d9d0}
+.footer a{display:block}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.13);padding:13px 0;font-size:10px;color:#aebfb6}
+.disclaimer{background:#fff6df;border:1px solid #ead9a8;color:#725c21;padding:10px 13px;font-size:10px;margin-top:14px;border-radius:3px}
+
+@media(max-width:900px){
+ .services{grid-template-columns:repeat(3,1fr)}
+ .hero-inner,.map-grid,.content-grid{grid-template-columns:1fr}
+ .hero-side{display:none}
+ .kpis{grid-template-columns:repeat(2,1fr)}
+ .footer-top{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+ .utility .container,.masthead-inner{flex-wrap:wrap}
+ .utility-links{display:none}
+ .masthead-inner{padding:14px 0}
+ .gov-logo{width:62px;height:62px}
+ .mol-logo{width:40px;height:40px}
+ .brand-copy .mr{font-size:17px}
+ .brand-copy .en{font-size:14px}
+ .header-actions{width:100%}
+ .services{grid-template-columns:repeat(2,1fr)}
+ .kpis{grid-template-columns:1fr 1fr}
+ .map-grid{padding:0 8px 8px}
+ .navic-map{height:390px}#mahaMap{height:290px}
+ .footer-top{grid-template-columns:1fr}
+ .hero-copy{padding:25px}
+ .hero h1{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+<!-- Utility strip -->
+<div class="utility">
+  <div class="container">
+    <div>Government of Maharashtra &nbsp;|&nbsp; Department of Agriculture</div>
+    <div class="utility-links">
+      <a href="#accessibility">Accessibility</a>
+      <a href="#sitemap">Sitemap</a>
+      <a href="#contact">Contact</a>
+      <span>A− &nbsp; A &nbsp; A+</span>
+      <span>English | मराठी</span>
+    </div>
+  </div>
+</div>
+
+<!-- Masthead -->
+<header class="masthead">
+  <div class="container masthead-inner">
+    <img class="gov-logo"
+         src="https://krishi.maharashtra.gov.in/images/logo/New_logo.jpeg"
+         alt="Department of Agriculture, Government of Maharashtra">
+    <img class="mol-logo"
+         src="https://krishi.maharashtra.gov.in/images/logo/mol-logo.png"
+         alt="Government of Maharashtra">
+    <div class="brand-copy">
+      <div class="mr">कृषी विभाग, महाराष्ट्र शासन</div>
+      <div class="en">Department of Agriculture, Government of Maharashtra</div>
+      <div class="project">PikDrishti AI — Public Crop Health Analytics &amp; Surveillance</div>
+    </div>
+    <div class="header-actions">
+      <a class="header-btn" href="#farmer">Farmer Corner</a>
+      <a class="header-btn" href="#reports">Reports</a>
+    </div>
+  </div>
+</header>
+
+<!-- Government-style navigation -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a class="nav-item nav-home active" href="#">⌂</a>
+    <a class="nav-item" href="#department">About Department</a>
+    <a class="nav-item" href="#farmer">Farmer Corner</a>
+    <a class="nav-item" href="#statistics">Agriculture Statistics</a>
+    <a class="nav-item" href="#crop-health">Crop Health</a>
+    <a class="nav-item" href="#schemes">Schemes &amp; Services</a>
+    <a class="nav-item" href="#advisories">Advisories</a>
+    <a class="nav-item" href="#reports">Reports</a>
+    <a class="nav-item" href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- What's New -->
+<div class="ticker">
+  <div class="container ticker-inner">
+    <span class="ticker-label">WHAT'S NEW</span>
+    <div class="ticker-text">
+      PikDrishti AI public crop-health analytics • District risk surveillance • Disease &amp; pest monitoring • Weather-aware crop risk insights
+    </div>
+  </div>
+</div>
+
+<main class="container">
+  <div class="breadcrumb">Home &nbsp;›&nbsp; Public Crop Health Analytics</div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="eyebrow">Public Analytics &amp; Surveillance</div>
+        <h1>PikDrishti AI</h1>
+        <p>
+          A public-facing crop health analytics platform designed to present
+          district-level disease, pest and crop-risk information in a clear,
+          government-portal format.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-light" href="#crop-health">View Crop Health Map</a>
+          <a class="btn btn-outline" href="#reports">View Public Reports</a>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-side-card">
+          <strong>Statewide Crop Health Intelligence</strong>
+          <span>
+            Explore surveillance indicators, district risk levels, disease
+            trends, advisories and public analytics.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Public services -->
+  <section class="section" id="farmer">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Citizen &amp; Farmer Services</h2>
+        <div class="section-subtitle">Quick access to public crop-health information</div>
+      </div>
+    </div>
+    <div class="services">
+      <a class="service" href="#crop-health"><div class="service-icon">🗺️</div><strong>Crop Health Map</strong><span>District-wise risk view</span></a>
+      <a class="service" href="#weather"><div class="service-icon">🌦️</div><strong>Weather &amp; Risk</strong><span>Weather-aware indicators</span></a>
+      <a class="service" href="#statistics"><div class="service-icon">📊</div><strong>Crop Statistics</strong><span>Public crop analytics</span></a>
+      <a class="service" href="#disease"><div class="service-icon">🌱</div><strong>Disease &amp; Pest</strong><span>Observed health signals</span></a>
+      <a class="service" href="#reports"><div class="service-icon">📄</div><strong>Public Reports</strong><span>Reports and summaries</span></a>
+      <a class="service" href="#contact"><div class="service-icon">☎️</div><strong>Contact</strong><span>Help and department links</span></a>
+    </div>
+  </section>
+
+  <!-- Analytics -->
+  <section class="section" id="crop-health">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Crop Health Analytics</h2>
+        <div class="section-subtitle">Public view of crop disease, pest and risk surveillance</div>
+      </div>
+      <a class="more" href="#reports">View all reports →</a>
+    </div>
+
+    <div class="analytics-panel">
+      <div class="filters">
+        <select id="districtFilter">
+          <option value="all">All Districts</option>
+          <option>Nashik</option><option>Pune</option><option>Nagpur</option>
+          <option>Akola</option><option>Amravati</option><option>Kolhapur</option>
+        </select>
+        <select id="cropFilter">
+          <option value="all">All Crops</option>
+          <option>Cotton</option><option>Soybean</option><option>Maize</option>
+          <option>Tur</option><option>Onion</option>
+        </select>
+        <select id="periodFilter">
+          <option>Current Season</option>
+          <option>Last 30 Days</option><option>Last 90 Days</option>
+        </select>
+        <button class="filter-btn" onclick="refreshAnalytics()">Apply Filters</button>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Reported Crop Health Cases</div><div class="kpi-value" id="cases">12,486</div><div class="kpi-note">Public surveillance indicator</div></div>
+        <div class="kpi"><div class="kpi-label">High-Risk Districts</div><div class="kpi-value" id="highRisk">08</div><div class="kpi-note">Requires closer surveillance</div></div>
+        <div class="kpi"><div class="kpi-label">Active Disease / Pest Signals</div><div class="kpi-value" id="signals">31</div><div class="kpi-note">Across monitored crops</div></div>
+        <div class="kpi"><div class="kpi-label">Surveillance Coverage</div><div class="kpi-value" id="coverage">78%</div><div class="kpi-note">Illustrative prototype metric</div></div>
+      </div>
+
+      <div class="map-grid">
+        
+
+<div class="navic-map">
+  <div class="navic-map-head">
+    <div>
+      <strong>Crop Health Surveillance Map</strong>
+      <span>Mappls India map • location-aware through GNSS / NavIC-capable devices</span>
+    </div>
+    <span class="navic-status">● MAP READY</span>
+  </div>
+  <div id="mahaMap"></div>
+  <div class="navic-map-footer">
+    <span>Positioning: device GNSS / NavIC-capable receiver</span>
+    <span>Map provider: Mappls</span>
+  </div>
+</div>
+
+
+        <div class="panel-box">
+          <h3>District Risk Summary</h3>
+          <div class="risk-list">
+            <div class="risk-row"><div>Nashik<div class="risk-bar"><i style="width:88%"></i></div></div><span>88</span><span class="badge high">High</span></div>
+            <div class="risk-row"><div>Akola<div class="risk-bar"><i style="width:76%"></i></div></div><span>76</span><span class="badge high">High</span></div>
+            <div class="risk-row"><div>Amravati<div class="risk-bar"><i style="width:68%"></i></div></div><span>68</span><span class="badge medium">Med</span></div>
+            <div class="risk-row"><div>Pune<div class="risk-bar"><i style="width:56%"></i></div></div><span>56</span><span class="badge medium">Med</span></div>
+            <div class="risk-row"><div>Kolhapur<div class="risk-bar"><i style="width:34%"></i></div></div><span>34</span><span class="badge low">Low</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Public content -->
+  <section class="section">
+    <div class="content-grid">
+      <div class="card" id="reports">
+        <div class="card-title">Latest Crop Health Updates</div>
+        <div class="notice-list">
+          <div class="notice"><div class="date">13 SEP<br>2026</div><div><strong>District crop-health surveillance summary updated</strong><small>Public analytics · Maharashtra</small></div></div>
+          <div class="notice"><div class="date">11 SEP<br>2026</div><div><strong>Weather-linked crop risk indicators refreshed</strong><small>Risk intelligence · Current season</small></div></div>
+          <div class="notice"><div class="date">08 SEP<br>2026</div><div><strong>Disease and pest trend report published</strong><small>Crop health monitoring</small></div></div>
+          <div class="notice"><div class="date">05 SEP<br>2026</div><div><strong>Public district surveillance indicators updated</strong><small>Analytics and reporting</small></div></div>
+        </div>
+      </div>
+
+      <div class="card" id="statistics">
+        <div class="card-title">Disease &amp; Pest Trend</div>
+        <div class="chart">
+          <div class="chart-bars">
+            <div class="bar-col"><div class="bar" style="height:42%"></div><span>Apr</span></div>
+            <div class="bar-col"><div class="bar" style="height:57%"></div><span>May</span></div>
+            <div class="bar-col"><div class="bar" style="height:49%"></div><span>Jun</span></div>
+            <div class="bar-col"><div class="bar" style="height:72%"></div><span>Jul</span></div>
+            <div class="bar-col"><div class="bar" style="height:83%"></div><span>Aug</span></div>
+            <div class="bar-col"><div class="bar" style="height:68%"></div><span>Sep</span></div>
+          </div>
+          <div class="legend"><span><i class="dot"></i>Reported health signals</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="advisories">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Public Crop Health Advisories</h2>
+        <div class="section-subtitle">General informational advisories displayed for public awareness</div>
+      </div>
+    </div>
+    <div class="content-grid">
+      <div class="card">
+        <div class="card-title">Current Advisory Topics</div>
+        <div class="notice-list">
+          <div class="notice"><div class="date">INFO</div><div><strong>Monitor cotton fields for early leaf-spot symptoms</strong><small>Follow crop-specific expert guidance before treatment.</small></div></div>
+          <div class="notice"><div class="date">INFO</div><div><strong>Review soybean disease-risk indicators after prolonged wet conditions</strong><small>Use integrated crop management practices.</small></div></div>
+          <div class="notice"><div class="date">INFO</div><div><strong>Check pest surveillance signals before taking control measures</strong><small>Avoid unnecessary pesticide applications.</small></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Major Observed Signals</div>
+        <div class="notice-list">
+          <div class="notice"><div class="date">01</div><div><strong>Leaf Spot</strong><small>Cotton · surveillance signal</small></div></div>
+          <div class="notice"><div class="date">02</div><div><strong>Rust</strong><small>Soybean · surveillance signal</small></div></div>
+          <div class="notice"><div class="date">03</div><div><strong>Fall Armyworm</strong><small>Maize · surveillance signal</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="schemes">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Important Public Links</h2>
+        <div class="section-subtitle">Useful agriculture and farmer-service destinations</div>
+      </div>
+    </div>
+    <div class="link-grid">
+      <a class="link-card" href="#"><strong>PM-KISAN</strong>Farmer income-support information</a>
+      <a class="link-card" href="#"><strong>Crop Insurance</strong>Crop insurance information and services</a>
+      <a class="link-card" href="#"><strong>MahaDBT</strong>Government scheme service access</a>
+      <a class="link-card" href="#"><strong>Agriculture Statistics</strong>Public crop and production reports</a>
+      <a class="link-card" href="#"><strong>Weather Information</strong>Weather and crop-risk information</a>
+      <a class="link-card" href="#"><strong>Farmer Corner</strong>Farmer-focused resources and advisories</a>
+    </div>
+  </section>
+
+  
+<div class="disclaimer">
+  <strong>Mappls setup:</strong> Replace <code>YOUR_MAPPLS_TOKEN</code> in the Mappls SDK script
+  with your authorized Mappls Web Maps access token before running the portal.
+</div>
+
+  <div class="disclaimer">
+    <strong>Prototype notice:</strong> PikDrishti AI is presented here as a public analytics prototype.
+    The figures, map markers and surveillance values shown in this demo are illustrative until connected
+    to validated production data sources.
+  </div>
+</main>
+
+<footer class="footer" id="contact">
+  <div class="container footer-top">
+    <div>
+      <h4>PikDrishti AI</h4>
+      <p>Public Crop Health Analytics &amp; Surveillance prototype for Maharashtra-focused agricultural intelligence.</p>
+    </div>
+    <div>
+      <h4>Public Information</h4>
+      <a href="#department">About Department</a>
+      <a href="#statistics">Agriculture Statistics</a>
+      <a href="#reports">Reports</a>
+      <a href="#advisories">Advisories</a>
+    </div>
+    <div>
+      <h4>Farmer Services</h4>
+      <a href="#farmer">Farmer Corner</a>
+      <a href="#crop-health">Crop Health Map</a>
+      <a href="#schemes">Schemes &amp; Services</a>
+      <a href="#weather">Weather &amp; Risk</a>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p>Department of Agriculture<br>Government of Maharashtra<br>Commissionerate of Agriculture, Pune</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">© PikDrishti AI — Public Analytics Prototype &nbsp;|&nbsp; Accessibility &nbsp;|&nbsp; Privacy &nbsp;|&nbsp; Sitemap</div>
+  </div>
+</footer>
+
+<script src="https://cdn.ux4g.gov.in/UX4G@3.0.18/index.js"></script>
+<!-- Replace YOUR_MAPPLS_TOKEN with the Mappls Web Maps access token before deployment. -->
+<script src="https://sdk.mappls.com/map/sdk/web?v=3.0&access_token=YOUR_MAPPLS_TOKEN&callback=initMap" defer async></script>
+<script>
+
+
+const map = L.map('mahaMap', {
+  zoomControl: true,
+  attributionControl: true
+}).setView([19.75, 75.7], 6.5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+const districts = [
+  {name:'Nashik', lat:20.0059, lon:73.7897, risk:'High', score:88},
+  {name:'Akola', lat:20.7002, lon:77.0082, risk:'High', score:76},
+  {name:'Amravati', lat:20.9374, lon:77.7796, risk:'Medium', score:68},
+  {name:'Pune', lat:18.5204, lon:73.8567, risk:'Medium', score:56},
+  {name:'Kolhapur', lat:16.7050, lon:74.2433, risk:'Low', score:34},
+  {name:'Nagpur', lat:21.1458, lon:79.0882, risk:'Medium', score:51},
+  {name:'Solapur', lat:17.6599, lon:75.9064, risk:'Low', score:29},
+  {name:'Aurangabad', lat:19.8762, lon:75.3433, risk:'Medium', score:47}
+];
+
+const riskColors = {
+  High: '#c94e32',
+  Medium: '#d6a21c',
+  Low: '#3d8b68'
+};
+
+districts.forEach(d => {
+  L.circleMarker([d.lat, d.lon], {
+    radius: 9,
+    color: '#fff',
+    weight: 2,
+    fillColor: riskColors[d.risk],
+    fillOpacity: .9
+  }).addTo(map).bindPopup(
+    `<strong>${d.name}</strong><br>Risk level: ${d.risk}<br>Risk score: ${d.score}/100`
+  );
+});
+
+// Try to show the user's device location when permission is available.
+// This uses browser geolocation; a NavIC-capable device can contribute to the
+// positioning source through the device location stack.
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const {latitude, longitude} = position.coords;
+      L.circleMarker([latitude, longitude], {
+        radius: 7,
+        color: '#fff',
+        weight: 2,
+        fillColor: '#0b5d3b',
+        fillOpacity: 1
+      }).addTo(map).bindPopup('<strong>Current device location</strong><br>GNSS / NavIC-capable positioning');
+    },
+    () => {},
+    {enableHighAccuracy: true, timeout: 7000, maximumAge: 60000}
+  );
+}
+
+function refreshAnalytics(){
+  const district = document.getElementById('districtFilter').value;
+  const crop = document.getElementById('cropFilter').value;
+  const period = document.getElementById('periodFilter').value;
+  // Demo interaction only. Replace with a Flask API call in production.
+  if(district !== 'all'){
+    document.getElementById('cases').textContent = '2,148';
+    document.getElementById('highRisk').textContent = '02';
+  } else {
+    document.getElementById('cases').textContent = '12,486';
+    document.getElementById('highRisk').textContent = '08';
+  }
+  document.getElementById('signals').textContent = crop === 'all' ? '31' : '09';
+  document.getElementById('coverage').textContent = period === 'Current Season' ? '78%' : '72%';
+}
+</script>
+</body>
+</html>

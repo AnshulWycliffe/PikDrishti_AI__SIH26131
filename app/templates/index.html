@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="text-center mb-5">
+        <div class="auth-logo mb-3 shadow-sm">
+            <img src="{{url_for('static',filename='images/icons/icon-192.png')}}" height="50px" alt="">
+        </div>
+        <h1 class="h2 fw-bold text-success">PikDrishti AI</h1>
+        <p class="text-muted">Your intelligent farming assistant.</p>
+    </div>
+
+    <div class="d-grid gap-3 w-100" style="max-width: 300px;">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Log In</a>
+        <a href="{{ url_for('auth.register') }}"
+            class="btn btn-outline-success btn-lg rounded-pill bg-white shadow-sm">Register</a>
+    </div>
+</div>
+{% endblock %}

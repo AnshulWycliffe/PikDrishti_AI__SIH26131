@@ -1,0 +1,1069 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-green: #1B5E20;
+        --brand-green-light: #2E7D32;
+        --brand-accent: #4CAF50;
+        --brand-bg: #F4F8F4;
+        --card-bg: #FFFFFF;
+        --text-dark: #1F2937;
+        --text-muted: #6B7280;
+    }
+
+    body {
+        background-color: #F8FAF8;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .profile-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 16px 16px 90px;
+    }
+
+    /* Top Header Bar */
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .brand-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .brand-logo-img {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(27, 94, 32, 0.2);
+    }
+
+    .brand-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--brand-green);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .brand-sub {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* User Profile Hero Card */
+    .user-profile-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .user-profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(46, 125, 50, 0.1);
+    }
+
+    .user-avatar-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: #FFFFFF;
+        font-size: 1.4rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .user-info-text {
+        flex-grow: 1;
+        margin-left: 14px;
+    }
+
+    .user-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 2px;
+    }
+
+    .user-role-badge {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .verified-pill {
+        background: #E8F5E9;
+        color: #2E7D32;
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 1px 6px;
+        border-radius: 6px;
+    }
+
+    /* Settings Menu List */
+    .settings-list-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        margin-bottom: 20px;
+    }
+
+    .setting-menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid #F3F4F6;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        transition: background-color 0.15s;
+    }
+
+    .setting-menu-item:last-child {
+        border-bottom: none;
+    }
+
+    .setting-menu-item:hover {
+        background-color: #F9FAFB;
+    }
+
+    .menu-left-content {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .menu-icon-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    .icon-crop   { background: #E8F5E9; color: #2E7D32; }
+    .icon-land   { background: #E0F2FE; color: #0284C7; }
+    .icon-notify { background: #FEF3C7; color: #D97706; }
+    .icon-lang   { background: #EDE9FE; color: #7C3AED; }
+    .icon-help   { background: #FCE7F3; color: #DB2777; }
+    .icon-info   { background: #F3F4F6; color: #4B5563; }
+    .icon-logout { background: #FEE2E2; color: #DC2626; }
+
+    .menu-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 2px;
+    }
+
+    .menu-subtitle {
+        font-size: 0.75rem;
+        color: #6B7280;
+    }
+
+    .menu-right-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #9CA3AF;
+        font-size: 0.85rem;
+    }
+
+    .lang-badge-pill {
+        background: #F3F4F6;
+        color: #374151;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 8px;
+    }
+
+    /* Footer Banner */
+    .maharashtra-footer-banner {
+        text-align: center;
+        padding: 20px 16px;
+        background: #FFFFFF;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .footer-brand-heading {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #1B5E20;
+        margin-top: 8px;
+        margin-bottom: 2px;
+    }
+
+    .footer-brand-sub {
+        font-size: 0.75rem;
+        color: #6B7280;
+    }
+
+    /* Autocomplete Box Styles */
+    .autocomplete-box {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #FFFFFF;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        max-height: 220px;
+        overflow-y: auto;
+        z-index: 1065;
+        margin-top: 4px;
+    }
+
+    .autocomplete-item {
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        border-bottom: 1px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.15s;
+    }
+
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    .autocomplete-item:hover {
+        background-color: #E8F5E9;
+        color: var(--brand-green);
+    }
+
+    .autocomplete-coords-badge {
+        font-size: 0.68rem;
+        background: #E0E7FF;
+        color: #3730A3;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: monospace;
+    }
+
+    .location-gps-tag {
+        font-size: 0.75rem;
+        color: #15803D;
+        background: #DCFCE7;
+        padding: 4px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+
+    <!-- Top Header -->
+    <div class="profile-header">
+        <div class="brand-title-group">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="PikDrishti AI" class="brand-logo-img">
+            <div>
+                <h2 class="brand-title" data-i18n="app_title">PikDrishti AI</h2>
+                <p class="brand-sub" data-i18n="app_sub">Smart Farmer Profile &amp; Land</p>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+        </button>
+    </div>
+
+    <!-- User Profile Card (Click to Edit Farmer Profile Details) -->
+    <div class="user-profile-card" data-bs-toggle="modal" data-bs-target="#farmerProfileModal">
+        <div class="user-avatar-circle" id="cardUserAvatar">
+            {{ user.username[0].upper() if user and user.username else 'R' }}
+        </div>
+        <div class="user-info-text">
+            <div class="user-name" id="cardUserName">{{ user.username.title() if user else 'Ramesh Patil' }}</div>
+            <div class="user-role-badge">
+                <span data-i18n="farmerRole">Farmer • Maharashtra</span>
+                <span class="verified-pill" data-i18n="verifiedBadge">Verified Farmer</span>
+            </div>
+        </div>
+        <i class="bi bi-pencil-square text-success fs-5 me-1" title="Edit Farmer Profile"></i>
+    </div>
+
+    <!-- Settings Menu List matching Wireframe 10 -->
+    <div class="settings-list-card">
+
+        <!-- 1. My Crops -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#cropsModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-crop">
+                    <i class="bi bi-flower1"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="myCrops">My Crops (माझी पिके)</div>
+                    <div class="menu-subtitle">{{ crops|length }} Registered Crops</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <span class="badge bg-light text-success rounded-pill px-2">{{ crops|length }}</span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 2. My Land & Location (Edit Mode Only) -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#landModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-land">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="myLand">My Land &amp; Location (जमीन व शेत)</div>
+                    <div class="menu-subtitle">
+                        {% if farms and farms|length > 0 and farms[0].location %}{{ farms[0].location }}{% else %}Maharashtra Farms{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <span class="badge bg-success-subtle text-success rounded-pill px-2">
+                    <i class="bi bi-pencil me-1"></i>{{ farms[0].area if farms and farms|length > 0 and farms[0].area else 1 }} Ac
+                </span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 3. Notifications -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#notifyModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-notify">
+                    <i class="bi bi-bell-fill"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="notify">Notifications (सूचना)</div>
+                    <div class="menu-subtitle">Weather &amp; Pest Alerts</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <span class="badge bg-success-subtle text-success rounded-pill">Active</span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 4. Language Switcher -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-lang">
+                    <i class="bi bi-translate"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="language">Language (भाषा)</div>
+                    <div class="menu-subtitle">मराठी / English</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <span class="lang-badge-pill" id="currentLangLabel">मराठी</span>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 5. Help & Support -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#helpModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-help">
+                    <i class="bi bi-question-circle-fill"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="help">Help &amp; Support (मदत व संपर्क)</div>
+                    <div class="menu-subtitle">Kisan Helpline 1800-180-1551</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 6. About PikDrishti -->
+        <div class="setting-menu-item" data-bs-toggle="modal" data-bs-target="#aboutModal">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-info">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div>
+                    <div class="menu-title" data-i18n="about">About PikDrishti (माहिती)</div>
+                    <div class="menu-subtitle">Version 2.4 &bull; AI Precision Agri</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </div>
+
+        <!-- 7. Logout -->
+        <a href="{{ url_for('auth.logout') }}" class="setting-menu-item">
+            <div class="menu-left-content">
+                <div class="menu-icon-box icon-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                </div>
+                <div>
+                    <div class="menu-title text-danger" data-i18n="logout">Logout (बाहेर पडा)</div>
+                    <div class="menu-subtitle">Sign out of your account</div>
+                </div>
+            </div>
+            <div class="menu-right-meta">
+                <i class="bi bi-chevron-right text-danger"></i>
+            </div>
+        </a>
+
+    </div>
+
+    <!-- Bottom Maharashtra Initiative Banner -->
+    <div class="maharashtra-footer-banner">
+        <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" alt="PikDrishti AI">
+        <div class="footer-brand-heading" data-i18n="footerHeading">Healthy Farms &bull; Prosperous Maharashtra</div>
+        <div class="footer-brand-sub" data-i18n="footerSub">तंत्रज्ञानाच्या साथीने शेतकऱ्यांचा विश्वास</div>
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- MODALS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- 0. Edit Farmer Profile Details Modal -->
+<div class="modal fade" id="farmerProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success">
+                    <i class="bi bi-person-gear me-2"></i>
+                    <span data-i18n="modalProfileTitle">Edit Farmer Profile (शेतकरी माहिती)</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="farmerProfileForm">
+                    <div class="text-center mb-3">
+                        <div class="user-avatar-circle mx-auto mb-2" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            {{ user.username[0].upper() if user and user.username else 'R' }}
+                        </div>
+                        <span class="badge bg-success-subtle text-success">
+                            <i class="bi bi-patch-check-fill me-1"></i>Verified Maharashtra Farmer
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerName">Farmer / Username (शेतकऱ्याचे नाव) *</label>
+                        <input type="text" class="form-control" name="username" id="farmerUsernameInput" value="{{ user.username if user else '' }}" placeholder="e.g. Ramesh Patil" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerEmail">Email Address (ईमेल पत्ता)</label>
+                        <input type="email" class="form-control" name="email" id="farmerEmailInput" value="{{ user.email if user and user.email else '' }}" placeholder="e.g. farmer@pikdrishti.in">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerPhone">Phone Number (फोन नंबर)</label>
+                        <input type="tel" class="form-control" name="phone" id="farmerPhoneInput" value="{{ user.phone if user and user.phone else '' }}" placeholder="e.g. +91 9876543210" pattern="[\+]?[0-9\s\-\(\)]+">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerState">State / Region (राज्य)</label>
+                        <input type="text" class="form-control bg-light" value="Maharashtra (महाराष्ट्र)" readonly>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveProfile" data-i18n="btnSaveFarmer">Save Farmer Details (माहिती जतन करा)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 1. Edit Land & Location Modal (Edit Only) -->
+<div class="modal fade" id="landModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success">
+                    <i class="bi bi-geo-alt-fill me-2"></i>
+                    <span data-i18n="modalLandTitle">Edit Land &amp; Location (जमीन व स्थान संपादित करा)</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="farmForm">
+                    <input type="hidden" name="farm_id" id="farmIdInput" value="{{ farms[0].id if farms and farms|length > 0 else '' }}">
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmName">Farm / Land Name (शेताचे नाव) *</label>
+                        <input type="text" class="form-control" name="name" id="farmNameInput" value="{{ farms[0].name if farms and farms|length > 0 else 'My Farm' }}" placeholder="e.g. Green Acres Plot 1" required>
+                    </div>
+
+                    <!-- Autocomplete + GPS Location Field -->
+                    <div class="mb-3 position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold text-muted mb-0" data-i18n="lblFarmLoc">Location / Village / Taluka (गाव / तालुका / जिल्हा) *</label>
+                            <button type="button" class="btn btn-sm btn-link text-success text-decoration-none p-0 fw-bold" id="btnAutoDetectLocation" onclick="fetchFarmLocation()" style="font-size:0.75rem;">
+                                <i class="bi bi-crosshair me-1"></i><span id="lblDetectText">Auto-Detect GPS</span>
+                            </button>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control border-start-0" id="farmLocationInput" name="location" value="{{ farms[0].location if farms and farms|length > 0 else '' }}" placeholder="Type village, taluka, city or district..." autocomplete="off" required>
+                            <span class="input-group-text bg-light border-start-0 d-none" id="locSpinner">
+                                <span class="spinner-border spinner-border-sm text-success" role="status"></span>
+                            </span>
+                        </div>
+                        
+                        <!-- Real-time Suggestions Dropdown -->
+                        <div id="locationSuggestionsBox" class="autocomplete-box d-none"></div>
+
+                        <!-- Precision GPS indicator -->
+                        <div id="locationGpsTag" class="location-gps-tag {% if not (farms and farms|length > 0 and farms[0].location and '(' in farms[0].location) %}d-none{% endif %}">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span id="locationGpsText" class="fw-semibold">
+                                {% if farms and farms|length > 0 and farms[0].location and '(' in farms[0].location %}
+                                Coordinates Linked
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmArea">Total Land Area (Acres / एकर) *</label>
+                        <input type="number" step="0.1" class="form-control" name="area" id="farmAreaInput" value="{{ farms[0].area if farms and farms|length > 0 and farms[0].area else '' }}" placeholder="e.g. 4.5" required>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Nitrogen (N)</label>
+                            <input type="number" step="0.1" class="form-control" name="nitrogen" value="{{ farms[0].nitrogen if farms and farms|length > 0 and farms[0].nitrogen else '' }}" placeholder="kg/ha">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Phosphorus (P)</label>
+                            <input type="number" step="0.1" class="form-control" name="phosphorus" value="{{ farms[0].phosphorus if farms and farms|length > 0 and farms[0].phosphorus else '' }}" placeholder="kg/ha">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small text-muted">Potassium (K)</label>
+                            <input type="number" step="0.1" class="form-control" name="potassium" value="{{ farms[0].potassium if farms and farms|length > 0 and farms[0].potassium else '' }}" placeholder="kg/ha">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveFarm" data-i18n="btnUpdateLand">Update Land Details (जमीन माहिती अद्ययावत करा)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. My Crops Modal -->
+<div class="modal fade" id="cropsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-flower1 me-2"></i>My Crops (पिके)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% if crops and crops|length > 0 %}
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        {% for c in crops %}
+                        <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-success">{{ c.name }}</h6>
+                                <p class="small text-muted mb-0">Variety: {{ c.variety or 'Standard' }}</p>
+                            </div>
+                            <span class="badge bg-success-subtle text-success rounded-pill">Active</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h6 class="fw-bold mt-2 mb-2 text-dark">+ Add New Crop / नवीन पीक जोडा</h6>
+                <form id="cropForm">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Crop Name *</label>
+                        <select class="form-select" name="name" required>
+                            <option value="Cotton">कापूस (Cotton)</option>
+                            <option value="Soybean">सोयाबीन (Soybean)</option>
+                            <option value="Tomato">टोमॅटो (Tomato)</option>
+                            <option value="Potato">बटाटा (Potato)</option>
+                            <option value="Pepper">मिरची (Pepper)</option>
+                            <option value="Tur">तूर (Tur / Pigeon Pea)</option>
+                            <option value="Sugarcane">ऊस (Sugarcane)</option>
+                            <option value="Onion">कांदा (Onion)</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Variety (वाण)</label>
+                        <input type="text" class="form-control" name="variety" placeholder="e.g. BT Cotton / देशी">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Assign to Farm</label>
+                        <select class="form-select" name="farm_id" required>
+                            {% if farms and farms|length > 0 %}
+                                {% for f in farms %}
+                                    <option value="{{ f.id }}">{{ f.name }} ({{ f.location or 'Maharashtra' }})</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="1">Default Farm (शेत 1)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveCrop">Register Crop</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 4. Help & Support Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-headset me-2"></i>Kisan Help &amp; Support</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="p-3 bg-light rounded-3 mb-2">
+                    <div class="fw-bold text-success">Kisan Call Center (किसान कॉल सेंटर)</div>
+                    <div class="fs-5 fw-bold text-dark">📞 1800-180-1551</div>
+                    <small class="text-muted">Toll-Free Agricultural Advisory (24x7)</small>
+                </div>
+                <div class="p-3 bg-light rounded-3 mb-3">
+                    <div class="fw-bold text-primary">Maharashtra Agri Extension Portal</div>
+                    <div class="small text-muted">कृषी आयुक्तालय, महाराष्ट्र शासन</div>
+                    <a href="https://krishi.maharashtra.gov.in" target="_blank" class="small fw-bold text-success">krishi.maharashtra.gov.in</a>
+                </div>
+                <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. Notifications Modal -->
+<div class="modal fade" id="notifyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-bell-fill me-2"></i>Alert Preferences</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
+                    <input class="form-check-input ms-0 me-3" type="checkbox" id="weatherAlerts" checked>
+                    <label class="form-check-label fw-bold" for="weatherAlerts">Weather Risk Alerts (हवामान सूचना)</label>
+                    <div class="small text-muted">Get notifications for heavy rain and humidity spikes</div>
+                </div>
+                <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
+                    <input class="form-check-input ms-0 me-3" type="checkbox" id="diseaseAlerts" checked>
+                    <label class="form-check-label fw-bold" for="diseaseAlerts">Disease Outbreak Radar (रोग प्रसार सूचना)</label>
+                    <div class="small text-muted">Alerts when nearby farms report blight or rust</div>
+                </div>
+                <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-dismiss="modal">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. About Modal -->
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success" data-i18n="aboutModalTitle"><i class="bi bi-info-circle-fill me-2"></i>About PikDrishti AI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="mx-auto mb-3 shadow-sm" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" alt="PikDrishti AI">
+                <h5 class="fw-bold text-success" data-i18n="aboutAppTitle">PikDrishti AI v2.4</h5>
+                <p class="small text-muted mb-3">AI-powered Precision Agriculture &amp; Multi-lingual Advisory Platform for Maharashtra and Indian Farmers.</p>
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <span class="badge bg-success-subtle text-success">EfficientNet-B0 Vision</span>
+                    <span class="badge bg-warning-subtle text-warning">भाषिणी NLTM</span>
+                    <span class="badge bg-primary-subtle text-primary">Gemini 2.5</span>
+                </div>
+                <button type="button" class="btn btn-outline-success rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const profileTranslations = {
+        mr: {
+            app_title: "पिकदृष्टी AI",
+            app_sub: "स्मार्ट शेतकरी प्रोफाइल व शेतजमीन",
+            aboutModalTitle: "पिकदृष्टी AI बद्दल",
+            aboutAppTitle: "पिकदृष्टी AI v2.4",
+            langBadge: "मराठी",
+            verifiedBadge: "प्रमाणित शेतकरी",
+            farmerRole: "शेतकरी (Farmer) • महाराष्ट्र",
+            myCrops: "माझी पिके (My Crops)",
+            myLand: "जमीन व शेत (My Land & Location)",
+            notify: "सूचना (Notifications)",
+            language: "भाषा (Language)",
+            help: "मदत व संपर्क (Help & Support)",
+            about: "माहिती (About PikDrishti)",
+            logout: "बाहेर पडा (Logout)",
+            footerHeading: "समृद्ध शेतकरी • प्रगत महाराष्ट्र",
+            footerSub: "तंत्रज्ञानाच्या साथीने शेतकऱ्यांचा विश्वास",
+            modalProfileTitle: "शेतकरी माहिती संपादित करा (Edit Farmer Profile)",
+            lblFarmerName: "शेतकऱ्याचे नाव (Farmer Name) *",
+            lblFarmerEmail: "ईमेल पत्ता (Email Address)",
+            lblFarmerPhone: "फोन नंबर (Phone Number)",
+            lblFarmerState: "राज्य (State / Region)",
+            btnSaveFarmer: "माहिती जतन करा (Save Farmer Details)",
+            modalLandTitle: "जमीन व स्थान संपादित करा (Edit Land & Location)",
+            lblFarmName: "शेताचे नाव (Farm / Land Name) *",
+            lblFarmLoc: "गाव / तालुका / जिल्हा (Location / Village) *",
+            lblFarmArea: "एकूण क्षेत्र (Total Land Area in Acres) *",
+            btnUpdateLand: "जमीन माहिती अद्ययावत करा (Update Land Details)"
+        },
+        en: {
+            app_title: "PikDrishti AI",
+            app_sub: "Smart Farmer Profile & Land",
+            aboutModalTitle: "About PikDrishti AI",
+            aboutAppTitle: "PikDrishti AI v2.4",
+            langBadge: "English",
+            verifiedBadge: "Verified Farmer",
+            farmerRole: "Farmer • Maharashtra",
+            myCrops: "My Crops",
+            myLand: "My Land & Location",
+            notify: "Notifications",
+            language: "Language",
+            help: "Help & Support",
+            about: "About PikDrishti",
+            logout: "Logout",
+            footerHeading: "Healthy Farms • Prosperous Maharashtra",
+            footerSub: "Technology for Empowered Farmers",
+            modalProfileTitle: "Edit Farmer Profile",
+            lblFarmerName: "Farmer / Username *",
+            lblFarmerEmail: "Email Address",
+            lblFarmerPhone: "Phone Number",
+            lblFarmerState: "State / Region",
+            btnSaveFarmer: "Save Farmer Details",
+            modalLandTitle: "Edit Land & Location",
+            lblFarmName: "Farm / Land Name *",
+            lblFarmLoc: "Location / Village / District *",
+            lblFarmArea: "Total Land Area (Acres) *",
+            btnUpdateLand: "Update Land Details"
+        }
+    };
+
+    function selectAppLang(code) {
+        localStorage.setItem('pikdrishti_lang', code);
+        applyProfileLanguage(code);
+        const modalEl = document.getElementById('langModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+    }
+
+    function applyProfileLanguage(lang) {
+        const dict = profileTranslations[lang] || profileTranslations.mr;
+        const currentLangLabel = document.getElementById('currentLangLabel');
+        const topLangLabel = document.getElementById('topLangLabel');
+        if (currentLangLabel) currentLangLabel.innerText = dict.langBadge;
+        if (topLangLabel) topLangLabel.innerText = dict.langBadge;
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                el.innerText = dict[key];
+            }
+        });
+
+        // Modal Checkmark Icons
+        const checkMr = document.querySelector('.check-icon-mr');
+        const checkEn = document.querySelector('.check-icon-en');
+        const btnMr = document.getElementById('btnLangMr');
+        const btnEn = document.getElementById('btnLangEn');
+
+        if (lang === 'mr') {
+            if (checkMr) checkMr.classList.remove('d-none');
+            if (checkEn) checkEn.classList.add('d-none');
+            if (btnMr) { btnMr.classList.add('btn-outline-success'); btnMr.classList.remove('btn-outline-secondary'); }
+            if (btnEn) { btnEn.classList.remove('btn-outline-success'); btnEn.classList.add('btn-outline-secondary'); }
+        } else {
+            if (checkMr) checkMr.classList.add('d-none');
+            if (checkEn) checkEn.classList.remove('d-none');
+            if (btnMr) { btnMr.classList.remove('btn-outline-success'); btnMr.classList.add('btn-outline-secondary'); }
+            if (btnEn) { btnEn.classList.add('btn-outline-success'); btnEn.classList.remove('btn-outline-secondary'); }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Edit Farmer Profile Form Submit
+    // ═══════════════════════════════════════════════════════════════════════════
+    const farmerProfileForm = document.getElementById('farmerProfileForm');
+    if (farmerProfileForm) {
+        farmerProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const btn = document.getElementById('btnSaveProfile');
+            if (btn) { btn.disabled = true; btn.innerText = "Saving..."; }
+
+            fetch('/api/user/profile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Could not update profile.'));
+                    if (btn) { btn.disabled = false; btn.innerText = "Save Farmer Details"; }
+                }
+            })
+            .catch(err => {
+                alert('Network error: ' + err.message);
+                if (btn) { btn.disabled = false; btn.innerText = "Save Farmer Details"; }
+            });
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Real-Time Location Search & Autocomplete
+    // ═══════════════════════════════════════════════════════════════════════════
+    let debounceTimer = null;
+    const locInput = document.getElementById('farmLocationInput');
+    const suggestionsBox = document.getElementById('locationSuggestionsBox');
+    const locSpinner = document.getElementById('locSpinner');
+    const gpsTag = document.getElementById('locationGpsTag');
+    const gpsTagText = document.getElementById('locationGpsText');
+
+    if (locInput) {
+        locInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            clearTimeout(debounceTimer);
+
+            if (query.length < 2) {
+                hideSuggestions();
+                return;
+            }
+
+            if (locSpinner) locSpinner.classList.remove('d-none');
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/api/location/autocomplete?q=${encodeURIComponent(query)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (locSpinner) locSpinner.classList.add('d-none');
+                        if (data.success && data.results && data.results.length > 0) {
+                            renderSuggestions(data.results);
+                        } else {
+                            hideSuggestions();
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Autocomplete error:", err);
+                        if (locSpinner) locSpinner.classList.add('d-none');
+                        hideSuggestions();
+                    });
+            }, 250);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (locInput && suggestionsBox && !locInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+    }
+
+    function renderSuggestions(results) {
+        if (!suggestionsBox) return;
+        suggestionsBox.innerHTML = '';
+
+        results.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'autocomplete-item';
+            row.innerHTML = `
+                <div>
+                    <strong>${item.name}</strong>
+                    <span class="text-muted ms-1" style="font-size:0.75rem;">${item.region || ''}</span>
+                </div>
+                <span class="autocomplete-coords-badge">${item.lat.toFixed(3)}, ${item.lon.toFixed(3)}</span>
+            `;
+            row.addEventListener('click', () => {
+                selectLocation(item);
+            });
+            suggestionsBox.appendChild(row);
+        });
+
+        suggestionsBox.classList.remove('d-none');
+    }
+
+    function selectLocation(item) {
+        if (!locInput) return;
+        locInput.value = item.full_val || `${item.display} (${item.lat.toFixed(4)}, ${item.lon.toFixed(4)})`;
+
+        if (gpsTag && gpsTagText) {
+            gpsTagText.innerText = `Coordinates linked: ${item.lat.toFixed(4)}, ${item.lon.toFixed(4)}`;
+            gpsTag.classList.remove('d-none');
+            gpsTag.classList.add('d-inline-flex');
+        }
+
+        hideSuggestions();
+    }
+
+    function hideSuggestions() {
+        if (suggestionsBox) suggestionsBox.classList.add('d-none');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Auto-fetch GPS Location with reverse geocoding for Farm
+    // ═══════════════════════════════════════════════════════════════════════════
+    function fetchFarmLocation() {
+        const input = document.getElementById('farmLocationInput');
+        const detectLabel = document.getElementById('lblDetectText');
+        const btn = document.getElementById('btnAutoDetectLocation');
+
+        if (!("geolocation" in navigator)) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+
+        if (detectLabel) detectLabel.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Locating...';
+        if (btn) btn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                try {
+                    const resp = await fetch(`/api/location/reverse?lat=${lat}&lon=${lon}`);
+                    const data = await resp.json();
+                    if (data && data.success) {
+                        input.value = `${data.display} (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                        if (gpsTag && gpsTagText) {
+                            gpsTagText.innerText = `GPS: ${lat.toFixed(4)}, ${lon.toFixed(4)} (${data.name || 'Local'})`;
+                            gpsTag.classList.remove('d-none');
+                            gpsTag.classList.add('d-inline-flex');
+                        }
+                    } else {
+                        input.value = `Farm Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                    }
+                } catch (e) {
+                    input.value = `Farm Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+                }
+
+                if (detectLabel) detectLabel.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> Located!';
+                if (btn) btn.disabled = false;
+                setTimeout(() => {
+                    if (detectLabel) detectLabel.innerHTML = '<i class="bi bi-crosshair me-1"></i> Auto-Detect GPS';
+                }, 3000);
+            },
+            (error) => {
+                if (detectLabel) detectLabel.innerHTML = '<i class="bi bi-crosshair me-1"></i> Auto-Detect GPS';
+                if (btn) btn.disabled = false;
+                alert("Location access denied or unavailable. Please type your location.");
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Forms: Edit Farm (PUT/POST) & Add Crop
+    // ═══════════════════════════════════════════════════════════════════════════
+    const farmForm = document.getElementById('farmForm');
+    if (farmForm) {
+        farmForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const farmId = formData.get('farm_id');
+            const btn = document.getElementById('btnSaveFarm');
+            if (btn) { btn.disabled = true; btn.innerText = "Updating..."; }
+
+            const url = farmId ? `/api/farms/${farmId}` : '/api/farms';
+            const method = farmId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Could not update land details.'));
+                    if (btn) { btn.disabled = false; btn.innerText = "Update Land Details"; }
+                }
+            })
+            .catch(err => {
+                alert('Network error: ' + err.message);
+                if (btn) { btn.disabled = false; btn.innerText = "Update Land Details"; }
+            });
+        });
+    }
+
+    const cropForm = document.getElementById('cropForm');
+    if (cropForm) {
+        cropForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const btn = document.getElementById('btnSaveCrop');
+            if (btn) { btn.disabled = true; btn.innerText = "Registering..."; }
+
+            fetch('/api/crops', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Could not save crop.'));
+                    if (btn) { btn.disabled = false; btn.innerText = "Register Crop"; }
+                }
+            })
+            .catch(err => {
+                alert('Network error: ' + err.message);
+                if (btn) { btn.disabled = false; btn.innerText = "Register Crop"; }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        applyProfileLanguage(savedLang);
+    });
+</script>
+{% endblock %}

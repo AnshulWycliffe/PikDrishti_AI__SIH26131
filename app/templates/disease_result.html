@@ -1,0 +1,816 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-green: #1B5E20;
+        --brand-green-light: #2E7D32;
+        --severity-high: #D32F2F;
+        --severity-mod: #F57C00;
+        --severity-low: #388E3C;
+    }
+
+    .result-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 12px 16px 84px;
+    }
+
+    /* Header */
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .result-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .back-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #212529;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #F8F9FA;
+        transform: translateX(-2px);
+    }
+
+    .lang-pill {
+        background: #E8F5E9;
+        color: #1E6B38;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        border: 1px solid #C8E6C9;
+    }
+
+    /* Scanned Leaf Hero Card */
+    .hero-card {
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        overflow: hidden;
+        margin-bottom: 16px;
+        position: relative;
+    }
+
+    .hero-image-box {
+        position: relative;
+        height: 210px;
+        width: 100%;
+        background: #F1F8E9;
+        overflow: hidden;
+    }
+
+    .hero-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .disease-status-badge {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .badge-disease-detected {
+        background: rgba(255, 235, 238, 0.95);
+        color: #C62828;
+        border: 1px solid #FFCDD2;
+    }
+
+    .badge-healthy {
+        background: rgba(232, 245, 233, 0.95);
+        color: #1B5E20;
+        border: 1px solid #C8E6C9;
+    }
+
+    /* Diagnosis Meta Card */
+    .diagnosis-meta {
+        padding: 16px;
+    }
+
+    .crop-tag {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #6C757D;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+
+    .disease-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #1F2937;
+        margin-bottom: 10px;
+        line-height: 1.25;
+    }
+
+    .metrics-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .metric-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .metric-conf {
+        background: #E8F5E9;
+        color: #1B5E20;
+        border: 1px solid #C8E6C9;
+    }
+
+    .metric-sev-high {
+        background: #FFEBEE;
+        color: #C62828;
+        border: 1px solid #FFCDD2;
+    }
+
+    .metric-sev-mod {
+        background: #FFF3E0;
+        color: #E65100;
+        border: 1px solid #FFE0B2;
+    }
+
+    .metric-sev-low {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid #C8E6C9;
+    }
+
+    /* Tabs Styling */
+    .result-tabs-nav {
+        display: flex;
+        background: #FFFFFF;
+        border: 1px solid rgba(0,0,0,0.06);
+        padding: 4px;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        margin-bottom: 16px;
+    }
+
+    .result-tab-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6C757D;
+        transition: all 0.2s ease;
+    }
+
+    .result-tab-btn.active {
+        background: #2E7D32;
+        color: #FFFFFF;
+        box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+    }
+
+    /* Tab Content Cards */
+    .detail-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        padding: 18px;
+        margin-bottom: 14px;
+    }
+
+    .card-heading {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Risk Rows */
+    .risk-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        margin-bottom: 8px;
+    }
+
+    .risk-label {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .risk-tag {
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 8px;
+    }
+
+    .risk-high { background: #FFCDD2; color: #B71C1C; }
+    .risk-med { background: #FFE0B2; color: #E65100; }
+    .risk-low { background: #C8E6C9; color: #1B5E20; }
+
+    .risk-alert-banner {
+        background: #FFEBEE;
+        border: 1px solid #FFCDD2;
+        color: #B71C1C;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        line-height: 1.4;
+        margin-top: 10px;
+    }
+
+    /* Advisory Lists */
+    .advisory-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .advisory-list li {
+        position: relative;
+        padding-left: 24px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        color: #374151;
+        line-height: 1.45;
+    }
+
+    .advisory-list.immediate li::before {
+        content: "•";
+        position: absolute;
+        left: 6px;
+        color: #2E7D32;
+        font-size: 1.3rem;
+        line-height: 1;
+        top: -1px;
+    }
+
+    .advisory-list.check li::before {
+        content: "✓";
+        position: absolute;
+        left: 4px;
+        color: #2E7D32;
+        font-weight: 800;
+        font-size: 0.95rem;
+    }
+
+    /* Bhashini Audio Player Banner */
+    .audio-play-card {
+        background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 100%);
+        border: 1.5px solid #FFE082;
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        box-shadow: 0 4px 12px rgba(255, 160, 0, 0.1);
+    }
+
+    .audio-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .audio-icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #FFA000;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .audio-text-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #795548;
+        line-height: 1.2;
+    }
+
+    .audio-text-sub {
+        font-size: 0.74rem;
+        color: #8D6E63;
+    }
+
+    .audio-control-btn {
+        background: #2E7D32;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .audio-control-btn:hover {
+        background: #1B5E20;
+        transform: scale(1.04);
+    }
+
+    /* Action Buttons Row */
+    .action-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .btn-view-advisory {
+        flex: 1.2;
+        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-view-advisory:hover {
+        background: #1B5E20;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-ask-questions {
+        flex: 1;
+        background: #FFFFFF;
+        color: #1E6B38;
+        border: 1.5px solid #2E7D32;
+        border-radius: 14px;
+        padding: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-ask-questions:hover {
+        background: #E8F5E9;
+        color: #1B5E20;
+    }
+
+    .btn-contact-expert {
+        background: #1E6B38;
+        color: white;
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+        flex: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-container">
+
+    <!-- Top Navigation Header -->
+    <div class="result-header">
+        <div class="result-header-left">
+            <a href="{{ url_for('main.scan') }}" class="back-btn" title="Back to Scan">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h5 class="fw-bold mb-0 text-success">Diagnosis Result</h5>
+        </div>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+        </button>
+    </div>
+
+    <!-- Scanned Leaf Photo Card matching Wireframe 4 -->
+    <div class="hero-card">
+        <div class="hero-image-box">
+            {% if analysis.image_path %}
+                <img src="{{ url_for('static', filename=analysis.image_path) }}" alt="Scanned Leaf" class="hero-img">
+            {% else %}
+                <img src="{{ url_for('static', filename='placeholder.png') }}" alt="Crop Leaf" class="hero-img" onerror="this.src='https://images.unsplash.com/photo-1592417817098-8f3d6eb2251a?w=600&auto=format&fit=crop&q=80'">
+            {% endif %}
+
+            {% set is_healthy = 'healthy' in result.disease | lower %}
+            {% if is_healthy %}
+                <div class="disease-status-badge badge-healthy">
+                    <i class="bi bi-check-circle-fill"></i> पीक निरोगी आहे (Healthy)
+                </div>
+            {% else %}
+                <div class="disease-status-badge badge-disease-detected">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Possible Disease Detected
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Disease Identification & Metrics -->
+        <div class="diagnosis-meta">
+            <div class="crop-tag" data-tr="dynamic" data-tr-key="crop-tag">{{ result.crop }} ({{ analysis.crop_display }})</div>
+            <div class="disease-title" data-tr="dynamic" data-tr-key="disease-title">{{ result.disease }}</div>
+
+            <div class="metrics-row">
+                <div class="metric-chip metric-conf">
+                    <i class="bi bi-award-fill"></i>
+                    <span>{{ ((result.confidence or 0.88) * 100) | round(1) }}% Confidence</span>
+                </div>
+
+                {% set sev = result.severity or 'Moderate' %}
+                {% if sev == 'High' %}
+                    <div class="metric-chip metric-sev-high">
+                        <i class="bi bi-circle-fill" style="font-size: 8px;"></i>
+                        <span>High Severity</span>
+                    </div>
+                {% elif sev == 'Low' %}
+                    <div class="metric-chip metric-sev-low">
+                        <i class="bi bi-circle-fill" style="font-size: 8px;"></i>
+                        <span>Low Severity</span>
+                    </div>
+                {% else %}
+                    <div class="metric-chip metric-sev-mod">
+                        <i class="bi bi-circle-fill" style="font-size: 8px;"></i>
+                        <span>Moderate Severity</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bhashini Regional Audio Advisory Bar -->
+    <div class="audio-play-card">
+        <div class="audio-info">
+            <div class="audio-icon-circle">
+                <i class="bi bi-soundwave" id="audioIcon"></i>
+            </div>
+            <div>
+                <div class="audio-text-title">Listen to this advice (मराठी)</div>
+                <div class="audio-text-sub">भाषिणी AI द्वारे ऑडिओ सल्ला</div>
+            </div>
+        </div>
+        <button type="button" class="audio-control-btn" id="playAudioBtn" onclick="toggleBhasiniAdvisoryAudio()">
+            <i class="bi bi-play-fill fs-5" id="playIcon"></i>
+            <span id="playLabel">Play</span>
+        </button>
+    </div>
+
+    <!-- Tabs Navigation matching Wireframe 4 & 5 -->
+    <div class="result-tabs-nav">
+        <button type="button" class="result-tab-btn active" id="tabRiskBtn" onclick="switchResultTab('risk')">
+            Risk Analysis
+        </button>
+        <button type="button" class="result-tab-btn" id="tabAdvisoryBtn" onclick="switchResultTab('advisory')">
+            Treatment & Advisory
+        </button>
+        <button type="button" class="result-tab-btn" id="tabDetailsBtn" onclick="switchResultTab('details')">
+            Symptoms
+        </button>
+    </div>
+
+    <!-- Tab 1: Risk Analysis matching Screen 4 -->
+    <div id="tabRiskContent">
+        <div class="detail-card">
+            <div class="card-heading">
+                <i class="bi bi-shield-exclamation text-danger"></i> Environmental & Crop Risk
+            </div>
+
+            <div class="risk-item">
+                <span class="risk-label">
+                    <i class="bi bi-cloud-drizzle-fill text-primary"></i> Weather Risk
+                </span>
+                <span class="risk-tag risk-high">High</span>
+            </div>
+
+            <div class="risk-item">
+                <span class="risk-label">
+                    <i class="bi bi-flower1 text-success"></i> Crop Stage Risk
+                </span>
+                <span class="risk-tag risk-med">Medium</span>
+            </div>
+
+            <div class="risk-item">
+                <span class="risk-label">
+                    <i class="bi bi-geo-alt-fill text-danger"></i> Local Area Risk
+                </span>
+                <span class="risk-tag risk-high">High</span>
+            </div>
+
+            <div class="risk-alert-banner">
+                <i class="bi bi-info-circle-fill fs-5"></i>
+                <div>Conditions in your area (high humidity) are favorable for spread. Take early preventive action.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Treatment & Advisory matching Screen 5 -->
+    <div id="tabAdvisoryContent" class="d-none">
+        
+        <!-- Immediate Actions -->
+        <div class="detail-card">
+            <div class="card-heading text-success">
+                <i class="bi bi-lightning-charge-fill"></i> Immediate Actions (तात्काळ उपाय)
+            </div>
+            <ul class="advisory-list immediate">
+                {% if result.recommendations %}
+                    {% for loop_idx in range(result.recommendations|length) %}
+                        <li data-tr="dynamic" data-tr-key="rec-{{ loop_idx }}">{{ result.recommendations[loop_idx] }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>बाधित आणि रोगट पाने तात्काळ काढून नष्ट करा.</li>
+                    <li>पिकांमध्ये हवा खेळती राहण्यासाठी योग्य अंतर ठेवा.</li>
+                    <li>तुषार सिंचनाऐवजी ठिबक सिंचनाचा वापर करा जेणेकरून पानांवर ओलावा राहणार नाही.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Integrated Pest Management (IPM) -->
+        <div class="detail-card">
+            <div class="card-heading text-primary">
+                <i class="bi bi-shield-check"></i> Integrated Pest Management (IPM)
+            </div>
+            <ul class="advisory-list check">
+                {% if result.prevention %}
+                    {% for loop_idx in range(result.prevention|length) %}
+                        <li data-tr="dynamic" data-tr-key="prev-{{ loop_idx }}">{{ result.prevention[loop_idx] }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>प्रमाणित व रोगमुक्त बियाण्यांचाच वापर करा.</li>
+                    <li>पिकांची फेरपालट करा आणि शेत स्वच्छ ठेवा.</li>
+                    <li>कृषी विद्यापीठाने शिफारस केलेल्या बुरशीनाशकांचा योग्य प्रमाणात वापर करा.</li>
+                    <li>स्थानिक कृषी सल्लागार किंवा कृषी अधिकाऱ्यांच्या मार्गदर्शनानुसार फवारणी करा.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Safe Input Guidance -->
+        <div class="detail-card">
+            <div class="card-heading text-warning">
+                <i class="bi bi-capsule"></i> Safe Input Guidance (सुरक्षित वापर)
+            </div>
+            <ul class="advisory-list check">
+                <li>Use only government-approved agricultural chemicals.</li>
+                <li>Follow the exact recommended dosage per acre.</li>
+                <li>Wear protective masks and gloves during spraying.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Tab 3: Symptoms & AI Analysis -->
+    <div id="tabDetailsContent" class="d-none">
+        <div class="detail-card">
+            <div class="card-heading text-info">
+                <i class="bi bi-eye-fill"></i> Observed Symptoms (लक्षणे)
+            </div>
+            <ul class="advisory-list immediate">
+                {% if result.symptoms %}
+                    {% for loop_idx in range(result.symptoms|length) %}
+                        <li data-tr="dynamic" data-tr-key="sym-{{ loop_idx }}">{{ result.symptoms[loop_idx] }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>पानांवर गोल किंवा अनियमित तपकिरी/काळे डाग पडणे.</li>
+                    <li>पाने पिवळी पडून गळणे.</li>
+                {% endif %}
+            </ul>
+
+            {% if result.gemini_explanation %}
+            <div class="mt-3 pt-3 border-top">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-robot text-success me-1"></i> AI Explanation:</h6>
+                <p class="text-muted small mb-0" style="line-height: 1.6;" data-tr="dynamic" data-tr-key="gemini-explanation">{{ result.gemini_explanation }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bottom Action Buttons matching Wireframe 4 & 5 -->
+    <div class="action-row">
+        <button type="button" class="btn-view-advisory" onclick="switchResultTab('advisory')">
+            <i class="bi bi-journal-text"></i> View Advisory
+        </button>
+        <a href="{{ url_for('main.assistant', analysis_id=analysis.id) }}" class="btn-ask-questions">
+            <i class="bi bi-chat-dots-fill"></i> Ask Questions
+        </a>
+    </div>
+
+    <div class="action-row mt-2">
+        <a href="{{ url_for('main.yield_prediction') }}" class="btn-contact-expert">
+            <i class="bi bi-graph-up-arrow"></i> Predict Yield Impact
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let isAudioPlaying = false;
+    let bhasiniAudio = null;
+
+    function switchResultTab(tabKey) {
+        document.getElementById('tabRiskBtn').classList.toggle('active', tabKey === 'risk');
+        document.getElementById('tabAdvisoryBtn').classList.toggle('active', tabKey === 'advisory');
+        document.getElementById('tabDetailsBtn').classList.toggle('active', tabKey === 'details');
+
+        document.getElementById('tabRiskContent').classList.toggle('d-none', tabKey !== 'risk');
+        document.getElementById('tabAdvisoryContent').classList.toggle('d-none', tabKey !== 'advisory');
+        document.getElementById('tabDetailsContent').classList.toggle('d-none', tabKey !== 'details');
+    }
+
+    function setAudioUIState(playing) {
+        const playIcon = document.getElementById('playIcon');
+        const playLabel = document.getElementById('playLabel');
+        isAudioPlaying = playing;
+
+        if (playing) {
+            playIcon.className = 'bi bi-pause-fill fs-5';
+            playLabel.innerText = 'Pause';
+        } else {
+            playIcon.className = 'bi bi-play-fill fs-5';
+            playLabel.innerText = 'Play';
+        }
+    }
+
+    function stopAllAudio() {
+        if (bhasiniAudio) {
+            bhasiniAudio.pause();
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        setAudioUIState(false);
+    }
+
+    // Bhashini Audio Advice Synthesis & Toggle
+    async function toggleBhasiniAdvisoryAudio() {
+        const playIcon = document.getElementById('playIcon');
+        const playLabel = document.getElementById('playLabel');
+
+        // If already playing, Pause/Stop audio immediately
+        if (isAudioPlaying) {
+            stopAllAudio();
+            return;
+        }
+
+        const diseaseName = "{{ result.disease | default('') | e }}";
+        const cropName = "{{ result.crop | default('') | e }}";
+        const speechPrompt = `पिकामध्ये ${cropName} वर ${diseaseName} रोगाचा प्रादुर्भाव आढळला आहे. बाधित पाने त्वरित काढून टाका. ठिबक सिंचन वापरा आणि शिफारस केलेल्या औषधांची फवारणी करा.`;
+
+        playLabel.innerText = 'Loading...';
+        playIcon.className = 'spinner-border spinner-border-sm';
+
+        try {
+            const resp = await fetch('/api/bhasini/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: speechPrompt,
+                    language: 'mr'
+                })
+            });
+
+            const data = await resp.json();
+            if (data.success && data.audio_base64) {
+                const audioSrc = data.audio_base64.startsWith('data:') ? data.audio_base64 : `data:audio/wav;base64,${data.audio_base64}`;
+                bhasiniAudio = new Audio(audioSrc);
+                
+                bhasiniAudio.onended = () => {
+                    setAudioUIState(false);
+                };
+                bhasiniAudio.onerror = () => {
+                    setAudioUIState(false);
+                };
+
+                await bhasiniAudio.play();
+                setAudioUIState(true);
+            } else {
+                fallbackBrowserTTS(speechPrompt);
+            }
+        } catch (e) {
+            fallbackBrowserTTS(speechPrompt);
+        }
+    }
+
+    function fallbackBrowserTTS(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'mr-IN';
+            utterance.rate = 0.95;
+
+            utterance.onstart = () => {
+                setAudioUIState(true);
+            };
+            utterance.onend = () => {
+                setAudioUIState(false);
+            };
+            utterance.onerror = () => {
+                setAudioUIState(false);
+            };
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            setAudioUIState(false);
+        }
+    }
+</script>
+
+<script>
+// Bhashini Cached Translation - Disease Result Page
+const _drOriginals = {};
+async function _translateEl(el, lang) {
+    if (!el) return;
+    const key = el.dataset.trKey || el.id;
+    if (!key) return;
+    if (!_drOriginals[key]) _drOriginals[key] = el.innerText.trim();
+    const original = _drOriginals[key];
+    if (lang === 'en') { el.innerText = original; return; }
+    try {
+        const r = await fetch('/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: original, source_lang: 'en', target_lang: 'mr' })
+        });
+        const d = await r.json();
+        if (d.success && d.translated_text) el.innerText = d.translated_text;
+    } catch(e) {}
+}
+async function applyResultLanguage(lang) {
+    const els = document.querySelectorAll('[data-tr="dynamic"]');
+    for (const el of els) await _translateEl(el, lang);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+    if (lang === 'mr') setTimeout(() => applyResultLanguage('mr'), 300);
+});
+</script>
+{% endblock %}
