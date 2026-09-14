@@ -1,6 +1,25 @@
-# PikDrishti AI
+<h1>
+  <img src="icon-512.png" width="40" height="40" style="vertical-align: middle;">
+  PikDrishti AI
+</h1>
+<img src="banner.png" style="vertical-align: middle;">
+
+
+
+
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 
 PikDrishti AI is a mobile-first crop-health and agricultural advisory platform for farmers, extension workers, and government agriculture teams. It combines image-based disease identification, farm records, weather risk signals, pest-trap monitoring, integrated pest and disease management guidance, multilingual assistance, expert validation, laboratory referral, field follow-up, and a government surveillance dashboard.
+
+| Farmer | Government Portal |
+| ------------- | ------------- |
+| <img src="mobile.png" style="vertical-align: middle; height:500px;"> | <img src="laptop.png" style="vertical-align: middle; height:500px;">|
+
 
 The project currently serves two connected experiences:
 
