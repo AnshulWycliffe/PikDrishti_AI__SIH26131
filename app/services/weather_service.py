@@ -144,7 +144,7 @@ class WeatherService:
             query = "Pune, Maharashtra"
 
         if not api_key:
-            return cls._get_demo_weather()
+            return cls._get_demo_weather(location=query)
 
         try:
             encoded_query = urllib.parse.quote(query)
@@ -186,7 +186,7 @@ class WeatherService:
             }
         except Exception as e:
             logger.warning("Weather API request failed (%s), returning demo weather.", e)
-            return cls._get_demo_weather()
+            return cls._get_demo_weather(location=query)
 
     @classmethod
     def get_forecast_risk(cls, location=None, days=3):
@@ -310,13 +310,18 @@ class WeatherService:
         }
 
     @staticmethod
-    def _get_demo_weather():
+    def _get_demo_weather(location=None):
         """Fallback demo weather response."""
+        requested_location = str(location or "Nashik, Maharashtra").strip()
+        location_parts = [part.strip() for part in requested_location.split(',') if part.strip()]
+        city = location_parts[0] if location_parts else "Nashik"
+        region = location_parts[1] if len(location_parts) > 1 else "Maharashtra"
+
         return {
             "success": True,
             "demo": True,
-            "city": "Nashik",
-            "region": "Maharashtra",
+            "city": city,
+            "region": region,
             "country": "India",
             "lat": 19.9975,
             "lon": 73.7898,

@@ -38,13 +38,20 @@ class GeminiService:
                         f"तुमचा प्रश्न: '{message}'\n\n"
                         "Google Gemini व भाषिणी AI द्वारे अचूक कृषी सल्ला मिळवण्यासाठी API Key कॉन्फिगर करा."
                     )
-                else:
+                elif language == "hi":
                     demo_text = (
                         "मैं PikDrishti AI Demo Assistant हूँ। "
                         f"आपने पूछा: '{message}'।\n\n"
                         "Production environment में Google Gemini का "
                         "expert agricultural response प्राप्त करने के लिए "
                         "GEMINI_API_KEY configure करें।"
+                    )
+                else:
+                    demo_text = (
+                        "I am the PikDrishti AI demo assistant. "
+                        f"Your question: '{message}'.\n\n"
+                        "Configure GEMINI_API_KEY to receive expert agricultural "
+                        "responses from Google Gemini in the selected language."
                     )
                 return {
                     "success": True,

@@ -300,7 +300,7 @@
             </div>
         </div>
         <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+            <i class="bi bi-translate me-1"></i><span id="topLangLabel">English</span>
         </button>
     </div>
 
@@ -329,7 +329,7 @@
                     <i class="bi bi-flower1"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="myCrops">My Crops (माझी पिके)</div>
+                    <div class="menu-title" data-i18n="myCrops">My Crops</div>
                     <div class="menu-subtitle">{{ crops|length }} Registered Crops</div>
                 </div>
             </div>
@@ -346,7 +346,7 @@
                     <i class="bi bi-geo-alt-fill"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="myLand">My Land &amp; Location (जमीन व शेत)</div>
+                    <div class="menu-title" data-i18n="myLand">My Land &amp; Location</div>
                     <div class="menu-subtitle">
                         {% if farms and farms|length > 0 and farms[0].location %}{{ farms[0].location }}{% else %}Maharashtra Farms{% endif %}
                     </div>
@@ -367,7 +367,7 @@
                     <i class="bi bi-bell-fill"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="notify">Notifications (सूचना)</div>
+                    <div class="menu-title" data-i18n="notify">Notifications</div>
                     <div class="menu-subtitle">Weather &amp; Pest Alerts</div>
                 </div>
             </div>
@@ -384,12 +384,12 @@
                     <i class="bi bi-translate"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="language">Language (भाषा)</div>
-                    <div class="menu-subtitle">मराठी / English</div>
+                    <div class="menu-title" data-i18n="language">Language</div>
+                    <div class="menu-subtitle">English / Marathi / Hindi</div>
                 </div>
             </div>
             <div class="menu-right-meta">
-                <span class="lang-badge-pill" id="currentLangLabel">मराठी</span>
+                <span class="lang-badge-pill" id="currentLangLabel">English</span>
                 <i class="bi bi-chevron-right"></i>
             </div>
         </div>
@@ -401,7 +401,7 @@
                     <i class="bi bi-question-circle-fill"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="help">Help &amp; Support (मदत व संपर्क)</div>
+                    <div class="menu-title" data-i18n="help">Help &amp; Support</div>
                     <div class="menu-subtitle">Kisan Helpline 1800-180-1551</div>
                 </div>
             </div>
@@ -417,7 +417,7 @@
                     <i class="bi bi-info-circle-fill"></i>
                 </div>
                 <div>
-                    <div class="menu-title" data-i18n="about">About PikDrishti (माहिती)</div>
+                    <div class="menu-title" data-i18n="about">About PikDrishti</div>
                     <div class="menu-subtitle">Version 2.4 &bull; AI Precision Agri</div>
                 </div>
             </div>
@@ -433,7 +433,7 @@
                     <i class="bi bi-box-arrow-right"></i>
                 </div>
                 <div>
-                    <div class="menu-title text-danger" data-i18n="logout">Logout (बाहेर पडा)</div>
+                    <div class="menu-title text-danger" data-i18n="logout">Logout</div>
                     <div class="menu-subtitle">Sign out of your account</div>
                 </div>
             </div>
@@ -448,7 +448,7 @@
     <div class="maharashtra-footer-banner">
         <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;" alt="PikDrishti AI">
         <div class="footer-brand-heading" data-i18n="footerHeading">Healthy Farms &bull; Prosperous Maharashtra</div>
-        <div class="footer-brand-sub" data-i18n="footerSub">तंत्रज्ञानाच्या साथीने शेतकऱ्यांचा विश्वास</div>
+        <div class="footer-brand-sub" data-i18n="footerSub">Trusted technology for every farmer</div>
     </div>
 
 </div>
@@ -464,7 +464,7 @@
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold text-success">
                     <i class="bi bi-person-gear me-2"></i>
-                    <span data-i18n="modalProfileTitle">Edit Farmer Profile (शेतकरी माहिती)</span>
+                    <span data-i18n="modalProfileTitle">Edit Farmer Profile</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -480,26 +480,26 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerName">Farmer / Username (शेतकऱ्याचे नाव) *</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerName">Farmer / Username *</label>
                         <input type="text" class="form-control" name="username" id="farmerUsernameInput" value="{{ user.username if user else '' }}" placeholder="e.g. Ramesh Patil" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerEmail">Email Address (ईमेल पत्ता)</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerEmail">Email Address</label>
                         <input type="email" class="form-control" name="email" id="farmerEmailInput" value="{{ user.email if user and user.email else '' }}" placeholder="e.g. farmer@pikdrishti.in">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerPhone">Phone Number (फोन नंबर)</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerPhone">Phone Number</label>
                         <input type="tel" class="form-control" name="phone" id="farmerPhoneInput" value="{{ user.phone if user and user.phone else '' }}" placeholder="e.g. +91 9876543210" pattern="[\+]?[0-9\s\-\(\)]+">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerState">State / Region (राज्य)</label>
-                        <input type="text" class="form-control bg-light" value="Maharashtra (महाराष्ट्र)" readonly>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmerState">State / Region</label>
+                        <input type="text" class="form-control bg-light" value="Maharashtra" readonly>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveProfile" data-i18n="btnSaveFarmer">Save Farmer Details (माहिती जतन करा)</button>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveProfile" data-i18n="btnSaveFarmer">Save Farmer Details</button>
                 </form>
             </div>
         </div>
@@ -513,7 +513,7 @@
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold text-success">
                     <i class="bi bi-geo-alt-fill me-2"></i>
-                    <span data-i18n="modalLandTitle">Edit Land &amp; Location (जमीन व स्थान संपादित करा)</span>
+                        <span data-i18n="modalLandTitle">Edit Land &amp; Location</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -522,14 +522,14 @@
                     <input type="hidden" name="farm_id" id="farmIdInput" value="{{ farms[0].id if farms and farms|length > 0 else '' }}">
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmName">Farm / Land Name (शेताचे नाव) *</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmName">Farm / Land Name *</label>
                         <input type="text" class="form-control" name="name" id="farmNameInput" value="{{ farms[0].name if farms and farms|length > 0 else 'My Farm' }}" placeholder="e.g. Green Acres Plot 1" required>
                     </div>
 
                     <!-- Autocomplete + GPS Location Field -->
                     <div class="mb-3 position-relative">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label small fw-bold text-muted mb-0" data-i18n="lblFarmLoc">Location / Village / Taluka (गाव / तालुका / जिल्हा) *</label>
+                            <label class="form-label small fw-bold text-muted mb-0" data-i18n="lblFarmLoc">Location / Village / Taluka *</label>
                             <button type="button" class="btn btn-sm btn-link text-success text-decoration-none p-0 fw-bold" id="btnAutoDetectLocation" onclick="fetchFarmLocation()" style="font-size:0.75rem;">
                                 <i class="bi bi-crosshair me-1"></i><span id="lblDetectText">Auto-Detect GPS</span>
                             </button>
@@ -557,7 +557,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmArea">Total Land Area (Acres / एकर) *</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="lblFarmArea">Total Land Area (Acres) *</label>
                         <input type="number" step="0.1" class="form-control" name="area" id="farmAreaInput" value="{{ farms[0].area if farms and farms|length > 0 and farms[0].area else '' }}" placeholder="e.g. 4.5" required>
                     </div>
 
@@ -575,7 +575,7 @@
                             <input type="number" step="0.1" class="form-control" name="potassium" value="{{ farms[0].potassium if farms and farms|length > 0 and farms[0].potassium else '' }}" placeholder="kg/ha">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveFarm" data-i18n="btnUpdateLand">Update Land Details (जमीन माहिती अद्ययावत करा)</button>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveFarm" data-i18n="btnUpdateLand">Update Land Details</button>
                 </form>
             </div>
         </div>
@@ -587,7 +587,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-success"><i class="bi bi-flower1 me-2"></i>My Crops (पिके)</h5>
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-flower1 me-2"></i>My Crops</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -605,24 +605,24 @@
                     </div>
                 {% endif %}
 
-                <h6 class="fw-bold mt-2 mb-2 text-dark">+ Add New Crop / नवीन पीक जोडा</h6>
+                    <h6 class="fw-bold mt-2 mb-2 text-dark">+ Add New Crop</h6>
                 <form id="cropForm">
                     <div class="mb-2">
                         <label class="form-label small fw-bold text-muted">Crop Name *</label>
                         <select class="form-select" name="name" required>
-                            <option value="Cotton">कापूस (Cotton)</option>
-                            <option value="Soybean">सोयाबीन (Soybean)</option>
-                            <option value="Tomato">टोमॅटो (Tomato)</option>
-                            <option value="Potato">बटाटा (Potato)</option>
-                            <option value="Pepper">मिरची (Pepper)</option>
-                            <option value="Tur">तूर (Tur / Pigeon Pea)</option>
-                            <option value="Sugarcane">ऊस (Sugarcane)</option>
-                            <option value="Onion">कांदा (Onion)</option>
+                            <option value="Cotton">Cotton</option>
+                            <option value="Soybean">Soybean</option>
+                            <option value="Tomato">Tomato</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Pepper">Pepper</option>
+                            <option value="Tur">Tur / Pigeon Pea</option>
+                            <option value="Sugarcane">Sugarcane</option>
+                            <option value="Onion">Onion</option>
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small fw-bold text-muted">Variety (वाण)</label>
-                        <input type="text" class="form-control" name="variety" placeholder="e.g. BT Cotton / देशी">
+                        <label class="form-label small fw-bold text-muted">Variety</label>
+                        <input type="text" class="form-control" name="variety" placeholder="e.g. BT Cotton / local variety">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Assign to Farm</label>
@@ -632,7 +632,7 @@
                                     <option value="{{ f.id }}">{{ f.name }} ({{ f.location or 'Maharashtra' }})</option>
                                 {% endfor %}
                             {% else %}
-                                <option value="1">Default Farm (शेत 1)</option>
+                                <option value="1">Default Farm</option>
                             {% endif %}
                         </select>
                     </div>
@@ -655,13 +655,13 @@
             </div>
             <div class="modal-body">
                 <div class="p-3 bg-light rounded-3 mb-2">
-                    <div class="fw-bold text-success">Kisan Call Center (किसान कॉल सेंटर)</div>
+                    <div class="fw-bold text-success">Kisan Call Center</div>
                     <div class="fs-5 fw-bold text-dark">📞 1800-180-1551</div>
                     <small class="text-muted">Toll-Free Agricultural Advisory (24x7)</small>
                 </div>
                 <div class="p-3 bg-light rounded-3 mb-3">
                     <div class="fw-bold text-primary">Maharashtra Agri Extension Portal</div>
-                    <div class="small text-muted">कृषी आयुक्तालय, महाराष्ट्र शासन</div>
+                    <div class="small text-muted">Department of Agriculture, Government of Maharashtra</div>
                     <a href="https://krishi.maharashtra.gov.in" target="_blank" class="small fw-bold text-success">krishi.maharashtra.gov.in</a>
                 </div>
                 <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-dismiss="modal">Close</button>
@@ -681,12 +681,12 @@
             <div class="modal-body">
                 <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
                     <input class="form-check-input ms-0 me-3" type="checkbox" id="weatherAlerts" checked>
-                    <label class="form-check-label fw-bold" for="weatherAlerts">Weather Risk Alerts (हवामान सूचना)</label>
+                    <label class="form-check-label fw-bold" for="weatherAlerts">Weather Risk Alerts</label>
                     <div class="small text-muted">Get notifications for heavy rain and humidity spikes</div>
                 </div>
                 <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
                     <input class="form-check-input ms-0 me-3" type="checkbox" id="diseaseAlerts" checked>
-                    <label class="form-check-label fw-bold" for="diseaseAlerts">Disease Outbreak Radar (रोग प्रसार सूचना)</label>
+                    <label class="form-check-label fw-bold" for="diseaseAlerts">Disease Outbreak Radar</label>
                     <div class="small text-muted">Alerts when nearby farms report blight or rust</div>
                 </div>
                 <button type="button" class="btn btn-success w-100 rounded-pill" data-bs-dismiss="modal">Save Preferences</button>
@@ -709,7 +709,7 @@
                 <p class="small text-muted mb-3">AI-powered Precision Agriculture &amp; Multi-lingual Advisory Platform for Maharashtra and Indian Farmers.</p>
                 <div class="d-flex justify-content-center gap-2 mb-3">
                     <span class="badge bg-success-subtle text-success">EfficientNet-B0 Vision</span>
-                    <span class="badge bg-warning-subtle text-warning">भाषिणी NLTM</span>
+                    <span class="badge bg-warning-subtle text-warning">Bhashini NLTM</span>
                     <span class="badge bg-primary-subtle text-primary">Gemini 2.5</span>
                 </div>
                 <button type="button" class="btn btn-outline-success rounded-pill px-4" data-bs-dismiss="modal">Close</button>
@@ -794,6 +794,7 @@
     }
 
     function applyProfileLanguage(lang) {
+        if (window.googleTranslateActive) return;
         const dict = profileTranslations[lang] || profileTranslations.mr;
         const currentLangLabel = document.getElementById('currentLangLabel');
         const topLangLabel = document.getElementById('topLangLabel');
@@ -1062,8 +1063,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         applyProfileLanguage(savedLang);
     });
+    window.addEventListener('pikdrishti_lang_changed', e => applyProfileLanguage(e.detail));
 </script>
 {% endblock %}

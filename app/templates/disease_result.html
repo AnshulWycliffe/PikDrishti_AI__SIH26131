@@ -450,7 +450,7 @@
             <h5 class="fw-bold mb-0 text-success">Diagnosis Result</h5>
         </div>
         <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
         </button>
     </div>
 
@@ -466,7 +466,7 @@
             {% set is_healthy = 'healthy' in result.disease | lower %}
             {% if is_healthy %}
                 <div class="disease-status-badge badge-healthy">
-                    <i class="bi bi-check-circle-fill"></i> पीक निरोगी आहे (Healthy)
+                    <i class="bi bi-check-circle-fill"></i> Healthy
                 </div>
             {% else %}
                 <div class="disease-status-badge badge-disease-detected">
@@ -514,8 +514,8 @@
                 <i class="bi bi-soundwave" id="audioIcon"></i>
             </div>
             <div>
-                <div class="audio-text-title">Listen to this advice (मराठी)</div>
-                <div class="audio-text-sub">भाषिणी AI द्वारे ऑडिओ सल्ला</div>
+                <div class="audio-text-title" id="audioTextTitle">Listen to this advice (English)</div>
+                <div class="audio-text-sub" id="audioTextSub">Audio advisory powered by Bhashini AI</div>
             </div>
         </div>
         <button type="button" class="audio-control-btn" id="playAudioBtn" onclick="toggleBhasiniAdvisoryAudio()">
@@ -527,13 +527,13 @@
     <!-- Tabs Navigation matching Wireframe 4 & 5 -->
     <div class="result-tabs-nav">
         <button type="button" class="result-tab-btn active" id="tabRiskBtn" onclick="switchResultTab('risk')">
-            Risk Analysis
+            <span id="lblRiskTab">Risk Analysis</span>
         </button>
         <button type="button" class="result-tab-btn" id="tabAdvisoryBtn" onclick="switchResultTab('advisory')">
-            Treatment & Advisory
+            <span id="lblAdvisoryTab">Treatment &amp; Advisory</span>
         </button>
         <button type="button" class="result-tab-btn" id="tabDetailsBtn" onclick="switchResultTab('details')">
-            Symptoms
+            <span id="lblSymptomsTab">Symptoms</span>
         </button>
     </div>
 
@@ -577,8 +577,8 @@
         
         <!-- Immediate Actions -->
         <div class="detail-card">
-            <div class="card-heading text-success">
-                <i class="bi bi-lightning-charge-fill"></i> Immediate Actions (तात्काळ उपाय)
+                <div class="card-heading text-success">
+                    <i class="bi bi-lightning-charge-fill"></i> <span id="lblImmediateActions">Immediate Actions</span>
             </div>
             <ul class="advisory-list immediate">
                 {% if result.recommendations %}
@@ -586,9 +586,9 @@
                         <li data-tr="dynamic" data-tr-key="rec-{{ loop_idx }}">{{ result.recommendations[loop_idx] }}</li>
                     {% endfor %}
                 {% else %}
-                    <li>बाधित आणि रोगट पाने तात्काळ काढून नष्ट करा.</li>
-                    <li>पिकांमध्ये हवा खेळती राहण्यासाठी योग्य अंतर ठेवा.</li>
-                    <li>तुषार सिंचनाऐवजी ठिबक सिंचनाचा वापर करा जेणेकरून पानांवर ओलावा राहणार नाही.</li>
+                    <li>Remove affected and diseased leaves promptly and dispose of them safely.</li>
+                    <li>Maintain adequate spacing between plants to improve airflow.</li>
+                    <li>Use drip irrigation instead of overhead sprinklers to keep leaves dry.</li>
                 {% endif %}
             </ul>
         </div>
@@ -596,32 +596,55 @@
         <!-- Integrated Pest Management (IPM) -->
         <div class="detail-card">
             <div class="card-heading text-primary">
-                <i class="bi bi-shield-check"></i> Integrated Pest Management (IPM)
+                <i class="bi bi-shield-check"></i> <span id="lblIpmHeading">Integrated Pest Management (IPM)</span>
             </div>
-            <ul class="advisory-list check">
-                {% if result.prevention %}
-                    {% for loop_idx in range(result.prevention|length) %}
-                        <li data-tr="dynamic" data-tr-key="prev-{{ loop_idx }}">{{ result.prevention[loop_idx] }}</li>
-                    {% endfor %}
-                {% else %}
-                    <li>प्रमाणित व रोगमुक्त बियाण्यांचाच वापर करा.</li>
-                    <li>पिकांची फेरपालट करा आणि शेत स्वच्छ ठेवा.</li>
-                    <li>कृषी विद्यापीठाने शिफारस केलेल्या बुरशीनाशकांचा योग्य प्रमाणात वापर करा.</li>
-                    <li>स्थानिक कृषी सल्लागार किंवा कृषी अधिकाऱ्यांच्या मार्गदर्शनानुसार फवारणी करा.</li>
+            {% set ipm = result.ipm_plan or {} %}
+            {% if ipm.risk_summary %}
+                <div class="risk-alert-banner" style="margin-top:0;margin-bottom:12px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ ipm.risk_summary }}</span>
+                </div>
+            {% endif %}
+            {% for group in [
+                ('Cultural controls', 'bi-flower1', ipm.cultural),
+                ('Mechanical controls', 'bi-tools', ipm.mechanical),
+                ('Biological controls', 'bi-bug', ipm.biological),
+                ('Chemical controls', 'bi-capsule', ipm.chemical),
+                ('Monitoring plan', 'bi-clipboard2-check', ipm.monitoring)
+            ] %}
+                {% if group[2] %}
+                    <div class="mb-3">
+                        <div class="fw-bold small text-dark mb-1"><i class="bi {{ group[1] }} text-success me-1"></i>{{ group[0] }}</div>
+                        <ul class="advisory-list check">
+                            {% for item in group[2] %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endif %}
-            </ul>
+            {% endfor %}
         </div>
 
         <!-- Safe Input Guidance -->
         <div class="detail-card">
             <div class="card-heading text-warning">
-                <i class="bi bi-capsule"></i> Safe Input Guidance (सुरक्षित वापर)
+                <i class="bi bi-capsule"></i> <span id="lblSafeInput">Safe Input Guidance</span>
             </div>
             <ul class="advisory-list check">
-                <li>Use only government-approved agricultural chemicals.</li>
-                <li>Follow the exact recommended dosage per acre.</li>
-                <li>Wear protective masks and gloves during spraying.</li>
+                {% for item in (ipm.safety or []) %}
+                    <li>{{ item }}</li>
+                {% endfor %}
             </ul>
+            {% if ipm.referral %}
+                <div class="mt-3 pt-3 border-top">
+                    <div class="fw-bold small text-dark mb-1"><i class="bi bi-person-check text-primary me-1"></i>When to seek expert confirmation</div>
+                    <ul class="advisory-list immediate">
+                        {% for item in ipm.referral %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
         </div>
 
     </div>
@@ -630,7 +653,7 @@
     <div id="tabDetailsContent" class="d-none">
         <div class="detail-card">
             <div class="card-heading text-info">
-                <i class="bi bi-eye-fill"></i> Observed Symptoms (लक्षणे)
+                <i class="bi bi-eye-fill"></i> <span id="lblObservedSymptoms">Observed Symptoms</span>
             </div>
             <ul class="advisory-list immediate">
                 {% if result.symptoms %}
@@ -638,14 +661,14 @@
                         <li data-tr="dynamic" data-tr-key="sym-{{ loop_idx }}">{{ result.symptoms[loop_idx] }}</li>
                     {% endfor %}
                 {% else %}
-                    <li>पानांवर गोल किंवा अनियमित तपकिरी/काळे डाग पडणे.</li>
-                    <li>पाने पिवळी पडून गळणे.</li>
+                    <li>Round or irregular brown or black spots appearing on the leaves.</li>
+                    <li>Leaves turning yellow and falling off.</li>
                 {% endif %}
             </ul>
 
             {% if result.gemini_explanation %}
             <div class="mt-3 pt-3 border-top">
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-robot text-success me-1"></i> AI Explanation:</h6>
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-robot text-success me-1"></i> <span id="lblAiExplanation">AI Explanation:</span></h6>
                 <p class="text-muted small mb-0" style="line-height: 1.6;" data-tr="dynamic" data-tr-key="gemini-explanation">{{ result.gemini_explanation }}</p>
             </div>
             {% endif %}
@@ -657,7 +680,7 @@
         <button type="button" class="btn-view-advisory" onclick="switchResultTab('advisory')">
             <i class="bi bi-journal-text"></i> View Advisory
         </button>
-        <a href="{{ url_for('main.assistant', analysis_id=analysis.id) }}" class="btn-ask-questions">
+        <a href="{{ url_for('main.assistant', analysis_id=analysis.id) }}" id="askQuestionsLink" class="btn-ask-questions">
             <i class="bi bi-chat-dots-fill"></i> Ask Questions
         </a>
     </div>
@@ -710,6 +733,82 @@
         setAudioUIState(false);
     }
 
+    const audioLanguageLabels = {
+        en: { name: 'English', sub: 'Audio advisory powered by Bhashini AI', locale: 'en-IN' },
+        mr: { name: 'Marathi', sub: 'भाषिणी AI द्वारे ऑडिओ सल्ला', locale: 'mr-IN' },
+        hi: { name: 'Hindi', sub: 'भाषिणी AI द्वारा ऑडियो सलाह', locale: 'hi-IN' }
+    };
+
+    const audioPrompts = {
+        en: (crop, disease) => `The ${crop} crop shows signs of ${disease}. Remove affected leaves promptly, use drip irrigation, and apply only recommended crop protection products according to the label.`,
+        mr: (crop, disease) => `तुमच्या ${crop} पिकामध्ये ${disease} रोगाची लक्षणे आढळली आहेत. बाधित पाने त्वरित काढून टाका, ठिबक सिंचन वापरा आणि लेबलवरील सूचनेनुसार शिफारस केलेली पीक संरक्षण औषधे वापरा.`,
+        hi: (crop, disease) => `आपकी ${crop} फसल में ${disease} रोग के लक्षण दिखाई दे रहे हैं। प्रभावित पत्तियों को तुरंत हटा दें, ड्रिप सिंचाई का उपयोग करें और लेबल के अनुसार अनुशंसित फसल सुरक्षा उत्पाद ही लगाएं।`
+    };
+
+    function getTargetAudioLanguage() {
+        const lang = localStorage.getItem('pikdrishti_lang') || 'en';
+        return audioLanguageLabels[lang] ? lang : 'en';
+    }
+
+    function updateAudioLanguageLabels(lang) {
+        const labels = audioLanguageLabels[lang] || audioLanguageLabels.en;
+        const title = document.getElementById('audioTextTitle');
+        const subtitle = document.getElementById('audioTextSub');
+        if (title) title.innerText = `Listen to this advice (${labels.name})`;
+        if (subtitle) subtitle.innerText = labels.sub;
+    }
+
+    const resultUiLabels = {
+        en: {
+            riskTab: 'Risk Analysis',
+            advisoryTab: 'Treatment & Advisory',
+            symptomsTab: 'Symptoms',
+            immediateActions: 'Immediate Actions',
+            ipmHeading: 'Integrated Pest Management (IPM)',
+            safeInput: 'Safe Input Guidance',
+            observedSymptoms: 'Observed Symptoms',
+            aiExplanation: 'AI Explanation:'
+        },
+        mr: {
+            riskTab: 'जोखीम विश्लेषण',
+            advisoryTab: 'उपचार व सल्ला',
+            symptomsTab: 'लक्षणे',
+            immediateActions: 'तात्काळ उपाय',
+            ipmHeading: 'एकात्मिक कीड व्यवस्थापन (IPM)',
+            safeInput: 'सुरक्षित वापर मार्गदर्शन',
+            observedSymptoms: 'आढळलेली लक्षणे',
+            aiExplanation: 'AI स्पष्टीकरण:'
+        },
+        hi: {
+            riskTab: 'जोखिम विश्लेषण',
+            advisoryTab: 'उपचार और सलाह',
+            symptomsTab: 'लक्षण',
+            immediateActions: 'तत्काल उपाय',
+            ipmHeading: 'एकीकृत कीट प्रबंधन (IPM)',
+            safeInput: 'सुरक्षित उपयोग मार्गदर्शन',
+            observedSymptoms: 'देखे गए लक्षण',
+            aiExplanation: 'AI विवरण:'
+        }
+    };
+
+    function updateResultLanguageLabels(lang) {
+        const labels = resultUiLabels[lang] || resultUiLabels.en;
+        const labelMap = {
+            lblRiskTab: labels.riskTab,
+            lblAdvisoryTab: labels.advisoryTab,
+            lblSymptomsTab: labels.symptomsTab,
+            lblImmediateActions: labels.immediateActions,
+            lblIpmHeading: labels.ipmHeading,
+            lblSafeInput: labels.safeInput,
+            lblObservedSymptoms: labels.observedSymptoms,
+            lblAiExplanation: labels.aiExplanation
+        };
+        Object.entries(labelMap).forEach(([id, text]) => {
+            const element = document.getElementById(id);
+            if (element) element.innerText = text;
+        });
+    }
+
     // Bhashini Audio Advice Synthesis & Toggle
     async function toggleBhasiniAdvisoryAudio() {
         const playIcon = document.getElementById('playIcon');
@@ -723,7 +822,9 @@
 
         const diseaseName = "{{ result.disease | default('') | e }}";
         const cropName = "{{ result.crop | default('') | e }}";
-        const speechPrompt = `पिकामध्ये ${cropName} वर ${diseaseName} रोगाचा प्रादुर्भाव आढळला आहे. बाधित पाने त्वरित काढून टाका. ठिबक सिंचन वापरा आणि शिफारस केलेल्या औषधांची फवारणी करा.`;
+        const language = getTargetAudioLanguage();
+        const speechPrompt = audioPrompts[language](cropName, diseaseName);
+        updateAudioLanguageLabels(language);
 
         playLabel.innerText = 'Loading...';
         playIcon.className = 'spinner-border spinner-border-sm';
@@ -734,7 +835,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     text: speechPrompt,
-                    language: 'mr'
+                    language: language
                 })
             });
 
@@ -753,18 +854,18 @@
                 await bhasiniAudio.play();
                 setAudioUIState(true);
             } else {
-                fallbackBrowserTTS(speechPrompt);
+                fallbackBrowserTTS(speechPrompt, language);
             }
         } catch (e) {
-            fallbackBrowserTTS(speechPrompt);
+            fallbackBrowserTTS(speechPrompt, language);
         }
     }
 
-    function fallbackBrowserTTS(text) {
+    function fallbackBrowserTTS(text, language) {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'mr-IN';
+            utterance.lang = (audioLanguageLabels[language] || audioLanguageLabels.en).locale;
             utterance.rate = 0.95;
 
             utterance.onstart = () => {
@@ -782,6 +883,16 @@
             setAudioUIState(false);
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const language = getTargetAudioLanguage();
+        updateAudioLanguageLabels(language);
+        updateResultLanguageLabels(language);
+    });
+    window.addEventListener('pikdrishti_lang_changed', e => {
+        updateAudioLanguageLabels(e.detail);
+        updateResultLanguageLabels(e.detail);
+    });
 </script>
 
 <script>
@@ -805,12 +916,22 @@ async function _translateEl(el, lang) {
     } catch(e) {}
 }
 async function applyResultLanguage(lang) {
+    if (window.googleTranslateActive) return;
     const els = document.querySelectorAll('[data-tr="dynamic"]');
     for (const el of els) await _translateEl(el, lang);
 }
 document.addEventListener('DOMContentLoaded', function() {
-    const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+    const lang = localStorage.getItem('pikdrishti_lang') || 'en';
     if (lang === 'mr') setTimeout(() => applyResultLanguage('mr'), 300);
+});
+window.addEventListener('pikdrishti_lang_changed', e => applyResultLanguage(e.detail));
+document.addEventListener('DOMContentLoaded', function() {
+    const link = document.getElementById('askQuestionsLink');
+    if (!link) return;
+    const language = localStorage.getItem('pikdrishti_lang') || 'en';
+    const url = new URL(link.href, window.location.origin);
+    url.searchParams.set('language', ['en', 'mr', 'hi'].includes(language) ? language : 'en');
+    link.href = url.toString();
 });
 </script>
 {% endblock %}

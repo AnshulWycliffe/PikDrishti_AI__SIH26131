@@ -87,3 +87,109 @@ sequenceDiagram
 2. **Observation**: Farmer uses the built-in Speech-to-Text feature (configured for Hindi) to dictate what they observe (e.g., "yellow spots on leaves").
 3. **Analyze**: The app sends the data to the backend. The CNN classifies the disease, and Gemini generates a custom treatment plan.
 4. **Action**: The farmer is redirected to a results page showing the diagnosis and actionable steps in their native language.
+
+## 7. Integrated Pest and Disease Management
+
+The disease-result pipeline now adds a deterministic IPM plan through `app/services/ipm_service.py`. The plan is generated from the detected crop, disease, confidence, and severity, then stored inside the existing `DiseaseAnalysis.gemini_data` JSON record under the `ipm_plan` key.
+
+The IPM plan separates actions into:
+
+- cultural controls
+- mechanical controls
+- biological controls
+- chemical controls
+- monitoring and repeat-scan actions
+- safe input guidance
+- extension or laboratory referral conditions
+
+Gemini recommendations remain available as supplemental advice, while the structured IPM baseline provides predictable categories and conservative safety behavior. Low-confidence, unknown, or healthy results can trigger confirmation guidance rather than encouraging an immediate pesticide application.
+
+```mermaid
+flowchart TD
+  Result[Disease Result] --> IPM[IPM Service]
+  IPM --> Cultural[Cultural Controls]
+  IPM --> Mechanical[Mechanical Controls]
+  IPM --> Biological[Biological Controls]
+  IPM --> Chemical[Chemical Controls]
+  IPM --> Monitor[Monitoring Plan]
+  IPM --> Safety[Safe Input Guidance]
+  IPM --> Referral[Expert or Lab Referral]
+  IPM --> Store[(DiseaseAnalysis JSON)]
+```
+
+## 8. Agriculture Officer Case Review
+
+Protected officer routes provide a first operational review workflow:
+
+- `/admin/login` authenticates the officer session.
+- `/admin/cases` lists live `DiseaseAnalysis` records with crop, disease, farmer, confidence, severity, and search filters.
+- `/admin/cases/<id>` presents the submitted evidence and IPM action plan.
+- `/admin/cases/<id>/review` persists an official decision in `CaseReview`.
+
+Review decisions currently include `under_review`, `confirmed`, `uncertain`, `lab_referral`, and `rejected`. Each review can store the confirmed disease and officer notes. This creates a durable validation point that can later support follow-up assignments, laboratory results, and model-feedback datasets.
+
+```mermaid
+sequenceDiagram
+  participant Officer
+  participant Portal
+  participant Analysis as DiseaseAnalysis
+  participant Review as CaseReview
+
+  Officer->>Portal: Sign in
+  Officer->>Portal: Filter and open case
+  Portal->>Analysis: Load image, prediction, confidence, IPM plan
+  Officer->>Portal: Select review decision and add notes
+  Portal->>Review: Save official validation
+  Review-->>Portal: Review status and timestamp
+  Portal-->>Officer: Updated case detail
+```
+
+## 9. Follow-up Management
+
+Each disease case can now have one current `CaseFollowUp` record. Officers can save:
+
+- priority: critical, high, moderate, or low
+- progress: pending, in progress, completed, or escalated
+- due date
+- next action
+- field or farmer-contact notes
+
+The follow-up state is visible in the case list and case detail view. This creates the operational bridge between diagnosis review and field response. A later iteration can extend the record into a full visit history with officer assignment, contact method, treatment confirmation, and follow-up image uploads.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Pending
+  Pending --> InProgress
+  InProgress --> Completed
+  InProgress --> Escalated
+  Escalated --> InProgress
+  Completed --> [*]
+```
+
+Each follow-up can also contain multiple `FollowUpUpdate` timeline entries. An update records the contact method, current status, officer notes, timestamp, and an optional field-evidence image. The current follow-up status is advanced whenever an update is recorded, while the historical entries remain available for review.
+
+```mermaid
+flowchart LR
+  Plan[CaseFollowUp Plan] --> Update1[Phone or Visit Update]
+  Plan --> Update2[Later Field Update]
+  Update1 --> Evidence1[Optional Evidence Image]
+  Update2 --> Evidence2[Optional Evidence Image]
+  Update1 --> Timeline[(FollowUpUpdate Timeline)]
+  Update2 --> Timeline
+```
+
+## 10. Officer Assignment and Jurisdiction
+
+The officer directory uses `OfficerProfile` records with an officer ID, display name, role, district, optional taluka, and active flag. The protected `/admin/officers` page allows the supervising admin to create and review active jurisdiction profiles. Follow-up plans validate assignments against this active directory rather than accepting arbitrary officer text.
+
+This establishes the first jurisdiction boundary for later district and taluka filtering. The current dashboard still uses a supervising `admin` session; officer-specific authentication and permissions can be layered onto these profiles in a later phase.
+
+```mermaid
+flowchart TD
+  Admin[Supervising Admin] --> Directory[Officer Directory]
+  Directory --> District[District]
+  District --> Taluka[Optional Taluka]
+  Directory --> Officer[Active Officer Profile]
+  Officer --> FollowUp[Assigned Case Follow-up]
+  FollowUp --> Timeline[Field Update Timeline]
+```

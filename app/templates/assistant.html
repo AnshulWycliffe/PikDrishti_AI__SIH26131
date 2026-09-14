@@ -433,8 +433,8 @@
         <div class="brand-title">
             <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 32px; height: 32px; border-radius: 8px; object-fit: contain;" alt="PikDrishti AI">
             <div>
-                <span id="assistantBrandName">पिकदृष्टी AI</span>
-                <div id="assistantBrandSub" style="font-size: 0.72rem; font-weight: 400; color: #6c757d; line-height: 1;">व्हॉइस असिस्टंट</div>
+                <span id="assistantBrandName">PikDrishti AI</span>
+                <div id="assistantBrandSub" style="font-size: 0.72rem; font-weight: 400; color: #6c757d; line-height: 1;">Voice Assistant</div>
             </div>
         </div>
 
@@ -448,7 +448,7 @@
                 <i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">New</span>
             </a>
             <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-                <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+                <i class="bi bi-translate me-1"></i><span id="topLangLabel">English</span>
             </button>
         </div>
     </div>
@@ -547,9 +547,9 @@
             <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="bot-avatar" alt="PikDrishti AI">
             <div class="bot-bubble">
                 <div class="markdown-body" id="welcomeMsgText">
-                    नमस्कार! मी **PikDrishti AI** आहे. तुमच्या पिकांबद्दल काही विचारायचे आहे का? तुम्ही बोलू शकता किंवा लिहू शकता.
+                    Hello! I am **PikDrishti AI**. How can I help you with your crops today? You can speak or type.
                 </div>
-                <button type="button" class="tts-btn" title="Listen / ऐका" onclick="playCurrentElementText(this)">
+                <button type="button" class="tts-btn" title="Listen" onclick="playCurrentElementText(this)">
                     <i class="bi bi-volume-up"></i>
                 </button>
             </div>
@@ -571,7 +571,7 @@
                     <div class="markdown-body">
                         {{ msg.content }}
                     </div>
-                    <button type="button" class="tts-btn" title="Listen / ऐका" onclick="playCurrentElementText(this)">
+                    <button type="button" class="tts-btn" title="Listen" onclick="playCurrentElementText(this)">
                         <i class="bi bi-volume-up"></i>
                     </button>
                 </div>
@@ -586,7 +586,7 @@
                 <div class="spinner-grow spinner-grow-sm text-success" role="status"></div>
                 <div class="spinner-grow spinner-grow-sm text-success" role="status" style="animation-delay: 0.2s"></div>
                 <div class="spinner-grow spinner-grow-sm text-success" role="status" style="animation-delay: 0.4s"></div>
-                <span class="ms-2 text-muted small" id="indicatorText">कृषी सल्ला तयार करत आहे...</span>
+                <span class="ms-2 text-muted small" id="indicatorText">Generating agricultural advice...</span>
             </div>
         </div>
 
@@ -596,34 +596,34 @@
     <div class="quick-chips">
         {% if context_analysis %}
         <span class="chip-item"
-            onclick="sendQuickPrompt('या {{ context_analysis.crop_display }} वरील {{ context_analysis.detected_disease }} रोगावर कोणते रासायनिक औषध फवारावे?')">
-            💊 औषध फवारणी
+            onclick="sendQuickPrompt('What chemical treatment should I spray for {{ context_analysis.detected_disease }} on {{ context_analysis.crop_display }}?')">
+            💊 Chemical treatment
         </span>
         <span class="chip-item"
-            onclick="sendQuickPrompt('{{ context_analysis.crop_display }} वरील या रोगासाठी सेंद्रिय किंवा घरगुती उपाय काय आहेत?')">
-            🌿 सेंद्रिय उपाय
+            onclick="sendQuickPrompt('What organic or home remedies can I use for this disease on {{ context_analysis.crop_display }}?')">
+            🌿 Organic remedies
         </span>
         <span class="chip-item"
-            onclick="sendQuickPrompt('हा रोग इतर झाडांवर पसरू नये म्हणून काय प्रतिबंधात्मक काळजी घ्यावी?')">
-            🛡️ पसरण्यापासून रोखा
+            onclick="sendQuickPrompt('What preventive care can stop this disease from spreading to other plants?')">
+            🛡️ Prevent spreading
         </span>
         <span class="chip-item"
-            onclick="sendQuickPrompt('या रोगाच्या काळात पाणी आणि खत व्यवस्थापन कसे ठेवावे?')">
-            💧 खत व पाणी नियोजन
+            onclick="sendQuickPrompt('How should I manage irrigation and fertilizer during this disease?')">
+            💧 Water and fertilizer
         </span>
         {% else %}
         <span class="chip-item"
-            onclick="sendQuickPrompt('माझ्या कापसाच्या पानांवर डाग पडले आहेत याचे कारण काय असू शकते?')">
-            🌱 कापूस पानांवर डाग
+            onclick="sendQuickPrompt('What could be causing spots on my cotton leaves?')">
+            🌱 Cotton leaf spots
         </span>
-        <span class="chip-item" onclick="sendQuickPrompt('टोमॅटो पिकावर Early Blight रोगाचा प्रादुर्भाव कसा रोखावा?')">
-            🍅 टोमॅटो रोग नियंत्रण
+        <span class="chip-item" onclick="sendQuickPrompt('How can I prevent Early Blight on tomato plants?')">
+            🍅 Tomato disease control
         </span>
-        <span class="chip-item" onclick="sendQuickPrompt('सोयाबीनसाठी योग्य खत आणि पाणी व्यवस्थापन सांगा.')">
-            🌾 सोयाबीन खत नियोजन
+        <span class="chip-item" onclick="sendQuickPrompt('Tell me the right fertilizer and irrigation plan for soybean.')">
+            🌾 Soybean care plan
         </span>
-        <span class="chip-item" onclick="sendQuickPrompt('बटाटा Late Blight साठी सेंद्रिय उपाय काय आहेत?')">
-            🥔 बटाटा करपा उपाय
+        <span class="chip-item" onclick="sendQuickPrompt('What organic remedies can help with Late Blight in potato?')">
+            🥔 Potato blight remedies
         </span>
         {% endif %}
     </div>
@@ -649,17 +649,17 @@
             <input type="hidden" id="conversationId" value="{{ conversation_id }}">
 
             <div class="chat-input-pill">
-                <input type="text" id="chatInput" placeholder="येथे विचारा किंवा बोला..." autocomplete="off">
+                <input type="text" id="chatInput" placeholder="Ask a question or tap the mic..." autocomplete="off">
             </div>
 
             <!-- Side Mic Button -->
-            <button class="side-mic-btn" id="sideMicBtn" type="button" title="Voice / बोला"
+            <button class="side-mic-btn" id="sideMicBtn" type="button" title="Voice"
                 onclick="toggleVoiceRecording()">
                 <i class="bi bi-mic-fill" id="micIconState"></i>
             </button>
 
             <!-- Send Button -->
-            <button class="side-send-btn" type="submit" id="sendBtn" title="Send / पाठवा">
+            <button class="side-send-btn" type="submit" id="sendBtn" title="Send">
                 <i class="bi bi-send-fill text-white"></i>
             </button>
         </form>
@@ -672,7 +672,7 @@
 {% block extra_js %}
 <script>
     // State management
-    let currentLanguage = 'mr'; // Marathi default
+    let currentLanguage = 'en'; // English is the source language
     let isRecording = false;
     let mediaRecorder = null;
     let audioChunks = [];
@@ -709,15 +709,24 @@
             placeholder: "Ask a question or tap mic...",
             indicator: "Generating agricultural advice...",
             welcome: "Hello! I am **PikDrishti AI**. How can I help you with your crops today? You can speak or type."
+        },
+        hi: {
+            brandName: "पिकदृष्टी AI",
+            brandSub: "वॉइस असिस्टेंट",
+            micListening: "सुन रहा हूँ...",
+            micProcessing: "भाषिणी AI द्वारा प्रक्रिया जारी है...",
+            placeholder: "प्रश्न पूछें या माइक दबाएँ...",
+            indicator: "कृषि सलाह तैयार की जा रही है...",
+            welcome: "नमस्ते! मैं **पिकदृष्टी AI** हूँ। आपकी फसलों के बारे में मैं आपकी कैसे मदद कर सकता हूँ? आप बोल या लिख सकते हैं।"
         }
     };
 
     function changeLanguage(lang) {
-        currentLanguage = lang;
-        localStorage.setItem('pikdrishti_lang', lang);
-        if (langSelectTop) langSelectTop.value = lang;
+        currentLanguage = langDict[lang] ? lang : 'en';
+        localStorage.setItem('pikdrishti_lang', currentLanguage);
+        if (langSelectTop) langSelectTop.value = currentLanguage;
 
-        const dict = langDict[lang] || langDict.mr;
+        const dict = langDict[currentLanguage];
         if (chatInput) chatInput.placeholder = dict.placeholder;
         if (indicatorText) indicatorText.innerText = dict.indicator;
 
@@ -881,14 +890,14 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         activeRecognition = new SpeechRecognition();
 
-        activeRecognition.lang = currentLanguage === 'mr' ? 'mr-IN' : 'en-IN';
+        activeRecognition.lang = currentLanguage === 'mr' ? 'mr-IN' : (currentLanguage === 'hi' ? 'hi-IN' : 'en-IN');
         activeRecognition.continuous = false;
         activeRecognition.interimResults = false;
 
         sideMicBtn.classList.add('recording');
         micIconState.className = 'bi bi-stop-fill';
         waveformBox.classList.add('active');
-        waveformLabel.innerText = (langDict[currentLanguage] || langDict.mr).micListening;
+        waveformLabel.innerText = (langDict[currentLanguage] || langDict.en).micListening;
         isRecording = true;
 
         activeRecognition.onresult = function (event) {
@@ -989,7 +998,7 @@
         currentAudioPlayer = new Audio(audioSrc);
 
         waveformBox.classList.add('active');
-        waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : "Playing Audio...";
+        waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : (currentLanguage === 'hi' ? "ऑडियो चल रहा है..." : "Playing Audio...");
 
         currentAudioPlayer.onended = () => {
             stopAllAudio();
@@ -1040,11 +1049,11 @@
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = currentLanguage === 'mr' ? 'mr-IN' : 'en-IN';
+            utterance.lang = currentLanguage === 'mr' ? 'mr-IN' : (currentLanguage === 'hi' ? 'hi-IN' : 'en-IN');
             utterance.rate = 0.95;
 
             waveformBox.classList.add('active');
-            waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : "Playing Audio...";
+            waveformLabel.innerText = currentLanguage === 'mr' ? "ऑडिओ वाजत आहे..." : (currentLanguage === 'hi' ? "ऑडियो चल रहा है..." : "Playing Audio...");
 
             utterance.onend = () => {
                 stopAllAudio();
@@ -1061,8 +1070,9 @@
 
     // Initialize saved persistent language on load
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         changeLanguage(savedLang);
     });
+    window.addEventListener('pikdrishti_lang_changed', e => changeLanguage(e.detail));
 </script>
 {% endblock %}

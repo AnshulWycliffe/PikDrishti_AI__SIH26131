@@ -1,309 +1,241 @@
-<h1>
-  <img src="icon-512.png" width="40" height="40" style="vertical-align: middle;">
-  PikDrishti AI
-</h1>
-<img src="banner.png" style="vertical-align: middle;">
+# PikDrishti AI
 
+PikDrishti AI is a Flask-based agricultural assistant for farmers. It combines crop and farm records, leaf-image disease analysis, yield prediction, weather data, agricultural news, multilingual assistance, and pest-trap monitoring in one mobile-friendly web application.
 
+## What It Does
 
+- Manage farms, locations, soil nutrient values, crops, and crop varieties.
+- Analyze crop-leaf images with the TensorFlow/Keras disease model.
+- Enrich disease predictions with symptoms, recommendations, prevention guidance, and structured IPM plans.
+- Predict yield from crop, farm area, and disease severity.
+- Show current weather and a three-day crop-risk forecast based on the user's saved farm location.
+- Track pest-trap readings and warning or critical trap states.
+- Provide an agricultural chat assistant with conversation history.
+- Support English, Marathi, and Hindi target-language flows for assistant responses, explanations, speech recognition, and text-to-speech.
+- Keep English as the original UI language; Marathi and Hindi UI translation use the Google Translate widget.
+- Provide history views for disease scans and yield predictions.
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
-![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+## Current Language Behavior
 
-PikDrishti AI is a comprehensive web-based platform built with Flask, designed to empower farmers with advanced AI and Machine Learning technologies. It assists in managing farms, monitoring crop health, predicting yields, and obtaining real-time insights through an integrated AI assistant.
+English is the source language and the default UI language.
 
-> <img src="placeholder.png" style="vertical-align: middle;">
+- **English:** original page markup and English AI/audio output.
+- **Marathi:** Google Translate handles the shared UI; Gemini/Bhashini and browser speech use Marathi where supported.
+- **Hindi:** Google Translate handles the shared UI; Gemini/Bhashini and browser speech use Hindi where supported.
 
-## Features
+The selected language is stored in browser `localStorage` under `pikdrishti_lang`. Disease-result and assistant context links pass the selected language to the server so generated explanations and conversation context stay aligned with the active target language.
 
-- **Farm & Crop Management**: Register and manage multiple farms, including soil nutrients (Nitrogen, Phosphorus, Potassium), and track crops grown on each farm.
-- **Disease Analysis (CNN & PlantVillage)**: Automated disease detection powered by an **EfficientNet-B0** TensorFlow model. Trained on the **PlantVillage dataset**, it supports **3 crops** (Tomato, Potato, Bell Pepper) and **15 classes** (12 diseases + healthy states).
-- **Yield Prediction**: Predict crop yields per acre based on farm area, crop type, and disease severity using scikit-learn machine learning models.
-- **Generative AI (Google Gemini)**: Gemini serves a dual purpose:
-  1. **Disease Enrichment**: Translates CNN predictions into structured, localized (Hindi) JSON containing symptoms, chemical/organic recommendations, and prevention strategies.
-  2. **Interactive Assistant Chat**: A conversational AI assistant that helps farmers with follow-up queries related to agriculture, maintaining conversation history.
-- **Real-Time Weather Integration**: Get localized weather updates for your registered farm locations.
-- **Agriculture News**: Stay updated with the latest agricultural news in India.
+## Main User Flows
 
-## Tech Stack
+### Farm and crop management
 
-- **Backend Framework**: Python, Flask, Flask-SQLAlchemy, Flask-Login, Flask-Bcrypt, Werkzeug
-- **Machine Learning**: TensorFlow (Keras), scikit-learn, NumPy
-- **Generative AI**: Google Generative AI (Gemini API)
-- **External APIs & Tools**: Requests, Feedparser (for news aggregation)
-- **Database**: SQLite (via SQLAlchemy ORM)
-- **Server**: Gunicorn
+Users can create farms with a location, area, and optional NPK values, then register crops against those farms. Crop pages also support pest-trap readings and simulated trap data for development or demonstration.
 
-## Core Database Models
-- **User**: Handles authentication and links to the user's farms, crops, and histories.
-- **Farm**: Stores details like location, area, and soil nutrients (N, P, K).
-- **Crop**: Tracks crop types, sowing dates, and expected harvests for each farm.
-- **DiseaseAnalysis**: Logs image scan results, ML confidence scores, disease severity, and the parsed JSON recommendations generated by Gemini in Hindi.
-- **YieldPrediction**: Stores history of yield predictions.
-- **Conversation & ChatMessage**: Stores the conversation history for the AI assistant.
+### Disease analysis
 
-## Project Structure in Detail
+The scan flow accepts a camera or gallery image, crop selection, location, and optional farmer observations. The `/api/disease/analyze` endpoint:
+
+1. Saves the uploaded image.
+2. Runs the disease model.
+3. Requests a structured Gemini response in the selected target language.
+4. Builds an integrated pest and disease management plan.
+5. Stores the analysis and returns an analysis ID.
+
+The result page includes risk, treatment/advisory, symptoms, AI explanation, target-language audio, and follow-up access to the assistant.
+
+### Yield prediction
+
+The yield page follows the same compact mobile workflow as the scan page. Users select a crop, choose a recent disease scan or severity level, and submit the prediction form. Predictions are stored and displayed in the history page.
+
+### Weather
+
+Dashboard weather uses the first saved farm location. If no farm location exists, the app falls back to Pune. When WeatherAPI credentials are unavailable or a request fails, demo weather retains the requested farm location instead of relabeling it as another city.
+
+### Assistant and voice
+
+The assistant supports text chat, conversation history, speech recognition, Bhashini TTS, and browser speech fallback. Supported target codes are:
+
+- `en` - English
+- `mr` - Marathi
+- `hi` - Hindi
+
+The backend validates the language for chat, ASR, TTS, and voice-chat requests.
+
+## Technology
+
+- Python 3
+- Flask application factory
+- Flask-SQLAlchemy and SQLite by default
+- Flask-Login and Flask-Bcrypt
+- Jinja2 templates and Bootstrap-based responsive UI
+- TensorFlow/Keras disease model
+- Google Gemini for agricultural assistant responses and disease enrichment
+- Bhashini for speech recognition, translation, and text-to-speech
+- WeatherAPI for current and forecast weather when configured
+- Chart.js for history visualizations
+- Requests and feedparser-based agricultural news integration
+
+## Repository Layout
 
 ```text
 PikDrishti AI/
-│
 ├── app/
-│   ├── static/               # CSS, JS, Images
-│   ├── templates/            # HTML Jinja2 templates
-│   ├── services/             # Core Business Logic
-│   │   ├── disease_service.py
-│   │   ├── gemini_service.py
-│   │   ├── weather_service.py
-│   │   ├── yield_service.py
-│   │   └── news_service.py
-│   ├── __init__.py           # Flask app factory
-│   ├── api.py                # REST API routes
-│   ├── main.py               # View routes
-│   ├── models.py             # SQLAlchemy models
-│   └── auth.py               # Authentication routes
-│
-├── models/
-│   ├── disease_model.keras   # Saved TensorFlow model
-│   ├── disease_classes.json  # Class mappings
-│   └── disease_metadata.json # Crop/Disease contextual info
-│
-├── ml/                       # Training scripts / notebooks
-├── requirements.txt          # Python dependencies
-├── run.py                    # Entry point
-└── .env                      # Environment variables (API keys)
-```
-
-## Machine Learning & Disease Detection
-
-PikDrishti AI uses a deep learning computer vision model to detect crop diseases from leaf images.
-
-### Supported Crops and Diseases (15 Classes)
-The model is trained on the **PlantVillage dataset** and can classify images into the following categories:
-- **Pepper (Bell)**: Bacterial spot, Healthy
-- **Potato**: Early blight, Late blight, Healthy
-- **Tomato**: Bacterial spot, Early blight, Late blight, Leaf Mold, Septoria leaf spot, Spider mites (Two-spotted spider mite), Target Spot, Tomato Yellow Leaf Curl Virus, Tomato mosaic virus, Healthy
-
-### CNN Architecture (EfficientNet-B0)
-We utilize **EfficientNet-B0** as the backbone for image classification.
-- **Why EfficientNet?** It uses compound scaling to balance network depth, width, and resolution, providing high accuracy with a very small memory footprint (~20-30MB). This makes it ideal for CPU-bound production environments.
-
-```mermaid
-graph TD
-    A[Input Image: 224x224x3] --> B[EfficientNet-B0 Backbone]
-    B --> C[Global Average Pooling]
-    C --> D[Dropout Layer for Regularization]
-    D --> E[Dense Output Layer: 15 Classes]
-    E --> F[Softmax Activation]
-    F --> G[Prediction & Confidence Score]
-```
-
-### Model Training Workflow
-- **Data Augmentation**: Techniques like random rotation, flipping, and zoom improve model generalization.
-- **Transfer Learning**: The EfficientNet-B0 base model is loaded with ImageNet weights. The top layer is removed and replaced with a custom 15-unit Dense layer with softmax activation.
-- **Fine-tuning**:
-  1. Train only the top layers with a higher learning rate.
-  2. Unfreeze top blocks of EfficientNet-B0 and fine-tune with a very low learning rate to adapt features specifically to crop leaves.
-- **Preprocessing**: Images are preprocessed to 224x224 pixels and class weights are applied to handle dataset imbalances.
-
-## System Architecture & Data Flow
-
-### 1. System Architecture
-
-```mermaid
-graph TD
-    Client[Web Browser / User]
-    Web[Flask Application]
-    DB[(SQLite Database)]
-    ML1[Disease Model - TensorFlow]
-    ML2[Yield Model - Scikit-Learn]
-    Ext1[Gemini API - NLP & Chat]
-    Ext2[Weather API]
-    Ext3[News RSS Feeds]
-
-    Client <-->|HTTP/HTTPS| Web
-    Web <-->|SQLAlchemy ORM| DB
-    Web -->|Image Data| ML1
-    Web -->|Farm Data| ML2
-    Web <-->|Prompts & History| Ext1
-    Web -->|Location| Ext2
-    Web -->|Requests| Ext3
-```
-
-### 2. Data Flow Diagram (DFD - Level 1)
-
-```mermaid
-flowchart LR
-    Farmer[Farmer User]
-    Sys[PikDrishti AI System]
-    DB[(Database)]
-    API[External APIs: Gemini, Weather]
-    
-    Farmer -->|Farm & Crop Info| Sys
-    Farmer -->|Crop Images| Sys
-    Farmer -->|Chat Prompts| Sys
-    
-    Sys <-->|Store/Retrieve Info| DB
-    Sys <-->|Fetch Weather/News/GenAI| API
-    
-    Sys -->|Disease Recommendations| Farmer
-    Sys -->|Yield Prediction| Farmer
-    Sys -->|Chat Responses| Farmer
-```
-
-### 3. Low-Level Design (LLD) - Disease Analysis Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Flask_API
-    participant Disease_Service
-    participant TensorFlow_Model
-    participant Gemini_Service
-    participant Database
-
-    User->>Flask_API: POST /disease/analyze (Image, Crop Info)
-    Flask_API->>Disease_Service: predict(image)
-    Disease_Service->>TensorFlow_Model: process & classify
-    TensorFlow_Model-->>Disease_Service: Class, Confidence, Context
-    Disease_Service-->>Flask_API: ML Results
-    
-    Flask_API->>Gemini_Service: ask_assistant(Context + prompt for Hindi response)
-    Gemini_Service-->>Flask_API: JSON (Symptoms, Prevention)
-    
-    Flask_API->>Database: Save DiseaseAnalysis (Result + Gemini JSON)
-    Database-->>Flask_API: Analysis ID
-    Flask_API-->>User: JSON Response with Analysis & Recommendations
+│   ├── __init__.py              Flask app factory and extension setup
+│   ├── api.py                   Authenticated API routes
+│   ├── auth.py                  Login and registration routes
+│   ├── main.py                  Page routes and assistant context flow
+│   ├── models.py                SQLAlchemy models
+│   ├── services/
+│   │   ├── bhasini_service.py   ASR, NMT, and TTS integration
+│   │   ├── disease_service.py   Disease model inference
+│   │   ├── gemini_service.py    Gemini prompts and language handling
+│   │   ├── ipm_service.py       Structured IPM recommendations
+│   │   ├── news_service.py      Agricultural news retrieval
+│   │   ├── rag_service.py       Knowledge-base retrieval
+│   │   ├── weather_service.py   Current weather and risk forecast
+│   │   └── yield_service.py     Yield prediction
+│   ├── static/                  CSS, icons, uploads, PWA assets
+│   └── templates/               Jinja page templates
+├── knowledge_base/              Local RAG source documents
+├── ml/disease/                  Training and evaluation scripts
+├── models/                      Disease model and metadata files
+├── config.py                    Environment-backed application configuration
+├── requirements.txt             Python dependencies
+├── run.py                       Development entry point
+└── technical_architecture.md    Additional architecture notes
 ```
 
 ## Prerequisites
 
-- Python 3.8+
-- API Keys for Google Gemini API (for AI assistant and detailed disease explanations)
-- API Keys for Weather service (if applicable)
+- Python 3.10 or newer is recommended.
+- A virtual environment.
+- A TensorFlow-compatible environment for disease inference.
+- Optional API credentials:
+  - Google Gemini for production AI responses.
+  - WeatherAPI for live weather.
+  - Bhashini credentials for ASR, translation, and TTS.
 
-## Installation and Setup
+The application can run in demo mode without the external AI credentials, but external services are required for production-quality responses and live integrations.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/AnshulWycliffe/AgriVision-AI
-   cd "PikDrishti AI"
-   ```
+## Installation
 
-2. **Create a virtual environment** (recommended):
-   ```bash
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
+### Windows PowerShell
 
-3. **Install the dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Environment Variables**:
-   Create a `.env` file in the root directory of the project and add the necessary environment variables. Example:
-   ```env
-   FLASK_APP=run.py
-   FLASK_ENV=development
-   FLASK_DEBUG=1
-   FLASK_SECRET_KEY=your_super_secret_key_here
-   DATABASE_URL=sqlite:///agrivision.db
-
-   GEMINI_API_KEY=<your_gemini_api_key>
-   GEMINI_MODEL=gemini-3.6-flash
-
-   WEATHER_API_KEY=<your_weather_api_key>
-
-   DISEASE_MODEL_PATH=models/disease_model.keras
-   YIELD_MODEL_PATH=models/yield_model.pkl
-
-   DEMO_MODE=false
-   ```
-
-5. **Run the Application**:
-   Start the Flask development server by running:
-   ```bash
-   python run.py
-   ```
-
-6. **Access the App**:
-   Open your browser and navigate to `http://127.0.0.1:5000/`.
-
-## Project Update
-
-This project includes a dedicated administrative dashboard and government-style portal experience for extension officers and monitoring teams.
-
-- The admin routes are implemented in `app/main.py` and are protected under the admin login flow.
-- The admin dashboards use static demo values for presentation and monitoring use cases, rather than direct database-driven metrics.
-- The current UI direction focuses on a light, formal government dashboard aesthetic with clear KPI cards, trend panels, hotspot sections, and follow-up alerts.
-- The implementation is designed to support officer workflows such as disease monitoring, surveillance summaries, and critical pest alert tracking.
-
-These admin pages are intended for demonstration, monitoring, and presentation scenarios while the core farmer-facing crop health system remains the main application flow.
-
-The current admin portal is structured around several reporting views:
-
-- a district-wide summary dashboard with KPI cards and overall health indicators
-- a surveillance section for field coverage, trap counts, and regional hotspot visibility
-- a follow-up and alert view for outreach actions, disease escalation, and inactive farmer monitoring
-- a formal light-theme dashboard style intended to resemble a public-sector agricultural monitoring interface
-
-The dashboard data is intentionally maintained as static mock content so the interface remains stable for presentation, stakeholder review, and UI validation without depending on live database records. This keeps the admin experience consistent while the core application continues to manage real user and farm data in the main farmer flows.
-
-In addition, the application architecture is organized around a Flask app factory, SQLAlchemy data models, service-based logic layers, and template-driven UI screens. This separation allows the project to support both production-style farmer functionality and a presentation-ready admin workspace that can later be connected to real analytics feeds when required.
-
-### Admin dashboard architecture
-
-```mermaid
-flowchart TD
-    Officer[Extension Officer] --> AdminLogin[Admin Login]
-    AdminLogin --> Dashboard[Admin Dashboard]
-    Dashboard --> KPIs[Summary KPIs]
-    Dashboard --> Trends[Disease Trends]
-    Dashboard --> Hotspots[Hotspot Analysis]
-    Dashboard --> Alerts[Critical Alerts]
-    Dashboard --> FollowUp[Follow-up Queue]
-
-    KPIs --> StaticData[Static Demo Data]
-    Trends --> StaticData
-    Hotspots --> StaticData
-    Alerts --> StaticData
-    FollowUp --> StaticData
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python run.py
 ```
 
-### Farmer to admin data flow
+### macOS or Linux
 
-```mermaid
-flowchart LR
-    Farmer[Farmer] --> App[Flask App]
-    App --> UserDB[(User & Farm Data)]
-    App --> ML[ML Disease Prediction]
-    App --> Gemini[Gemini Recommendations]
-    App --> Weather[Weather Service]
-    App --> Admin[Admin Monitoring Views]
-
-    Admin --> DashboardUI[Government-style Dashboard]
-    DashboardUI --> StaticMock[Static Monitoring Data]
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python run.py
 ```
 
-### Monitoring workflow
+Open `http://127.0.0.1:5000/` after the server starts.
 
-```mermaid
-sequenceDiagram
-    participant Officer as Officer
-    participant Portal as Admin Portal
-    participant Data as Demo Monitoring Data
-    participant Action as Follow-up / Alert Queue
+The application factory creates the database tables automatically and builds the local RAG index during startup.
 
-    Officer->>Portal: Open dashboard
-    Portal->>Data: Load summary metrics
-    Data-->>Portal: KPIs, hotspots, traps
-    Portal->>Action: Trigger alerts and follow-ups
-    Action-->>Officer: Recommended outreach and monitoring actions
+## Environment Configuration
+
+Create a `.env` file in the project root when external services are needed:
+
+```env
+FLASK_SECRET_KEY=replace_with_a_long_random_secret
+DATABASE_URL=sqlite:///agrivision.db
+
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
+WEATHER_API_KEY=your_weatherapi_key
+
+BHASHINI_USER_ID=your_bhashini_user_id
+BHASHINI_API_KEY=your_bhashini_api_key
+BHASHINI_PIPELINE_ID=64392f96daac500b55c543d5
+BHASHINI_INFERENCE_API_KEY=your_bhashini_inference_key
+
+DISEASE_MODEL_PATH=models/disease_model.keras
+YIELD_MODEL_PATH=path/to/your/yield_model.pkl
+
+DEMO_MODE=true
+DISEASE_CONFIDENCE_THRESHOLD=0.70
+DISEASE_BATCH_SIZE=32
 ```
+
+Do not commit `.env` or API credentials. The application uses demo mode by default when `DEMO_MODE` is not explicitly set to `false`.
+
+## Important Routes
+
+### Pages
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Landing page or redirect to dashboard |
+| `/dashboard` | Weather, farm summary, activity, news, and forecast |
+| `/farms` | Profile, farms, and settings |
+| `/crops` | Crop and pest-trap management |
+| `/scan` | Crop image upload and disease analysis |
+| `/disease-result/<analysis_id>` | Disease result and IPM guidance |
+| `/yield` | Yield prediction |
+| `/history` | Disease and yield history |
+| `/assistant` | Agricultural assistant and conversations |
+
+### API examples
+
+- `POST /api/disease/analyze`
+- `POST /api/yield/predict`
+- `POST /api/assistant/chat`
+- `POST /api/bhasini/asr`
+- `POST /api/bhasini/tts`
+- `POST /api/bhasini/translate`
+- `POST /api/bhasini/voice-chat`
+- `GET /api/weather/risk-forecast`
+- `GET /api/location/autocomplete`
+- `POST /api/trap/log`
+- `POST /api/trap/simulate/<crop_id>`
+
+All user-facing data routes require an authenticated Flask-Login session.
+
+## Disease Model
+
+The checked-in model artifacts are:
+
+```text
+models/
+├── disease_model.keras
+├── disease_classes.json
+└── disease_metadata.json
+```
+
+Training and evaluation utilities are under `ml/disease/`. The inference service is responsible for loading the model, preprocessing uploaded images, mapping class IDs, and returning crop/disease confidence data. Always treat predictions as decision support and seek an agriculture professional when symptoms are unclear or treatment is high-risk.
+
+## Testing and Validation
+
+Useful local checks:
+
+```powershell
+python -m compileall -q app
+.\venv\Scripts\python.exe -c "from app import create_app; app=create_app(); print(app.name)"
+```
+
+Template compilation example:
+
+```powershell
+.\venv\Scripts\python.exe -c "from app import create_app; app=create_app(); app.jinja_env.get_template('dashboard.html'); print('template valid')"
+```
+
+## Safety Notes
+
+- Disease predictions are advisory and should not replace field or laboratory confirmation.
+- Follow registered product labels, crop restrictions, dosage, re-entry periods, and pre-harvest intervals.
+- Do not recommend or apply unverified pesticide mixtures.
+- Keep uploaded images and API credentials protected in production deployments.
+- Replace the development secret key before deploying.
+
+## License and Contributions
+
+This repository does not currently declare a license in its project documentation. Add a license before distributing the project publicly. For changes, keep route contracts stable, preserve the existing service boundaries, and validate affected templates and API paths before opening a pull request.

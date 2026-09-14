@@ -10,38 +10,10 @@ from .services.yield_service import YieldPredictionService
 from .services.gemini_service import GeminiService
 from .services.weather_service import WeatherService
 from .services.bhasini_service import BhasiniService
+from .services.ipm_service import IPMService
 
 api_bp = Blueprint('api', __name__)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Translation API (Bhashini + Flask-Cache)
-# ─────────────────────────────────────────────────────────────────────────────
-
-@api_bp.route('/translate', methods=['POST'])
-@login_required
-def translate_text_api():
-    """
-    POST /api/translate
-    Body: { text, source_lang (default 'en'), target_lang (default 'mr') }
-    Returns cached Bhashini translation or original text on failure.
-    """
-    data = request.get_json(silent=True) or request.form
-    text = (data.get('text') or '').strip()
-    source_lang = data.get('source_lang', 'en')
-    target_lang = data.get('target_lang', 'mr')
-
-    if not text:
-        return jsonify({'success': False, 'error': 'No text provided'}), 400
-
-    translated = BhasiniService.translate_cached(text, source_lang=source_lang, target_lang=target_lang)
-    return jsonify({'success': True, 'translated_text': translated, 'source': text})
-
-@api_bp.route('/cache/clear', methods=['POST'])
-@login_required
-def clear_translation_cache():
-    """Admin utility: clear translation cache."""
-    cache.clear()
-    return jsonify({'success': True, 'message': 'Cache cleared'})
 
 
 # Pre-populated accurate coordinates for popular Maharashtra agricultural districts and talukas
@@ -393,6 +365,10 @@ def analyze_disease():
     image_file = request.files['image']
     crop_id = request.form.get('crop_id')
     farmer_observation = request.form.get('farmer_observation', '')
+    language = (request.form.get('language') or 'en').lower()
+
+    if language not in {'en', 'mr', 'hi'}:
+        return jsonify({"success": False, "error": "Unsupported disease explanation language"}), 400
 
     # ── Save uploaded image to disk for display on results page ──────────────
     import os, uuid
@@ -435,10 +411,10 @@ def analyze_disease():
             "  \"prevention\": [\"...\", ...],\n"
             "  \"explanation\": \"...\"\n"
             "}\n"
-            "All text must be in Hindi (हिंदी). "
+            f"All text must be in { {'en': 'English', 'mr': 'Marathi', 'hi': 'Hindi'}[language] }. "
             "Do NOT modify the confidence value. Return ONLY the JSON, no extra text."
         )
-        gemini_result = GeminiService.ask_assistant(gemini_prompt, history=[])
+        gemini_result = GeminiService.ask_assistant(gemini_prompt, history=[], language=language)
         if gemini_result.get('success'):
             raw = gemini_result.get('response', '')
             # Strip markdown code fences if present
@@ -455,6 +431,12 @@ def analyze_disease():
     result['recommendations'] = gemini_structured.get('recommendations', [])
     result['prevention']      = gemini_structured.get('prevention', [])
     result['gemini_explanation'] = gemini_explanation
+    result['ipm_plan'] = IPMService.build_plan(
+        crop=result.get('crop'),
+        disease=result.get('disease'),
+        confidence=result.get('confidence'),
+        severity=result.get('severity'),
+    )
     result['image_path']      = relative_image_path
 
     # ── Persist to DB ────────────────────────────────────────────────────────
@@ -475,7 +457,10 @@ def analyze_disease():
         confidence=result.get("confidence"),
         severity=result.get("severity"),
         farmer_observation=farmer_observation,
-        gemini_data=_json_store.dumps(gemini_structured) if gemini_structured else None,
+        gemini_data=_json_store.dumps({
+            **gemini_structured,
+            'ipm_plan': result['ipm_plan'],
+        }),
     )
     db.session.add(analysis)
     db.session.commit()
@@ -527,10 +512,12 @@ def assistant_chat():
     data = request.json
     message = data.get('message')
     conversation_id = data.get('conversation_id')
-    language = data.get('language', 'mr') # default Marathi
+    language = (data.get('language') or 'en').lower()
     
     if not message:
         return jsonify({"success": False, "error": "Message is required"}), 400
+    if language not in {'en', 'mr', 'hi'}:
+        return jsonify({"success": False, "error": "Unsupported assistant language"}), 400
         
     # Get or create conversation
     if conversation_id:
@@ -577,10 +564,12 @@ def bhasini_asr():
     """
     data = request.json or {}
     audio_base64 = data.get('audio')
-    language = data.get('language', 'mr')
+    language = (data.get('language') or 'en').lower()
 
     if not audio_base64:
         return jsonify({"success": False, "error": "Audio payload missing"}), 400
+    if language not in {'en', 'mr', 'hi'}:
+        return jsonify({"success": False, "error": "Unsupported ASR language"}), 400
 
     result = BhasiniService.speech_to_text(audio_base64, source_lang=language)
     return jsonify(result)
@@ -594,11 +583,13 @@ def bhasini_tts():
     """
     data = request.json or {}
     text = data.get('text')
-    language = data.get('language', 'mr')
+    language = (data.get('language') or 'en').lower()
     gender = data.get('gender', 'female')
 
     if not text:
         return jsonify({"success": False, "error": "Text is required"}), 400
+    if language not in {'en', 'mr', 'hi'}:
+        return jsonify({"success": False, "error": "Unsupported TTS language"}), 400
 
     result = BhasiniService.text_to_speech(text, source_lang=language, gender=gender)
     return jsonify(result)
@@ -634,8 +625,11 @@ def bhasini_voice_chat():
     data = request.json or {}
     audio_base64 = data.get('audio')
     text_query = data.get('text')
-    language = data.get('language', 'mr')
+    language = (data.get('language') or 'en').lower()
     conversation_id = data.get('conversation_id')
+
+    if language not in {'en', 'mr', 'hi'}:
+        return jsonify({"success": False, "error": "Unsupported voice-chat language"}), 400
 
     user_text = text_query
     if not user_text and audio_base64:
@@ -709,10 +703,9 @@ def get_weather():
     q = request.args.get('q')
 
     # If no q or lat/lon provided, try user's first farm location
-    if not q and not (lat and lon):
-        first_farm = Farm.query.filter_by(user_id=current_user.id).filter(Farm.location != None).first()
-        if first_farm and first_farm.location:
-            q = first_farm.location
+    first_farm = Farm.query.filter_by(user_id=current_user.id).filter(Farm.location != None).first()
+    if first_farm and first_farm.location:
+        q = first_farm.location
 
     weather_data = WeatherService.get_weather(location=q, lat=lat, lon=lon)
     return jsonify(weather_data)

@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, session, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from . import db
-from .models import Farm, Crop, DiseaseAnalysis, YieldPrediction, PestTrap, Conversation, ChatMessage, User
-from .services.weather_service import WeatherService
+from .models import Farm, Crop, DiseaseAnalysis,YieldPrediction, PestTrap, Conversation, ChatMessage, User
+from .services.weather_service import WeatherService, MAHARASHTRA_HOTSPOT_CLUSTERS
 from .services.news_service import NewsService
+from .services.ipm_service import IPMService
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 import json
 main_bp = Blueprint('main', __name__)
 
@@ -21,6 +23,27 @@ def admin_required(f):
             return redirect(url_for('main.admin_login'))
         return f(*args, **kwargs)
     return decorated
+
+@main_bp.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if session.get('is_admin'):
+        return redirect(url_for('main.admin_dashboard'))
+
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        if username == ADMIN_USER and password == ADMIN_PASS:
+            session['is_admin'] = True
+            return redirect(url_for('main.admin_dashboard'))
+        error = 'Invalid officer credentials.'
+
+    return render_template('admin/mobile_login.html', error=error)
+
+@main_bp.route('/admin/logout')
+def admin_logout():
+    session.pop('is_admin', None)
+    return redirect(url_for('main.admin_login'))
 
 @main_bp.route('/')
 def index():
@@ -103,6 +126,12 @@ def disease_result(analysis_id):
         return redirect(url_for('main.dashboard'))
 
     gd = analysis.gemini_parsed   # {} if not stored
+    ipm_plan = gd.get('ipm_plan') or IPMService.build_plan(
+        crop=analysis.crop_display,
+        disease=analysis.detected_disease,
+        confidence=analysis.confidence,
+        severity=analysis.severity,
+    )
 
     result = {
         "crop":              analysis.crop_display,
@@ -113,6 +142,7 @@ def disease_result(analysis_id):
         "recommendations":   gd.get("recommendations", []),
         "prevention":        gd.get("prevention", []),
         "gemini_explanation": gd.get("explanation", ""),
+        "ipm_plan":          ipm_plan,
         "top_predictions":   [],
         "status":            "success",
     }
@@ -148,33 +178,57 @@ def assistant():
     if analysis_id:
         analysis = DiseaseAnalysis.query.filter_by(id=analysis_id, user_id=current_user.id).first()
         if analysis:
+            target_language = (request.args.get('language') or 'en').lower()
+            if target_language not in {'en', 'mr', 'hi'}:
+                target_language = 'en'
+
             crop_name = analysis.crop_display
             disease_name = analysis.detected_disease or "Unknown"
             severity = analysis.severity or "Moderate"
             gd = analysis.gemini_parsed
 
-            symptoms_str = ", ".join(gd.get("symptoms", [])[:3]) if gd.get("symptoms") else "पानांवर रोगाची लक्षणे आढळली आहेत"
-            recomms_str = ", ".join(gd.get("recommendations", [])[:2]) if gd.get("recommendations") else "योग्य बुरशीनाशक/कीटकनाशक फवारणी करावी"
+            fallback_text = {
+                'en': {
+                    'symptoms': 'Disease symptoms were observed on the leaves.',
+                    'recommendations': 'Follow the recommended crop protection treatment.'
+                },
+                'mr': {
+                    'symptoms': 'पानांवर रोगाची लक्षणे आढळली आहेत.',
+                    'recommendations': 'शिफारस केलेल्या पीक संरक्षण उपचारांचे पालन करा.'
+                },
+                'hi': {
+                    'symptoms': 'पत्तियों पर रोग के लक्षण दिखाई दे रहे हैं।',
+                    'recommendations': 'अनुशंसित फसल सुरक्षा उपचार का पालन करें।'
+                }
+            }[target_language]
+            symptoms_str = ", ".join(gd.get("symptoms", [])[:3]) if gd.get("symptoms") else fallback_text['symptoms']
+            recomms_str = ", ".join(gd.get("recommendations", [])[:2]) if gd.get("recommendations") else fallback_text['recommendations']
+
+            context_labels = {
+                'en': ('Crop Diagnosis Context', 'Crop', 'Detected Disease', 'Severity', 'Symptoms', 'Initial Advice', 'I am ready to help with treatment for **{crop}** and **{disease}**.', 'What would you like to ask about chemical treatments, organic remedies, or preventive care?'),
+                'mr': ('पीक निदान संदर्भ', 'पीक', 'आढळलेला रोग', 'तीव्रता', 'लक्षणे', 'प्राथमिक सल्ला', 'या निदानाच्या संदर्भात **{crop}** पिकावरील **{disease}** रोगाच्या उपचारासाठी मी तयार आहे.', 'रासायनिक औषधे, सेंद्रिय उपाय किंवा प्रतिबंधात्मक काळजीबद्दल तुम्हाला काय विचारायचे आहे?'),
+                'hi': ('फसल निदान संदर्भ', 'फसल', 'पहचाना गया रोग', 'गंभीरता', 'लक्षण', 'प्रारंभिक सलाह', 'इस निदान के आधार पर **{crop}** फसल के **{disease}** रोग के उपचार में आपकी सहायता के लिए मैं तैयार हूँ।', 'रासायनिक दवाओं, जैविक उपायों या बचाव संबंधी देखभाल के बारे में आप क्या पूछना चाहते हैं?')
+            }[target_language]
 
             conv = Conversation(user_id=current_user.id)
             db.session.add(conv)
             db.session.flush()
 
             context_msg = (
-                f"🌱 **पीक निदान संदर्भ (Crop Diagnosis Context):**\n"
-                f"- **पीक (Crop):** {crop_name}\n"
-                f"- **रोग (Detected Disease):** {disease_name}\n"
-                f"- **तीव्रता (Severity):** {severity}\n"
-                f"- **प्रमुख लक्षणे (Symptoms):** {symptoms_str}\n"
-                f"- **प्राथमिक सल्ला (Initial Advice):** {recomms_str}\n\n"
-                f"मी या निदानाच्या संदर्भात **{crop_name}** वरील **{disease_name}** उपचारासाठी तयार आहे. "
-                f"तुम्हाला रासायनिक औषधे, सेंद्रिय उपाय किंवा प्रतिबंधात्मक काळजीबद्दल काय विचारायचे आहे?"
+                f"🌱 **{context_labels[0]}:**\n"
+                f"- **{context_labels[1]}:** {crop_name}\n"
+                f"- **{context_labels[2]}:** {disease_name}\n"
+                f"- **{context_labels[3]}:** {severity}\n"
+                f"- **{context_labels[4]}:** {symptoms_str}\n"
+                f"- **{context_labels[5]}:** {recomms_str}\n\n"
+                f"{context_labels[6].format(crop=crop_name, disease=disease_name)} "
+                f"{context_labels[7]}"
             )
             ai_msg = ChatMessage(role='ai', content=context_msg, conversation_id=conv.id)
             db.session.add(ai_msg)
             db.session.commit()
 
-            return redirect(url_for('main.assistant', conv=conv.id, context_disease=analysis.id))
+            return redirect(url_for('main.assistant', conv=conv.id, context_disease=analysis.id, language=target_language))
 
     # Support switching to a specific conversation via ?conv=<id>
     conv_id = request.args.get('conv', type=int)
@@ -223,86 +277,4 @@ def delete_conversation(conv_id):
     db.session.delete(conv)
     db.session.commit()
     return redirect(url_for('main.assistant'))
-
-
-# ═══════════════════════════════════════════════════════════════════
-# ADMIN / EXTENSION OFFICER ROUTES
-# ═══════════════════════════════════════════════════════════════════
-
-
-@main_bp.route('/admin/dashboard')
-def admin_dashboard():
-    """Extension officer overview dashboard with static demo content."""
-    total_farmers = 128
-    total_scans = 542
-    total_farms = 96
-    total_traps = 74
-
-    disease_counts = [
-        ('Late Blight', 118),
-        ('Early Blight', 94),
-        ('Bacterial Spot', 63),
-        ('Leaf Mold', 49),
-        ('Fruit Fly', 41),
-        ('Whitefly', 36),
-        ('Thrips', 28),
-        ('Healthy', 17),
-    ]
-
-    severity_counts = [
-        ('Critical', 32),
-        ('High', 81),
-        ('Moderate', 146),
-        ('Low', 88),
-    ]
-
-    recent_scans = [
-        {'id': 1042, 'date': datetime.utcnow() - timedelta(days=1), 'detected_crop': 'Tomato', 'detected_disease': 'Late Blight', 'severity': 'High', 'confidence': 0.94},
-        {'id': 1041, 'date': datetime.utcnow() - timedelta(days=2), 'detected_crop': 'Potato', 'detected_disease': 'Early Blight', 'severity': 'Moderate', 'confidence': 0.88},
-        {'id': 1040, 'date': datetime.utcnow() - timedelta(days=3), 'detected_crop': 'Bell Pepper', 'detected_disease': 'Bacterial Spot', 'severity': 'Critical', 'confidence': 0.91},
-        {'id': 1039, 'date': datetime.utcnow() - timedelta(days=4), 'detected_crop': 'Tomato', 'detected_disease': 'Leaf Mold', 'severity': 'Moderate', 'confidence': 0.79},
-        {'id': 1038, 'date': datetime.utcnow() - timedelta(days=5), 'detected_crop': 'Potato', 'detected_disease': 'Healthy', 'severity': 'Low', 'confidence': 0.97},
-        {'id': 1037, 'date': datetime.utcnow() - timedelta(days=6), 'detected_crop': 'Tomato', 'detected_disease': 'Late Blight', 'severity': 'High', 'confidence': 0.9},
-    ]
-
-    trend_raw = [
-        ('2026-09-08', 31),
-        ('2026-09-09', 38),
-        ('2026-09-10', 53),
-        ('2026-09-11', 47),
-        ('2026-09-12', 64),
-        ('2026-09-13', 71),
-    ]
-
-    critical_traps = [
-        {'pest_type': 'Fruit Fly', 'pest_count': 46, 'status': 'Critical', 'date': datetime.utcnow() - timedelta(days=2)},
-        {'pest_type': 'Whitefly', 'pest_count': 31, 'status': 'Warning', 'date': datetime.utcnow() - timedelta(days=4)},
-        {'pest_type': 'Thrips', 'pest_count': 24, 'status': 'Critical', 'date': datetime.utcnow() - timedelta(days=7)},
-    ]
-
-    farmer_stats = [
-        {'username': 'rajesh_patil', 'email': 'rajesh.patil@gmail.com', 'scans': 21, 'diseases': 9},
-        {'username': 'meena_shinde', 'email': 'meena.shinde@gmail.com', 'scans': 18, 'diseases': 8},
-        {'username': 'arun_more', 'email': 'arun.more@gmail.com', 'scans': 15, 'diseases': 6},
-        {'username': 'sneha_jadhav', 'email': 'sneha.jadhav@gmail.com', 'scans': 14, 'diseases': 5},
-        {'username': 'vijay_kadam', 'email': 'vijay.kadam@gmail.com', 'scans': 12, 'diseases': 4},
-    ]
-
-    return render_template('admin/dashboard.html',
-        total_farmers=total_farmers,
-        total_scans=total_scans,
-        total_farms=total_farms,
-        total_traps=total_traps,
-        disease_counts=disease_counts,
-        severity_counts=severity_counts,
-        recent_scans=recent_scans,
-        trend_raw=trend_raw,
-        critical_traps=critical_traps,
-        farmer_stats=farmer_stats,
-    )
-
-
-@main_bp.route('/admin/gov_portal')
-def gov_portal():
-        return render_template('admin/portal.html' )
 

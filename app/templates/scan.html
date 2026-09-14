@@ -608,7 +608,8 @@
     }
 
     function applyScanLanguage(lang) {
-        const dict = scanTranslations[lang] || scanTranslations.mr;
+        if (window.googleTranslateActive) return;
+        const dict = scanTranslations[lang] || scanTranslations.en;
         document.getElementById('scanCurrentLangLabel').innerText = dict.label;
         document.getElementById('lblScanPageTitle').innerText = dict.title;
         document.getElementById('lblStep1').innerText = dict.step1;
@@ -684,7 +685,7 @@
     document.getElementById('scanForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'en';
         const dict = scanTranslations[currentLang] || scanTranslations.mr;
 
         if (!selectedImageFile) {
@@ -709,6 +710,7 @@
         formData.append('crop_id', document.getElementById('cropSelect').value);
         formData.append('farmer_observation', document.getElementById('symptomsText').value);
         formData.append('location', document.getElementById('locationField').value);
+        formData.append('language', localStorage.getItem('pikdrishti_lang') || 'en');
 
         fetch('/api/disease/analyze', {
             method: 'POST',
@@ -753,7 +755,7 @@
             return;
         }
 
-        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'en';
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         symptomRecognition = new SpeechRecognition();
         symptomRecognition.lang = currentLang === 'mr' ? 'mr-IN' : 'en-IN';
@@ -793,8 +795,9 @@
 
     // Load persistent language on page load
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         applyScanLanguage(savedLang);
     });
+    window.addEventListener('pikdrishti_lang_changed', e => applyScanLanguage(e.detail));
 </script>
 {% endblock %}

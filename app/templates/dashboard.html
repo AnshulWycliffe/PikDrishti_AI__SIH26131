@@ -99,6 +99,73 @@
         border: 1.5px solid #ffffff;
     }
 
+    .notification-wrap {
+        position: relative;
+    }
+
+    .notification-panel {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: min(330px, calc(100vw - 32px));
+        padding: 14px;
+        background: #FFFFFF;
+        border: 1px solid #E0E8E1;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(27, 94, 32, 0.16);
+        z-index: 1050;
+        display: none;
+    }
+
+    .notification-wrap.open .notification-panel { display: block; }
+
+    .notification-panel::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: 14px;
+        width: 12px;
+        height: 12px;
+        background: #FFFFFF;
+        border-left: 1px solid #E0E8E1;
+        border-top: 1px solid #E0E8E1;
+        transform: rotate(45deg);
+    }
+
+    .notification-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .notification-panel-title {
+        color: #1B5E20;
+        font-size: .92rem;
+        font-weight: 800;
+    }
+
+    .notification-count {
+        color: #6C757D;
+        font-size: .72rem;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 9px 0;
+        border-top: 1px solid #F0F3F1;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .notification-item:hover { color: inherit; background: #F8FBF8; }
+    .notification-item-icon { flex: 0 0 26px; text-align: center; }
+    .notification-item-title { font-size: .78rem; font-weight: 700; color: #26352A; }
+    .notification-item-meta { margin-top: 2px; color: #7A857D; font-size: .7rem; }
+    .notification-empty { padding: 16px 4px 8px; color: #7A857D; font-size: .78rem; text-align: center; }
+
     .avatar-btn {
         width: 36px;
         height: 36px;
@@ -399,6 +466,59 @@
         margin-bottom: 20px;
     }
 
+    .activity-empty-state {
+        background: #F8FBF8;
+        border: 1px dashed #B7D8BA;
+        border-radius: 14px;
+        padding: 22px 16px;
+        text-align: center;
+        color: #5F6B61;
+    }
+
+    .activity-empty-icon {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #E8F5E9;
+        color: #2E7D32;
+        font-size: 1.2rem;
+    }
+
+    .activity-empty-title {
+        margin: 0 0 4px;
+        color: #26352A;
+        font-size: 0.92rem;
+        font-weight: 700;
+    }
+
+    .activity-empty-copy {
+        margin: 0 auto 13px;
+        max-width: 290px;
+        font-size: 0.8rem;
+        line-height: 1.45;
+    }
+
+    .activity-empty-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        background: #2E7D32;
+        color: #FFFFFF;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .activity-empty-action:hover {
+        background: #1B5E20;
+        color: #FFFFFF;
+    }
+
     .activity-card-item {
         background: #FFFFFF;
         border: 1px solid rgba(0, 0, 0, 0.06);
@@ -531,22 +651,43 @@
     <div class="dash-topbar">
         <a href="{{ url_for('main.dashboard') }}" class="brand-logo-wrap">
             <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="brand-logo-icon" alt="PikDrishti AI" style="object-fit: cover;">
-            <h1 class="brand-name" id="dashBrandName">पिकदृष्टी AI</h1>
+            <h1 class="brand-name" id="dashBrandName">PikDrishti AI</h1>
         </a>
 
         <div class="topbar-actions">
             <!-- Language Button matching Profile page -->
             <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-                <i class="bi bi-translate me-1"></i><span id="topLangLabel">मराठी</span>
+                <i class="bi bi-translate me-1"></i><span id="topLangLabel">English</span>
             </button>
 
-            <!-- Alerts Bell -->
-            <a href="{{ url_for('main.history') }}" class="notify-btn" title="Alerts">
-                <i class="bi bi-bell"></i>
-                {% if alerts_count and alerts_count > 0 %}
-                <span class="notify-badge-dot"></span>
-                {% endif %}
-            </a>
+            <div class="notification-wrap" id="notificationWrap">
+                <button type="button" class="notify-btn" id="notificationButton" title="Alerts" aria-label="Open alerts" aria-expanded="false">
+                    <i class="bi bi-bell"></i>
+                    {% if alerts_count and alerts_count > 0 %}<span class="notify-badge-dot"></span>{% endif %}
+                </button>
+                <div class="notification-panel" role="dialog" aria-label="Alerts">
+                    <div class="notification-panel-header">
+                        <span class="notification-panel-title">Alerts</span>
+                        <span class="notification-count">{{ alerts_count|default(0) }} active</span>
+                    </div>
+                    {% for item in recent_analyses %}
+                        {% if item.detected_disease and item.detected_disease != 'Healthy' and 'Healthy' not in item.detected_disease and loop.index <= 3 %}
+                        <a class="notification-item" href="{{ url_for('main.disease_result', analysis_id=item.id) }}">
+                            <span class="notification-item-icon text-danger"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                            <span><span class="notification-item-title">{{ item.detected_crop or 'Crop' }}: {{ item.detected_disease }}</span><span class="notification-item-meta">{{ item.severity or 'Disease alert' }}{% if item.date %} · {{ item.date.strftime('%d %b %Y') }}{% endif %}</span></span>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    {% for trap in critical_traps[:3] %}
+                    <a class="notification-item" href="{{ url_for('main.crops') }}">
+                        <span class="notification-item-icon {{ 'text-danger' if trap.status == 'Critical' else 'text-warning' }}"><i class="bi bi-bug-fill"></i></span>
+                        <span><span class="notification-item-title">{{ trap.pest_type }} trap warning</span><span class="notification-item-meta">{{ trap.status }} · {{ trap.pest_count }} pests detected</span></span>
+                    </a>
+                    {% endfor %}
+                    {% if not alerts_count %}<div class="notification-empty"><i class="bi bi-check-circle text-success me-1"></i>No active alerts</div>{% endif %}
+                    <a href="{{ url_for('main.history') }}" class="btn btn-sm btn-outline-success rounded-pill w-100 mt-2">View History</a>
+                </div>
+            </div>
 
             <!-- Avatar -->
             <a href="{{ url_for('main.farms') }}" class="avatar-btn" title="Profile">
@@ -558,15 +699,15 @@
     <!-- 2. Greeting Section -->
     <div class="greeting-box">
         <div class="greeting-title" id="farmerGreetingText">
-            नमस्कार, {{ current_user.username }}! 👋
+            Hello, {{ current_user.username }}! 👋
         </div>
         <p class="greeting-sub" id="farmerTaglineText">
             Let's keep your crops healthy.
         </p>
     </div>
 
-    <!-- 3. Weather Card (Clickable to open 3-Day Risk Forecast & Geospatial Hotspot Radar) -->
-    <div class="weather-risk-card" data-bs-toggle="modal" data-bs-target="#weatherRiskModal" style="cursor: pointer;" title="View 3-Day Disease Risk Forecast & Hotspot Radar">
+    <!-- 3. Weather Card (Clickable to open 3-Day Risk Forecast) -->
+    <div class="weather-risk-card" data-bs-toggle="modal" data-bs-target="#weatherRiskModal" style="cursor: pointer;" title="View 3-Day Weather Risk Forecast">
         <div class="weather-header-row">
             <div class="weather-temp-group">
                 {% if weather and weather.icon %}
@@ -577,6 +718,9 @@
                 <div>
                     <div style="font-size: 0.72rem; color: #558B2F; font-weight: 700; text-transform: uppercase;" id="lblTodayWeather">
                         Today's Weather
+                    </div>
+                    <div class="small text-muted mt-1" style="font-size: 0.7rem;">
+                        <i class="bi bi-geo-alt me-1"></i>{{ weather.city if weather and weather.city else (farm.location if farm and farm.location else 'Pune') }}{% if weather and weather.region %}, {{ weather.region }}{% endif %}
                     </div>
                     <div class="weather-temp-num">
                         {{ weather.temp_c if weather and weather.temp_c is not none else '28' }}°C
@@ -607,7 +751,7 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: rgba(46, 125, 50, 0.15) !important;">
             <small class="text-success fw-semibold" id="lblViewRadar">
-                <i class="bi bi-radar me-1"></i>3-Day Risk Forecast &amp; Hotspot Radar
+                <i class="bi bi-calendar3 me-1"></i>3-Day Weather Risk Forecast
             </small>
             <i class="bi bi-arrow-right-circle-fill text-success"></i>
         </div>
@@ -626,18 +770,15 @@
             <div class="kpi-title-text" id="cardMyCropsTitle">My Crops</div>
         </a>
 
-        <!-- 2. Alerts -->
         <a href="{{ url_for('main.history') }}" class="kpi-card">
             <div class="kpi-top-row">
-                <div class="card-icon-box bg-alert">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
+                <div class="card-icon-box bg-alert"><i class="bi bi-exclamation-triangle-fill"></i></div>
                 <div class="kpi-stat-number text-danger">{{ alerts_count|default(0) }}</div>
             </div>
             <div class="kpi-title-text" id="cardAlertsTitle">Alerts</div>
         </a>
 
-        <!-- 3. Check Crop -->
+        <!-- 2. Check Crop -->
         <a href="{{ url_for('main.scan') }}" class="kpi-card">
             <div class="kpi-top-row">
                 <div class="card-icon-box bg-cam">
@@ -648,7 +789,7 @@
             <div class="kpi-title-text" id="cardScanTitle">Check Crop</div>
         </a>
 
-        <!-- 4. Ask PikDrishti -->
+        <!-- 3. Ask PikDrishti -->
         <a href="{{ url_for('main.assistant') }}" class="kpi-card">
             <div class="kpi-top-row">
                 <div class="card-icon-box bg-mic">
@@ -667,27 +808,23 @@
         </div>
         <div class="advisory-text-content">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="advisory-heading" id="advisoryHeading">आजचा कृषी सल्ला</div>
+                <div class="advisory-heading" id="advisoryHeading">Today's Advisory</div>
                 <button type="button" class="advisory-speaker-btn" id="playAdvisoryBtn" title="Listen" onclick="speakAdvisoryText()">
                     <i class="bi bi-volume-up-fill" id="advisorySpeakerIcon"></i>
                 </button>
             </div>
             <p class="advisory-desc" id="advisoryDescText">
-                कपाशी व सोयाबीन पिकांवर रसशोषक किडींचा प्रादुर्भाव रोखण्यासाठी निंबोळी अर्क (5%) वेळेवर फवारा.
+                Spray 5% neem extract on cotton and soybean crops to prevent sucking pests.
             </p>
         </div>
     </div>
 
-    <!-- Pest Trap Alerts -->
     {% if critical_traps and critical_traps|length > 0 %}
     <div class="mb-4">
         {% for trap in critical_traps %}
         <div class="alert {{ 'alert-danger' if trap.status == 'Critical' else 'alert-warning' }} d-flex align-items-center mb-2" role="alert" style="border-radius: 12px; font-size: 0.9rem;">
             <i class="bi {{ 'bi-exclamation-triangle-fill' if trap.status == 'Critical' else 'bi-exclamation-circle-fill' }} fs-4 me-3"></i>
-            <div>
-                <strong>{{ trap.pest_type }} Alert ({{ trap.crop_trap_info.name if trap.crop_trap_info else 'Crop' }}):</strong> 
-                Trap count is {{ trap.pest_count }} ({{ trap.status }}). Please take preventive action immediately.
-            </div>
+            <div><strong>{{ trap.pest_type }} Alert ({{ trap.crop_trap_info.name if trap.crop_trap_info else 'Crop' }}):</strong> Trap count is {{ trap.pest_count }} ({{ trap.status }}). Please take preventive action immediately.</div>
         </div>
         {% endfor %}
     </div>
@@ -732,24 +869,14 @@
             </a>
             {% endfor %}
         {% else %}
-            <!-- Matching wireframe default cards -->
-            <a href="{{ url_for('main.scan') }}" class="activity-card-item">
-                <span class="activity-dot-indicator dot-moderate"></span>
-                <div class="activity-main-info">
-                    <div class="activity-title">Cotton - Possible Leaf Spot</div>
-                    <div class="activity-meta">Sample Scan</div>
-                </div>
-                <span class="activity-badge bg-warning-subtle text-warning-emphasis">Moderate</span>
-            </a>
-
-            <a href="{{ url_for('main.scan') }}" class="activity-card-item">
-                <span class="activity-dot-indicator dot-healthy"></span>
-                <div class="activity-main-info">
-                    <div class="activity-title">Soybean - Healthy</div>
-                    <div class="activity-meta">Sample Scan</div>
-                </div>
-                <span class="activity-badge bg-success-subtle text-success">Healthy</span>
-            </a>
+            <div class="activity-empty-state">
+                <div class="activity-empty-icon"><i class="bi bi-clock-history"></i></div>
+                <p class="activity-empty-title" id="lblActivityEmptyTitle">No recent activity</p>
+                <p class="activity-empty-copy" id="lblActivityEmptyCopy">Your crop scans and updates will appear here.</p>
+                <a href="{{ url_for('main.scan') }}" class="activity-empty-action" id="lblActivityEmptyAction">
+                    <i class="bi bi-camera"></i>Scan your first crop
+                </a>
+            </div>
         {% endif %}
     </div>
 
@@ -781,7 +908,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- MODAL: Weather-Based Risk Forecasting & Geospatial Hotspot Radar -->
+<!-- MODAL: 3-Day Weather Risk Forecast -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <div class="modal fade" id="weatherRiskModal" tabindex="-1" aria-labelledby="weatherRiskModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -789,52 +916,20 @@
             <div class="modal-header border-0 pb-0">
                 <div>
                     <h5 class="modal-title fw-bold text-success mb-1" id="weatherRiskModalLabel">
-                        <i class="bi bi-radar me-2"></i><span id="lblModalRadarTitle">Disease Risk &amp; Hotspot Radar</span>
+                        <i class="bi bi-calendar3 me-2"></i><span id="lblModalRadarTitle">3-Day Weather Risk Forecast</span>
                     </h5>
-                    <p class="small text-muted mb-0" id="lblModalRadarSub">Micro-climate disease forecasting &amp; regional outbreak map</p>
+                    <p class="small text-muted mb-0" id="lblModalRadarSub">Temperature, rain chance, and crop disease risk</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-2">
-                <!-- Nav Tabs -->
-                <ul class="nav nav-pills nav-fill bg-light p-1 rounded-3 mb-3" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active rounded-3 py-2 fw-semibold small" id="tab-forecast-btn" data-bs-toggle="pill" data-bs-target="#tab-forecast" type="button" role="tab">
-                            <i class="bi bi-calendar3 me-1"></i><span id="tabForecastTitle">3-Day Risk Forecast</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link rounded-3 py-2 fw-semibold small" id="tab-hotspots-btn" data-bs-toggle="pill" data-bs-target="#tab-hotspots" type="button" role="tab">
-                            <i class="bi bi-geo-alt-fill me-1"></i><span id="tabHotspotsTitle">Hotspot Radar</span>
-                        </button>
-                    </li>
-                </ul>
-
-                <!-- Tab Content -->
-                <div class="tab-content">
-                    <!-- Tab 1: 3-Day Risk Forecast -->
-                    <div class="tab-pane fade show active" id="tab-forecast" role="tabpanel">
+                <!-- 3-Day Risk Forecast -->
+                <div id="tab-forecast" role="tabpanel">
                         <div id="forecastLoading" class="text-center py-4">
                             <span class="spinner-border spinner-border-sm text-success me-2"></span>
                             <small class="text-muted">Loading micro-climate forecast...</small>
                         </div>
                         <div id="forecastContainer" class="d-none d-flex flex-column gap-3"></div>
-                    </div>
-
-                    <!-- Tab 2: Geospatial Hotspot Radar -->
-                    <div class="tab-pane fade" id="tab-hotspots" role="tabpanel">
-                        <div class="alert alert-success-subtle border-0 rounded-3 p-2 mb-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-shield-check text-success fs-5"></i>
-                            <small class="text-success-emphasis fw-semibold" id="hotspotAlertText">
-                                Live disease outbreak telemetry across Maharashtra agricultural clusters.
-                            </small>
-                        </div>
-                        <div id="hotspotsLoading" class="text-center py-4">
-                            <span class="spinner-border spinner-border-sm text-success me-2"></span>
-                            <small class="text-muted">Scanning regional outbreak telemetry...</small>
-                        </div>
-                        <div id="hotspotsContainer" class="d-none d-flex flex-column gap-2"></div>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
@@ -865,13 +960,13 @@
             advisoryText: "कपाशी व सोयाबीन पिकांवर रसशोषक किडींचा प्रादुर्भाव रोखण्यासाठी निंबोळी अर्क (5%) वेळेवर फवारा.",
             recentAct: "अलीकडील तपासणी",
             viewAll: "सर्व पहा",
+            activityEmptyTitle: "अलीकडील नोंद नाही",
+            activityEmptyCopy: "तुमच्या पिकांचे स्कॅन आणि अपडेट्स येथे दिसतील.",
+            activityEmptyAction: "पहिले पीक स्कॅन करा",
             newsTitle: "शेतकरी बातम्या",
-            viewRadar: "३-दिवसीय रोग अंदाज व प्रादुर्भाव रडार",
-            modalRadarTitle: "हवामान रोग अंदाज व प्रादुर्भाव रडार",
-            modalRadarSub: "सूक्ष्म-हवामान रोग अंदाज आणि प्रादेशिक प्रादुर्भाव नकाशा",
-            tabForecastTitle: "३-दिवसीय अंदाज",
-            tabHotspotsTitle: "महाराष्ट्र रडार",
-            hotspotAlert: "महाराष्ट्र कृषी पट्ट्यातील थेट रोग प्रादुर्भाव रडार माहिती."
+            viewRadar: "३-दिवसीय हवामान अंदाज",
+            modalRadarTitle: "३-दिवसीय हवामान जोखीम अंदाज",
+            modalRadarSub: "तापमान, पावसाची शक्यता आणि पिकांचा रोग धोका",
         },
         en: {
             brandName: "PikDrishti AI",
@@ -889,13 +984,13 @@
             advisoryText: "Spray 5% neem extract on cotton and soybean crops to prevent sucking pests.",
             recentAct: "Recent Activity",
             viewAll: "View All",
+            activityEmptyTitle: "No recent activity",
+            activityEmptyCopy: "Your crop scans and updates will appear here.",
+            activityEmptyAction: "Scan your first crop",
             newsTitle: "Farmers News",
-            viewRadar: "3-Day Risk Forecast & Hotspot Radar",
-            modalRadarTitle: "Disease Risk & Hotspot Radar",
-            modalRadarSub: "Micro-climate disease forecasting & regional outbreak map",
-            tabForecastTitle: "3-Day Risk Forecast",
-            tabHotspotsTitle: "Hotspot Radar",
-            hotspotAlert: "Live disease outbreak telemetry across Maharashtra agricultural clusters."
+            viewRadar: "3-Day Weather Risk Forecast",
+            modalRadarTitle: "3-Day Weather Risk Forecast",
+            modalRadarSub: "Temperature, rain chance, and crop disease risk",
         }
     };
 
@@ -905,7 +1000,8 @@
     }
 
     function applyDashboardLanguage(lang) {
-        const dict = dashTranslations[lang] || dashTranslations.mr;
+        if (window.googleTranslateActive) return;
+        const dict = dashTranslations[lang] || dashTranslations.en;
         const g = id => document.getElementById(id);
 
         // Update brand name
@@ -929,21 +1025,21 @@
         if (g('advisoryDescText')) g('advisoryDescText').innerText = dict.advisoryText;
         if (g('lblRecentActivity')) g('lblRecentActivity').innerText = dict.recentAct;
         if (g('lblViewAll')) g('lblViewAll').innerHTML = `${dict.viewAll} <i class="bi bi-chevron-right"></i>`;
+        if (g('lblActivityEmptyTitle')) g('lblActivityEmptyTitle').innerText = dict.activityEmptyTitle;
+        if (g('lblActivityEmptyCopy')) g('lblActivityEmptyCopy').innerText = dict.activityEmptyCopy;
+        if (g('lblActivityEmptyAction')) g('lblActivityEmptyAction').innerHTML = `<i class="bi bi-camera"></i>${dict.activityEmptyAction}`;
         if (g('lblNewsTitle')) g('lblNewsTitle').innerText = dict.newsTitle;
 
         if (g('lblViewRadar')) g('lblViewRadar').innerHTML = `<i class="bi bi-radar me-1"></i>${dict.viewRadar}`;
         if (g('lblModalRadarTitle')) g('lblModalRadarTitle').innerText = dict.modalRadarTitle;
         if (g('lblModalRadarSub')) g('lblModalRadarSub').innerText = dict.modalRadarSub;
-        if (g('tabForecastTitle')) g('tabForecastTitle').innerText = dict.tabForecastTitle;
-        if (g('tabHotspotsTitle')) g('tabHotspotsTitle').innerText = dict.tabHotspotsTitle;
-        if (g('hotspotAlertText')) g('hotspotAlertText').innerText = dict.hotspotAlert;
     }
 
     let advisoryPlaying = false;
 
     function speakAdvisoryText() {
         const text = document.getElementById('advisoryDescText')?.innerText?.trim();
-        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const lang = localStorage.getItem('pikdrishti_lang') || 'en';
         const speakerIcon = document.getElementById('advisorySpeakerIcon');
         const btn = document.getElementById('playAdvisoryBtn');
 
@@ -990,23 +1086,21 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // Weather Risk Forecasting & Hotspot Radar API Fetchers
+    // 3-Day Weather Risk Forecast
     // ═══════════════════════════════════════════════════════════════════════════
     let riskForecastLoaded = false;
-    let hotspotsLoaded = false;
 
     const weatherModalEl = document.getElementById('weatherRiskModal');
     if (weatherModalEl) {
         weatherModalEl.addEventListener('show.bs.modal', function () {
             if (!riskForecastLoaded) loadRiskForecast();
-            if (!hotspotsLoaded) loadGeospatialHotspots();
         });
     }
 
     function loadRiskForecast() {
         const loading = document.getElementById('forecastLoading');
         const container = document.getElementById('forecastContainer');
-        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const lang = localStorage.getItem('pikdrishti_lang') || 'en';
 
         fetch('/api/weather/risk-forecast')
             .then(r => r.json())
@@ -1020,7 +1114,6 @@
                     data.forecast.forEach((day, idx) => {
                         const riskBadgeClass = day.risk.badge_class || 'bg-warning text-dark';
                         const riskSummary = lang === 'mr' ? day.risk.summary_mr : day.risk.summary_en;
-                        const recommendation = lang === 'mr' ? day.risk.recommendation_mr : day.risk.recommendation_en;
                         const dayLabel = idx === 0 ? (lang === 'mr' ? 'आज (Today)' : 'Today') : (idx === 1 ? (lang === 'mr' ? 'उद्या (Tomorrow)' : 'Tomorrow') : day.date);
 
                         // Determine if any disease risk is high enough to warn
@@ -1041,19 +1134,14 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <div class="fw-bold" style="font-size:0.95rem;">${dayLabel}</div>
-                                    <div class="text-muted" style="font-size:0.78rem;">${day.condition}</div>
                                 </div>
                                 <span class="badge ${riskBadgeClass} rounded-pill px-2 py-1">${riskSummary}</span>
                             </div>
                             <div class="d-flex align-items-center gap-3 mt-2" style="font-size:0.82rem;">
                                 <span><i class="bi bi-thermometer-half text-danger"></i> <strong>${day.avg_temp_c}°C</strong></span>
-                                <span><i class="bi bi-droplet text-primary"></i> <strong>${day.humidity}%</strong></span>
                                 <span><i class="bi bi-cloud-drizzle text-info"></i> <strong>${day.chance_of_rain}%</strong></span>
                             </div>
                             ${warnHtml}
-                            <div class="mt-2 text-muted" style="font-size:0.75rem;line-height:1.4;">
-                                <i class="bi bi-lightbulb text-warning me-1"></i>${recommendation}
-                            </div>
                         `;
                         container.appendChild(card);
                     });
@@ -1066,64 +1154,27 @@
             });
     }
 
-    function loadGeospatialHotspots() {
-        const loading = document.getElementById('hotspotsLoading');
-        const container = document.getElementById('hotspotsContainer');
-        const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
-
-        fetch('/api/geospatial/hotspots')
-            .then(r => r.json())
-            .then(data => {
-                if (loading) loading.classList.add('d-none');
-                if (!container) return;
-                container.classList.remove('d-none');
-                container.innerHTML = '';
-
-                if (data.success && data.hotspots && data.hotspots.length > 0) {
-                    data.hotspots.forEach(cluster => {
-                        const isHigh = cluster.threat_level === 'High';
-                        const badgeClass = isHigh ? 'bg-danger text-white' : (cluster.threat_level === 'Moderate' ? 'bg-warning text-dark' : 'bg-success text-white');
-                        const advisory = lang === 'mr' ? cluster.advisory_mr : cluster.advisory_en;
-
-                        const card = document.createElement('div');
-                        card.className = 'p-3 bg-white rounded-3 border shadow-sm';
-                        card.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-geo-alt-fill text-danger me-1"></i>${cluster.cluster_name}</h6>
-                                    <small class="text-muted">Crops: ${cluster.primary_crops.join(', ')}</small>
-                                </div>
-                                <span class="badge ${badgeClass} rounded-pill px-2">${cluster.threat_level} Risk</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2 my-2 small">
-                                <span class="badge bg-light text-dark border">
-                                    <i class="bi bi-bug me-1 text-danger"></i>${cluster.primary_threat}
-                                </span>
-                                <span class="badge bg-light text-dark border">
-                                    <i class="bi bi-broadcast me-1 text-primary"></i>${cluster.radius_km} km radius
-                                </span>
-                                <span class="badge bg-light text-dark border">
-                                    <i class="bi bi-people me-1 text-success"></i>${cluster.reported_cases} cases
-                                </span>
-                            </div>
-                            <div class="small text-muted bg-light p-2 rounded-2" style="font-size:0.75rem;">
-                                <i class="bi bi-info-circle-fill text-success me-1"></i>${advisory}
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-                    hotspotsLoaded = true;
-                }
-            })
-            .catch(err => {
-                console.error("Hotspots load error:", err);
-                if (loading) loading.innerHTML = '<small class="text-danger">Failed to load hotspot data</small>';
-            });
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         applyDashboardLanguage(savedLang);
+
+        const notificationWrap = document.getElementById('notificationWrap');
+        const notificationButton = document.getElementById('notificationButton');
+        if (notificationWrap && notificationButton) {
+            notificationButton.addEventListener('click', event => {
+                event.stopPropagation();
+                const isOpen = notificationWrap.classList.toggle('open');
+                notificationButton.setAttribute('aria-expanded', String(isOpen));
+            });
+            document.addEventListener('click', event => {
+                if (!notificationWrap.contains(event.target)) {
+                    notificationWrap.classList.remove('open');
+                    notificationButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
     });
+    window.addEventListener('pikdrishti_lang_changed', e => applyDashboardLanguage(e.detail));
 </script>
 {% endblock %}

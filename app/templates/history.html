@@ -3,34 +3,45 @@
 {% block extra_css %}
 <style>
     .history-container {
-        max-width: 900px;
+        max-width: 600px;
         margin: 0 auto;
-        padding: 20px 16px 80px 16px;
+        padding: 12px 16px 85px;
     }
 
-    /* Hero Header */
-    .history-hero {
-        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%);
-        border-radius: 20px;
-        color: white;
-        padding: 22px 24px;
-        box-shadow: 0 10px 25px rgba(27, 94, 32, 0.22);
-        margin-bottom: 20px;
-        position: relative;
-        overflow: hidden;
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
     }
 
-    .history-hero::after {
-        content: '';
-        position: absolute;
-        right: -25px;
-        bottom: -25px;
-        width: 130px;
-        height: 130px;
-        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+    .history-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .history-heading {
+        font-weight: 700;
+        font-size: 1.18rem;
+        color: #198754;
+        margin: 0;
+    }
+
+    .history-header .back-btn {
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        pointer-events: none;
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        display: grid;
+        place-items: center;
+        color: #212529;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
+
+    .history-subtitle { color: #6C757D; font-size: .8rem; margin: -6px 0 16px; }
 
     /* KPI Summary Stats */
     .hist-kpi-grid {
@@ -244,22 +255,19 @@
 {% block content %}
 <div class="history-container">
 
-    <!-- 1. Hero Header -->
-    <div class="history-hero">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 mb-2 fw-semibold" style="font-size: 0.75rem;">
-                    <i class="bi bi-clock-history me-1"></i>
-                    <span id="txtHeroTelemetryBadge">Farm Telemetry &amp; Logs</span>
-                </span>
-                <h3 class="fw-bold mb-1" id="txtHeroTitle">तपासणी व उत्पादन इतिहास</h3>
-                <p class="mb-0 opacity-90 small" id="txtHeroSub">मागील सर्व पीक रोग स्कॅन आणि उत्पादन अंदाज अहवालांचे संकलन.</p>
-            </div>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold text-nowrap" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-                <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
-            </button>
+    <!-- 1. Scan-style Header -->
+    <div class="history-header">
+        <div class="history-title-group">
+            <a href="{{ url_for('main.dashboard') }}" class="back-btn" title="Back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="history-heading" id="txtHeroTitle">History</h1>
         </div>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
+        </button>
     </div>
+    <p class="history-subtitle" id="txtHeroSub">Review your crop scans and yield predictions.</p>
 
     <!-- 2. KPI Summary Stats Row -->
     {% set alert_count = namespace(total=0) %}
@@ -272,15 +280,15 @@
     <div class="hist-kpi-grid">
         <div class="hist-kpi-box">
             <div class="hist-kpi-num text-success">{{ disease_history|length }}</div>
-            <div class="hist-kpi-label" id="lblTotalScans">एकूण स्कॅन</div>
+            <div class="hist-kpi-label" id="lblTotalScans">Total Scans</div>
         </div>
         <div class="hist-kpi-box">
             <div class="hist-kpi-num text-danger">{{ alert_count.total }}</div>
-            <div class="hist-kpi-label" id="lblDiseaseAlerts">रोग आढळलेले</div>
+            <div class="hist-kpi-label" id="lblDiseaseAlerts">Disease Alerts</div>
         </div>
         <div class="hist-kpi-box">
             <div class="hist-kpi-num text-primary">{{ yield_history|length }}</div>
-            <div class="hist-kpi-label" id="lblYieldLogs">उत्पादन नोंदी</div>
+            <div class="hist-kpi-label" id="lblYieldLogs">Yield Logs</div>
         </div>
     </div>
 
@@ -290,11 +298,11 @@
             <div>
                 <h6 class="fw-bold text-dark mb-0">
                     <i class="bi bi-graph-up text-success me-2"></i>
-                    <span id="txtChartTitle">उत्पादन ट्रेंड (Yield Forecast Timeline)</span>
+                    <span id="txtChartTitle">Yield Forecast Timeline</span>
                 </h6>
-                <div class="text-muted" style="font-size: 0.75rem;" id="txtChartSub">टन प्रति एकर उत्पादन अंदाज प्रगती</div>
+                <div class="text-muted" style="font-size: 0.75rem;" id="txtChartSub">Tonnes per acre historical trend</div>
             </div>
-            <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small">टन / एकर</span>
+            <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small">Tonnes / Acre</span>
         </div>
         <div style="height: 200px; position: relative;">
             <canvas id="yieldChart"></canvas>
@@ -305,12 +313,12 @@
     <div class="custom-pill-nav" role="tablist">
         <button class="nav-link active" id="disease-tab" data-bs-toggle="tab" data-bs-target="#disease" type="button" role="tab">
             <i class="bi bi-camera-fill me-1"></i>
-            <span id="tabTitleDisease">पीक रोग तपासणी (Scans)</span>
+            <span id="tabTitleDisease">Disease Scans</span>
             <span class="badge bg-light text-dark ms-1">{{ disease_history|length }}</span>
         </button>
         <button class="nav-link" id="yield-tab" data-bs-toggle="tab" data-bs-target="#yield" type="button" role="tab">
             <i class="bi bi-graph-up-arrow me-1"></i>
-            <span id="tabTitleYield">उत्पादन अंदाज (Yield)</span>
+            <span id="tabTitleYield">Yield Forecasts</span>
             <span class="badge bg-light text-dark ms-1">{{ yield_history|length }}</span>
         </button>
     </div>
@@ -323,9 +331,9 @@
 
             <!-- Filter Chips -->
             <div class="filter-chips-row">
-                <button type="button" class="filter-chip-btn active" onclick="filterScans('all', this)" id="chipFilterAll">सर्व तपासण्या (All)</button>
-                <button type="button" class="filter-chip-btn" onclick="filterScans('alert', this)" id="chipFilterAlert">⚠️ रोग आढळलेले (Alerts)</button>
-                <button type="button" class="filter-chip-btn" onclick="filterScans('healthy', this)" id="chipFilterHealthy">🌿 निरोगी (Healthy)</button>
+                <button type="button" class="filter-chip-btn active" onclick="filterScans('all', this)" id="chipFilterAll">All Scans</button>
+                <button type="button" class="filter-chip-btn" onclick="filterScans('alert', this)" id="chipFilterAlert">⚠️ Disease Alerts</button>
+                <button type="button" class="filter-chip-btn" onclick="filterScans('healthy', this)" id="chipFilterHealthy">🌿 Healthy</button>
             </div>
 
             {% if disease_history %}
@@ -356,7 +364,7 @@
                         <div class="scan-crop-tag">
                             🌾 <strong>{{ record.crop_display }}</strong>
                             {% if record.confidence %}
-                            &bull; {{ (record.confidence * 100)|round(0)|int }}% खात्री
+                            &bull; {{ (record.confidence * 100)|round(0)|int }}% confidence
                             {% endif %}
                         </div>
                     </div>
@@ -365,19 +373,19 @@
                     <div class="scan-meta-right">
                         {% if is_healthy %}
                         <span class="badge badge-sev-healthy rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
-                            निरोगी
+                            Healthy
                         </span>
                         {% elif 'mild' in sev or 'हल्का' in sev %}
                         <span class="badge badge-sev-mild rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
-                            कमी
+                            Mild
                         </span>
                         {% elif 'severe' in sev or 'गंभीर' in sev %}
                         <span class="badge badge-sev-severe rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
-                            गंभीर
+                            Severe
                         </span>
                         {% else %}
                         <span class="badge badge-sev-mod rounded-pill px-2 py-1 mb-1 d-inline-block" style="font-size: 0.72rem;">
-                            मध्यम
+                            Moderate
                         </span>
                         {% endif %}
                         <div class="text-muted" style="font-size: 0.7rem;">
@@ -390,10 +398,10 @@
             {% else %}
             <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border border-light p-4">
                 <i class="bi bi-camera fs-1 text-success opacity-50 d-block mb-2"></i>
-                <h6 class="fw-bold text-dark" id="txtNoScansTitle">कोणतीही रोग तपासणी नोंद आढळली नाही.</h6>
-                <p class="small text-muted mb-3" id="txtNoScansSub">तुमच्या पिकांच्या पानांचा फोटो काढून रोगांचे निदान करा.</p>
+                <h6 class="fw-bold text-dark" id="txtNoScansTitle">No disease scan records found.</h6>
+                <p class="small text-muted mb-3" id="txtNoScansSub">Snap a leaf photo to diagnose crop diseases immediately.</p>
                 <a href="{{ url_for('main.scan') }}" class="btn btn-sm btn-success rounded-pill px-4 fw-semibold" id="btnStartScanCta">
-                    <i class="bi bi-camera me-1"></i>आताच स्कॅन करा
+                    <i class="bi bi-camera me-1"></i>Scan Leaf Now
                 </a>
             </div>
             {% endif %}
@@ -407,7 +415,7 @@
                 <div class="yield-record-card">
                     <div>
                         <div class="fw-bold text-dark" style="font-size: 0.95rem;">
-                            🌾 {{ record.crop_info.name if record.crop_info else (record.detected_crop or 'पीक') }}
+                            🌾 {{ record.crop_info.name if record.crop_info else (record.detected_crop or 'Crop') }}
                             {% if record.crop_info and record.crop_info.variety %}
                             <span class="text-muted fw-normal small">({{ record.crop_info.variety }})</span>
                             {% endif %}
@@ -418,10 +426,10 @@
                     </div>
                     <div class="text-end">
                         <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill mb-1" style="font-size: 0.85rem;">
-                            {{ record.predicted_yield_per_acre }} टन / एकर
+                            {{ record.predicted_yield_per_acre }} tonnes / acre
                         </span>
                         <div class="text-muted small fw-semibold">
-                            एकूण: <strong>{{ record.total_yield }}</strong> टन
+                            Total: <strong>{{ record.total_yield }}</strong> tonnes
                         </div>
                     </div>
                 </div>
@@ -429,10 +437,10 @@
             {% else %}
             <div class="text-center text-muted py-5 bg-white rounded-4 shadow-sm border border-light p-4">
                 <i class="bi bi-graph-up-arrow fs-1 text-success opacity-50 d-block mb-2"></i>
-                <h6 class="fw-bold text-dark" id="txtNoYieldTitle">कोणताही उत्पादन अंदाज नोंदवलेला नाही.</h6>
-                <p class="small text-muted mb-3" id="txtNoYieldSub">तुमच्या शेतासाठी अचूक उत्पादन अंदाज त्वरित मोजा.</p>
+                <h6 class="fw-bold text-dark" id="txtNoYieldTitle">No yield predictions recorded yet.</h6>
+                <p class="small text-muted mb-3" id="txtNoYieldSub">Calculate precision harvest yield for your farmland.</p>
                 <a href="{{ url_for('main.yield_prediction') }}" class="btn btn-sm btn-success rounded-pill px-4 fw-semibold" id="btnStartYieldCta">
-                    <i class="bi bi-calculator me-1"></i>उत्पादन मोजा
+                    <i class="bi bi-calculator me-1"></i>Calculate Yield
                 </a>
             </div>
             {% endif %}
@@ -486,7 +494,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'टन/एकर',
+                        label: 'Tonnes/Acre',
                         data: yieldData,
                         borderColor: '#2E7D32',
                         backgroundColor: gradient,
@@ -513,7 +521,7 @@
                             cornerRadius: 8,
                             callbacks: {
                                 label: function(context) {
-                                    return context.parsed.y + ' टन प्रति एकर';
+                                    return context.parsed.y + ' tonnes per acre';
                                 }
                             }
                         }
@@ -532,30 +540,8 @@
                 }
             });
         } else {
-            // Friendly Empty State Chart
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                    datasets: [{
-                        data: [2.5, 3.2, 2.8, 3.8],
-                        backgroundColor: '#e2e8f0',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'अद्याप नोंदी उपलब्ध नाहीत (Sample Timeline)', color: '#94a3b8' }
-                    },
-                    scales: {
-                        y: { display: false },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
+            const chartParent = document.getElementById('yieldChart').parentElement;
+            chartParent.innerHTML = '<div class="d-flex h-100 align-items-center justify-content-center text-muted small">No yield prediction data yet.</div>';
         }
     });
 
@@ -608,7 +594,8 @@
     };
 
     function applyHistoryLanguage(lang) {
-        const dict = historyTranslations[lang] || historyTranslations.mr;
+        if (window.googleTranslateActive) return;
+        const dict = historyTranslations[lang] || historyTranslations.en;
         const g = id => document.getElementById(id);
 
         if (g('txtHeroTitle')) g('txtHeroTitle').innerText = dict.heroTitle;
@@ -634,8 +621,9 @@
 
     // Auto-apply on load
     document.addEventListener('DOMContentLoaded', function() {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         applyHistoryLanguage(savedLang);
     });
+    window.addEventListener('pikdrishti_lang_changed', e => applyHistoryLanguage(e.detail));
 </script>
 {% endblock %}

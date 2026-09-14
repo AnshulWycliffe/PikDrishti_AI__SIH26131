@@ -3,64 +3,68 @@
 {% block extra_css %}
 <style>
     .yield-container {
-        max-width: 900px;
+        max-width: 600px;
         margin: 0 auto;
-        padding: 20px 16px 80px 16px;
+        padding: 12px 16px 85px;
     }
 
-    /* Hero Header */
-    .yield-hero-card {
-        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 65%, #388E3C 100%);
-        border-radius: 20px;
-        color: white;
-        padding: 22px 24px;
-        box-shadow: 0 10px 25px rgba(27, 94, 32, 0.22);
-        margin-bottom: 22px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .yield-hero-card::after {
-        content: '';
-        position: absolute;
-        right: -20px;
-        bottom: -30px;
-        width: 140px;
-        height: 140px;
-        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-
-    .hero-top-row {
+    .yield-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        margin-bottom: 16px;
     }
 
-    .hero-badge-pill {
-        display: inline-flex;
+    .yield-title-group {
+        display: flex;
         align-items: center;
-        gap: 6px;
-        background: rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(8px);
-        padding: 4px 12px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        margin-bottom: 8px;
+        gap: 10px;
     }
+
+    .yield-heading {
+        font-weight: 700;
+        font-size: 1.18rem;
+        color: #198754;
+        margin-bottom: 0;
+    }
+
+    .yield-stepper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 22px;
+        padding: 0 10px;
+    }
+
+    .yield-stepper .stepper-line,
+    .yield-stepper .stepper-progress {
+        position: absolute;
+        top: 16px;
+        left: 36px;
+        right: 36px;
+        height: 2px;
+    }
+
+    .yield-stepper .stepper-line { background: #E0E0E0; z-index: 1; }
+    .yield-stepper .stepper-progress { width: 0; background: #2E7D32; z-index: 2; }
+    .yield-stepper .step-item { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .yield-stepper .step-circle { width: 32px; height: 32px; border-radius: 50%; background: #FFFFFF; border: 2px solid #E0E0E0; color: #6C757D; font-weight: 700; font-size: .85rem; display: grid; place-items: center; }
+    .yield-stepper .step-item.active .step-circle { background: #2E7D32; border-color: #2E7D32; color: #FFFFFF; }
+    .yield-stepper .step-label { font-size: .74rem; font-weight: 600; color: #6C757D; }
+    .yield-stepper .step-item.active .step-label { color: #1E6B38; font-weight: 700; }
+
+    /* Hero Header */
+    .yield-farm-summary { color: #5F6B61; font-size: .78rem; margin-bottom: 14px; }
 
     /* Main Form Card */
     .glass-config-card {
         background: #ffffff;
-        border: 1px solid #eef2f5;
-        border-radius: 18px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        padding: 24px;
-        margin-bottom: 22px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        padding: 18px;
+        margin-bottom: 16px;
     }
 
     .section-title-tag {
@@ -74,10 +78,10 @@
     }
 
     .custom-select-box {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 16px;
+        background: #FFFFFF;
+        border: 1px solid #DEE2E6;
+        border-radius: 10px;
+        padding: 10px 14px;
         font-size: 0.95rem;
         font-weight: 500;
         color: #1e293b;
@@ -281,35 +285,66 @@
         border-color: #cbd5e1;
         box-shadow: 0 3px 10px rgba(0,0,0,0.04);
     }
+
+    /* Simple farmer-first yield layout */
+    .yield-container { max-width: 600px; padding: 12px 16px 86px; }
+    .yield-hero-card { background: #EAF7EE; color: #1B5E20; border: 1px solid #C8E6C9; border-radius: 18px; box-shadow: 0 4px 14px rgba(46,125,50,.06); padding: 18px; margin-bottom: 16px; }
+    .yield-hero-card::after, .hero-badge-pill { display: none; }
+    .yield-hero-card h3 { color: #1B5E20; font-size: 1.25rem; }
+    .yield-hero-card p { color: #4E6E58; }
+    .yield-hero-card .btn-outline-light { color: #1B5E20; border-color: #A5D6A7; }
+    .glass-config-card, .result-showcase-card { border-radius: 16px; box-shadow: 0 3px 14px rgba(0,0,0,.04); padding: 16px; margin-bottom: 16px; }
+    .section-title-tag { font-size: .9rem; margin-bottom: 9px; }
+    .custom-select-box { border-radius: 12px; min-height: 44px; padding: 10px 13px; font-size: .88rem; }
+    .severity-chips-grid { gap: 8px; }
+    .severity-card { border-radius: 12px; padding: 10px 7px; }
+    .sev-icon { font-size: 1.1rem; margin-bottom: 2px; }
+    .sev-title { font-size: .76rem; }
+    .sev-sub { font-size: .68rem; }
+    .glass-config-card .p-3.bg-light { display: none !important; }
+    .btn-calc-yield { border-radius: 12px; padding: 12px 20px; font-size: .95rem; box-shadow: 0 4px 12px rgba(46,125,50,.2); }
+    .result-showcase-card { border: 1px solid #C8E6C9; }
+    .result-showcase-card .loss-progress-wrap, .result-showcase-card .loss-progress-wrap + .d-flex { display: none; }
+    .result-showcase-card .kpi-stat-grid { gap: 8px; margin-bottom: 12px; }
+    .result-showcase-card .kpi-box { padding: 12px 8px; border-radius: 12px; }
+    .result-showcase-card .kpi-val { font-size: 1.45rem; }
+    .result-showcase-card .kpi-lbl { font-size: .68rem; }
+    .result-showcase-card #penaltyWarning { padding: 10px; margin-bottom: 10px !important; }
+    .past-pred-card { border-radius: 12px; padding: 12px 14px; box-shadow: none; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="yield-container">
 
-    <!-- 1. Hero Header -->
-    <div class="yield-hero-card">
-        <div class="hero-top-row">
-            <div>
-                <span class="hero-badge-pill">
-                    <i class="bi bi-cpu-fill"></i>
-                    <span id="txtAiModelBadge">ML Yield Estimator v2.0</span>
-                </span>
-                <h3 class="fw-bold mb-1" id="txtHeroTitle">पीक उत्पादन अंदाज (Yield Prediction)</h3>
-                <p class="mb-0 opacity-90 small" id="txtHeroSub">तुमच्या शेताचे क्षेत्र, पीक आणि रोग प्रादुर्भावानुसार संभाव्य उत्पादनाचा अचूक अंदाज घ्या.</p>
-            </div>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-semibold text-nowrap" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-                <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
-            </button>
+    <!-- 1. Scan-style Header -->
+    <div class="yield-header">
+        <div class="yield-title-group">
+            <a href="{{ url_for('main.dashboard') }}" class="back-btn" title="Back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="yield-heading" id="txtHeroTitle">Yield Prediction</h1>
         </div>
-
-        {% if primary_farm and primary_farm.area %}
-        <div class="mt-3 pt-3 border-top border-white border-opacity-25 d-flex align-items-center gap-3 flex-wrap small">
-            <div><i class="bi bi-geo-alt-fill me-1"></i><strong>{{ primary_farm.name or 'शेती' }}</strong> ({{ primary_farm.location or 'महाराष्ट्र' }})</div>
-            <div><i class="bi bi-rulers me-1"></i><strong>{{ primary_farm.area }}</strong> <span id="lblAcresText">एकर क्षेत्र</span></div>
-        </div>
-        {% endif %}
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
+        </button>
     </div>
+
+    <div class="yield-stepper">
+        <div class="stepper-line"></div>
+        <div class="stepper-progress"></div>
+        <div class="step-item active"><div class="step-circle">1</div><span class="step-label">Crop</span></div>
+        <div class="step-item"><div class="step-circle">2</div><span class="step-label">Impact</span></div>
+        <div class="step-item"><div class="step-circle">3</div><span class="step-label">Forecast</span></div>
+    </div>
+
+    {% if primary_farm and primary_farm.area %}
+    <div class="yield-farm-summary">
+        <i class="bi bi-geo-alt-fill me-1 text-success"></i><strong>{{ primary_farm.name or 'Farm' }}</strong>
+        <span>({{ primary_farm.location or 'Maharashtra' }})</span>
+        <span class="ms-2"><i class="bi bi-rulers me-1"></i><strong>{{ primary_farm.area }}</strong> <span id="lblAcresText">acres</span></span>
+    </div>
+    {% endif %}
 
     <!-- 2. Prediction Form -->
     <div class="glass-config-card">
@@ -319,21 +354,21 @@
             <div class="mb-4">
                 <label class="section-title-tag">
                     <i class="bi bi-flower1"></i>
-                    <span id="lblSelectCrop">पीक निवडा (Select Crop)</span>
+                    <span id="lblSelectCrop">Select Crop</span>
                 </label>
                 <select class="form-select custom-select-box" name="crop_id" id="cropSelect" required>
-                    <option value="" disabled selected id="optChooseCrop">शेतातील पीक निवडा...</option>
+                    <option value="" disabled selected id="optChooseCrop">Select a crop from your farm...</option>
                     {% for crop in crops %}
                         <option value="{{ crop.id }}" data-name="{{ crop.name }}" data-variety="{{ crop.variety }}">
-                            🌾 {{ crop.name }} (व्हरायटी: {{ crop.variety or 'हायब्रीड' }})
+                            🌾 {{ crop.name }}{% if crop.variety %} ({{ crop.variety }}){% endif %}
                         </option>
                     {% endfor %}
                 </select>
                 {% if not crops %}
                 <div class="alert alert-warning small py-2 px-3 mt-2 rounded-3">
                     <i class="bi bi-exclamation-circle me-1"></i>
-                    <span id="txtNoCropsNotice">प्रथम प्रोफाइल पृष्ठावर जाऊन पीक नोंदणी करा.</span>
-                    <a href="{{ url_for('main.farms') }}" class="fw-bold text-dark ms-1">नोंदणी करा &rarr;</a>
+                    <span id="txtNoCropsNotice">Add a crop from your profile before calculating yield.</span>
+                    <a href="{{ url_for('main.farms') }}" class="fw-bold text-dark ms-1">Add crop &rarr;</a>
                 </div>
                 {% endif %}
             </div>
@@ -342,13 +377,13 @@
             <div class="mb-4">
                 <label class="section-title-tag text-warning">
                     <i class="bi bi-shield-exclamation"></i>
-                    <span id="lblRecentScan">नुकतीच झालेली रोग तपासणी (Recent Disease Scan)</span>
+                    <span id="lblRecentScan">Recent Disease Scan</span>
                 </label>
                 <select class="form-select custom-select-box" name="disease_analysis_id" id="analysisSelect">
-                    <option value="" id="optHealthyScan">कोणताही रोग नाही / पीक निरोगी आहे (Healthy Crop)</option>
+                    <option value="" id="optHealthyScan">No disease / Healthy crop</option>
                     {% for analysis in recent_analyses %}
                         <option value="{{ analysis.id }}" data-severity="{{ analysis.severity or 'moderate' }}">
-                            📅 {{ analysis.date.strftime('%d %b %Y') }} &bull; {{ analysis.crop_display }} - {{ analysis.detected_disease }} ({{ analysis.severity or 'मध्यम' }})
+                            {{ analysis.date.strftime('%d %b %Y') }} &bull; {{ analysis.crop_display }} - {{ analysis.detected_disease }} ({{ analysis.severity or 'Moderate' }})
                         </option>
                     {% endfor %}
                 </select>
@@ -358,28 +393,28 @@
             <div class="mb-4">
                 <label class="section-title-tag text-muted">
                     <i class="bi bi-speedometer2"></i>
-                    <span id="lblSeverityTitle">रोगाची तीव्रता आणि संभाव्य घट (Disease Severity Impact)</span>
+                    <span id="lblSeverityTitle">Disease Severity Impact</span>
                 </label>
                 <div class="severity-chips-grid">
                     <div class="severity-card active sev-none" onclick="setSeverity('', this)">
                         <span class="sev-icon">🌿</span>
-                        <div class="sev-title" id="sevTitleNone">निरोगी</div>
-                        <div class="sev-sub" id="sevSubNone">0% नुकसान</div>
+                        <div class="sev-title" id="sevTitleNone">Healthy</div>
+                        <div class="sev-sub" id="sevSubNone">0% loss</div>
                     </div>
                     <div class="severity-card sev-mild" onclick="setSeverity('mild', this)">
                         <span class="sev-icon">🌱</span>
-                        <div class="sev-title" id="sevTitleMild">कमी प्रादुर्भाव</div>
-                        <div class="sev-sub" id="sevSubMild">-10% घट</div>
+                        <div class="sev-title" id="sevTitleMild">Mild</div>
+                        <div class="sev-sub" id="sevSubMild">-10% loss</div>
                     </div>
                     <div class="severity-card sev-mod" onclick="setSeverity('moderate', this)">
                         <span class="sev-icon">🟡</span>
-                        <div class="sev-title" id="sevTitleMod">मध्यम प्रादुर्भाव</div>
-                        <div class="sev-sub" id="sevSubMod">-30% घट</div>
+                        <div class="sev-title" id="sevTitleMod">Moderate</div>
+                        <div class="sev-sub" id="sevSubMod">-30% loss</div>
                     </div>
                     <div class="severity-card sev-sev" onclick="setSeverity('severe', this)">
                         <span class="sev-icon">🔴</span>
-                        <div class="sev-title" id="sevTitleSev">गंभीर प्रादुर्भाव</div>
-                        <div class="sev-sub" id="sevSubSev">-60% घट</div>
+                        <div class="sev-title" id="sevTitleSev">Severe</div>
+                        <div class="sev-sub" id="sevSubSev">-60% loss</div>
                     </div>
                 </div>
                 <input type="hidden" name="disease_severity" id="severityInput" value="">
@@ -389,7 +424,7 @@
             <div class="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2 small text-muted">
                     <i class="bi bi-info-circle-fill text-success"></i>
-                    <span id="txtSoilBadge">माती: <strong>काळी पोयटा (pH 6.5)</strong> &bull; हवामान निर्देशांक: <strong>अनुकूल</strong></span>
+                    <span id="txtSoilBadge">Soil: <strong>Clay Loam (pH 6.5)</strong> &bull; Weather Index: <strong>Optimal</strong></span>
                 </div>
                 <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">AI Optimized</span>
             </div>
@@ -397,7 +432,7 @@
             <!-- Submit Button -->
             <button type="submit" id="predictBtn" class="btn-calc-yield w-100">
                 <i class="bi bi-graph-up-arrow"></i>
-                <span id="btnText">उत्पादन मोजा (Calculate Yield)</span>
+                <span id="btnText">Calculate Yield</span>
                 <div id="btnSpinner" class="spinner-border spinner-border-sm text-white d-none" role="status"></div>
             </button>
         </form>
@@ -408,7 +443,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold text-success mb-0">
                 <i class="bi bi-check-circle-fill me-2"></i>
-                <span id="txtResultTitle">उत्पादन अंदाज विश्लेषण (Yield Forecast Report)</span>
+                <span id="txtResultTitle">Yield Forecast Report</span>
             </h5>
             <span class="badge bg-success rounded-pill px-3 py-1" id="txtAiVerified">AI Verified</span>
         </div>
@@ -417,31 +452,31 @@
         <div class="kpi-stat-grid">
             <div class="kpi-box highlight">
                 <div class="kpi-val text-success" id="yieldPerAcre">--</div>
-                <div class="kpi-lbl" id="lblPerAcre">टन / एकर (Per Acre)</div>
+                <div class="kpi-lbl" id="lblPerAcre">Tonnes / Acre</div>
             </div>
             <div class="kpi-box highlight">
                 <div class="kpi-val text-dark" id="totalYield">--</div>
-                <div class="kpi-lbl" id="lblTotalFarm">एकूण शेत उत्पादन (Total Tonnes)</div>
+                <div class="kpi-lbl" id="lblTotalFarm">Total Farm Production (Tonnes)</div>
             </div>
             <div class="kpi-box" id="impactKpiBox">
                 <div class="kpi-val text-muted" id="yieldLossStat">0%</div>
-                <div class="kpi-lbl" id="lblImpactStat">रोगामुळे घट (Yield Loss)</div>
+                <div class="kpi-lbl" id="lblImpactStat">Disease Loss Impact</div>
             </div>
         </div>
 
         <!-- Visual Harvest Potential vs Loss Bar -->
         <div class="mb-4">
             <div class="d-flex justify-content-between small fw-bold mb-1">
-                <span class="text-success"><i class="bi bi-check2-circle me-1"></i><span id="txtActualHarvest">संभाव्य काढणी (Projected Harvest)</span></span>
-                <span class="text-danger" id="txtLossLabel"><i class="bi bi-x-circle me-1"></i>नुकसान (Potential Loss): <span id="lossTonnesText">0 टन</span></span>
+                <span class="text-success"><i class="bi bi-check2-circle me-1"></i><span id="txtActualHarvest">Projected Harvest Yield</span></span>
+                <span class="text-danger" id="txtLossLabel"><i class="bi bi-x-circle me-1"></i>Potential Loss: <span id="lossTonnesText">0 tonnes</span></span>
             </div>
             <div class="loss-progress-wrap">
                 <div class="bar-achieved" id="progressAchieved" style="width: 100%;"></div>
                 <div class="bar-lost" id="progressLost" style="width: 0%;"></div>
             </div>
             <div class="d-flex justify-content-between text-muted" style="font-size: 0.72rem;">
-                <span id="lblBasePotential">मूळ क्षमता (Potential): <strong id="baseYieldVal">--</strong> टन/एकर</span>
-                <span id="lblNetRealized">अपेक्षित प्राप्ती: <strong id="netRealizedVal">100%</strong></span>
+                <span id="lblBasePotential">Base Potential: <strong id="baseYieldVal">--</strong> tonnes/acre</span>
+                <span id="lblNetRealized">Expected Realization: <strong id="netRealizedVal">100%</strong></span>
             </div>
         </div>
 
@@ -449,8 +484,8 @@
         <div id="penaltyWarning" class="alert alert-warning border-0 rounded-3 d-flex align-items-center gap-3 mb-3 d-none">
             <i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>
             <div>
-                <strong class="d-block text-dark" id="txtWarningTitle">रोगामुळे उत्पादनात घट संभाव्य आहे!</strong>
-                <span class="small text-muted" id="txtWarningDesc">तात्काळ योग्य कीटकनाशक / बुरशीनाशक फवारणी करून उर्वरित पीक वाचवा.</span>
+                <strong class="d-block text-dark" id="txtWarningTitle">Yield reduction projected due to disease outbreak!</strong>
+                <span class="small text-muted" id="txtWarningDesc">Apply recommended treatment immediately to safeguard remaining yield.</span>
             </div>
         </div>
 
@@ -458,11 +493,11 @@
         <div class="d-flex gap-2 flex-wrap">
             <a id="btnAskAiRecovery" href="{{ url_for('main.assistant') }}" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold small flex-fill text-center">
                 <i class="bi bi-chat-dots-fill me-1"></i>
-                <span id="txtAskAiRecovery">उत्पादन घट रोखण्यासाठी सल्ला विचारा (Ask AI)</span>
+                <span id="txtAskAiRecovery">Ask AI how to protect and recover yield</span>
             </a>
             <button type="button" onclick="window.print()" class="btn btn-light rounded-pill px-3 py-2 fw-semibold small text-muted">
                 <i class="bi bi-printer me-1"></i>
-                <span id="txtPrintReport">प्रिंट / सेव्ह</span>
+                <span id="txtPrintReport">Print / Save</span>
             </button>
         </div>
     </div>
@@ -472,13 +507,13 @@
     <div class="mt-4">
         <h6 class="fw-bold text-dark mb-3">
             <i class="bi bi-clock-history me-2 text-success"></i>
-            <span id="txtHistoryTitle">मागील उत्पादन अंदाज (Past Estimates)</span>
+            <span id="txtHistoryTitle">Past Yield Predictions</span>
         </h6>
         {% for p in past_predictions %}
         <div class="past-pred-card">
             <div>
                 <div class="fw-bold text-dark small">
-                    🌾 {{ p.crop_info.name if p.crop_info else 'पीक' }}
+                    🌾 {{ p.crop_info.name if p.crop_info else 'Crop' }}
                     {% if p.crop_info and p.crop_info.variety %}
                     <span class="text-muted fw-normal">({{ p.crop_info.variety }})</span>
                     {% endif %}
@@ -489,10 +524,10 @@
             </div>
             <div class="text-end">
                 <span class="badge bg-success-subtle text-success fw-bold px-2 py-1" style="font-size: 0.85rem;">
-                    {{ p.predicted_yield_per_acre }} टन/एकर
+                    {{ p.predicted_yield_per_acre }} tonnes/acre
                 </span>
                 <div class="text-muted" style="font-size: 0.72rem;">
-                    एकूण: <strong>{{ p.total_yield }}</strong> टन
+                    Total: <strong>{{ p.total_yield }}</strong> tonnes
                 </div>
             </div>
         </div>
@@ -548,7 +583,7 @@
         const btnSpinner = document.getElementById('btnSpinner');
         const btn = document.getElementById('predictBtn');
 
-        const currentLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const currentLang = localStorage.getItem('pikdrishti_lang') || 'en';
         btnText.innerText = currentLang === 'mr' ? 'अंदाज काढत आहे...' : 'Calculating...';
         btnSpinner.classList.remove('d-none');
         btn.disabled = true;
@@ -688,7 +723,8 @@
     };
 
     function applyYieldLanguage(lang) {
-        const dict = yieldTranslations[lang] || yieldTranslations.mr;
+        if (window.googleTranslateActive) return;
+        const dict = yieldTranslations[lang] || yieldTranslations.en;
         const g = id => document.getElementById(id);
 
         if (g('txtHeroTitle')) g('txtHeroTitle').innerText = dict.heroTitle;
@@ -726,8 +762,9 @@
 
     // Initialize saved language
     document.addEventListener('DOMContentLoaded', () => {
-        const savedLang = localStorage.getItem('pikdrishti_lang') || 'mr';
+        const savedLang = localStorage.getItem('pikdrishti_lang') || 'en';
         applyYieldLanguage(savedLang);
     });
+    window.addEventListener('pikdrishti_lang_changed', e => applyYieldLanguage(e.detail));
 </script>
 {% endblock %}

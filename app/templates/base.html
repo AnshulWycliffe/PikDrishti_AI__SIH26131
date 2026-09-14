@@ -32,6 +32,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.1.0/github-markdown.min.css">
 
+    <style>
+        iframe.goog-te-banner-frame,
+        .goog-te-banner-frame,
+        body > .skiptranslate,
+        body > .goog-te-spinner-pos,
+        .goog-te-ftab,
+        .goog-te-menu-frame { display: none !important; visibility: hidden !important; height: 0 !important; }
+        body { top: 0 !important; }
+        .goog-te-gadget { font-family: inherit !important; font-size: 0 !important; }
+        #google_translate_element, .goog-te-gadget, .goog-logo-link, .goog-te-gadget span, .goog-te-balloon-frame { display: none !important; }
+        .language-choice { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
+        .language-choice-copy strong { display: block; font-size: .95rem; color: #1B5E20; }
+        .language-choice-copy small { display: block; margin-top: 3px; color: #6C757D; font-size: .75rem; }
+        .language-choice-mark { width: 28px; height: 28px; border-radius: 50%; background: #E8F5E9; color: #2E7D32; display: grid; place-items: center; flex: 0 0 28px; }
+    </style>
+
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -72,6 +88,11 @@
                 <i class="bi bi-camera"></i>
                 <span id="navScanLabel">Scan</span>
             </a>
+            <a href="{{ url_for('main.crops') }}"
+                class="nav-item {% if request.endpoint == 'main.crops' %}active{% endif %}">
+                <i class="bi bi-flower1"></i>
+                <span id="navCropsLabel">Crops</span>
+            </a>
             <!-- Floating Center AI Button -->
             <a href="{{ url_for('main.assistant') }}"
                 class="nav-item nav-item-floating {% if request.endpoint == 'main.assistant' %}active{% endif %}">
@@ -86,8 +107,13 @@
                 <i class="bi bi-graph-up-arrow"></i>
                 <span id="navYieldLabel">Yield</span>
             </a>
+            <a href="{{ url_for('main.history') }}"
+                class="nav-item {% if request.endpoint == 'main.history' %}active{% endif %}">
+                <i class="bi bi-clock-history"></i>
+                <span id="navHistoryLabel">History</span>
+            </a>
             <a href="{{ url_for('main.farms') }}"
-                class="nav-item {% if request.endpoint == 'main.farms' or request.endpoint == 'main.crops' %}active{% endif %}">
+                class="nav-item {% if request.endpoint == 'main.farms' %}active{% endif %}">
                 <i class="bi bi-person"></i>
                 <span id="navProfileLabel">Profile</span>
             </a>
@@ -95,31 +121,28 @@
         {% endif %}
     </div>
 
-    <!-- Global Language Modal (Marathi & English Only) -->
+    <!-- Global application language chooser -->
     <div class="modal fade" id="globalLangModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-translate me-2"></i>Select Language / भाषा निवडा</h5>
+                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-translate me-2"></i>Select language</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex flex-column gap-2">
-                        <button type="button" id="globalBtnLangMr" class="btn btn-outline-success text-start p-3 rounded-3 d-flex justify-content-between align-items-center" onclick="setAppGlobalLanguage('mr')">
-                            <div>
-                                <div class="fw-bold">मराठी (Marathi)</div>
-                                <small class="text-muted">महाराष्ट्र शासन व भाषिणी AI</small>
-                            </div>
-                            <i class="bi bi-check-circle-fill text-success fs-5 check-icon-mr"></i>
+                    <p class="text-muted small mb-3">Choose your preferred language. The page will update automatically.</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-success p-3 rounded-3 language-choice" onclick="setAppGlobalLanguage('en'); closeGlobalLanguageModal();">
+                            <span class="language-choice-copy"><strong>English</strong><small>Original page language</small></span><span class="language-choice-mark"><i class="bi bi-check2"></i></span>
                         </button>
-                        <button type="button" id="globalBtnLangEn" class="btn btn-outline-secondary text-start p-3 rounded-3 d-flex justify-content-between align-items-center" onclick="setAppGlobalLanguage('en')">
-                            <div>
-                                <div class="fw-bold">English</div>
-                                <small class="text-muted">Precision AI Assistant</small>
-                            </div>
-                            <i class="bi bi-check-circle-fill text-success fs-5 check-icon-en d-none"></i>
+                        <button type="button" class="btn btn-outline-success p-3 rounded-3 language-choice" onclick="setAppGlobalLanguage('mr'); closeGlobalLanguageModal();">
+                            <span class="language-choice-copy"><strong>मराठी</strong><small>Marathi language</small></span><span class="language-choice-mark"><i class="bi bi-check2"></i></span>
+                        </button>
+                        <button type="button" class="btn btn-outline-success p-3 rounded-3 language-choice" onclick="setAppGlobalLanguage('hi'); closeGlobalLanguageModal();">
+                            <span class="language-choice-copy"><strong>हिंदी</strong><small>Hindi language</small></span><span class="language-choice-mark"><i class="bi bi-check2"></i></span>
                         </button>
                     </div>
+                    <div id="google_translate_element" aria-hidden="true"></div>
                 </div>
             </div>
         </div>
@@ -131,8 +154,47 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'mr,hi',
+                autoDisplay: false,
+                multilanguagePage: true
+            }, 'google_translate_element');
+        }
+
+        function setGoogleTranslateLanguage(language, attempts) {
+            const select = document.querySelector('.goog-te-combo');
+            if (select) {
+                select.value = language;
+                select.dispatchEvent(new Event('change'));
+                return true;
+            }
+            if ((attempts || 0) < 10) {
+                window.setTimeout(() => setGoogleTranslateLanguage(language, (attempts || 0) + 1), 300);
+            }
+            return false;
+        }
+
+        function closeGlobalLanguageModal() {
+            const modalEl = document.getElementById('globalLangModal');
+            if (!modalEl || typeof bootstrap === 'undefined') return;
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <!-- PWA Service Worker Registration & Global Language Sync -->
     <script>
+        window.googleTranslateActive = true;
+
+        function clearGoogleTranslation() {
+            document.cookie = 'googtrans=/en/en; path=/';
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").then(function (registration) {
@@ -143,22 +205,31 @@
             });
         }
 
+        window.addEventListener('load', function () {
+            const savedLanguage = localStorage.getItem('pikdrishti_lang') || 'en';
+            if (savedLanguage !== 'en') {
+                setGoogleTranslateLanguage(savedLanguage);
+            }
+        });
+
         function setAppGlobalLanguage(lang) {
             localStorage.setItem('pikdrishti_lang', lang);
+
+            // English is the original UI; clear any translated DOM by reloading it.
+            if (lang === 'en') {
+                clearGoogleTranslation();
+                window.location.reload();
+                return;
+            }
+
+            window.dispatchEvent(new CustomEvent('pikdrishti_lang_changed', { detail: lang }));
             updateGlobalLangBadges(lang);
+            setGoogleTranslateLanguage(lang);
             const modalEl = document.getElementById('globalLangModal');
             if (modalEl) {
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
             }
-            if (typeof applyDashboardLanguage === 'function') applyDashboardLanguage(lang);
-            if (typeof applyProfileLanguage === 'function') applyProfileLanguage(lang);
-            if (typeof applyAssistantLanguage === 'function') applyAssistantLanguage(lang);
-            if (typeof applyScanLanguage === 'function') applyScanLanguage(lang);
-            if (typeof selectAppLang === 'function') selectAppLang(lang);
-            if (typeof applyResultLanguage === 'function') applyResultLanguage(lang);
-            if (typeof applyYieldLanguage === 'function') applyYieldLanguage(lang);
-            if (typeof applyHistoryLanguage === 'function') applyHistoryLanguage(lang);
         }
 
         function updateGlobalLangBadges(lang) {
@@ -167,19 +238,21 @@
 
             // Translate bottom navigation labels
             const navLabels = {
-                mr: { home: "मुख्य", scan: "स्कॅन", ai: "AI", yield: "उत्पादन", profile: "प्रोफाइल" },
-                en: { home: "Home", scan: "Scan", ai: "AI", yield: "Yield", profile: "Profile" }
+                mr: { home: "मुख्य", scan: "स्कॅन", crops: "पिके", ai: "AI", yield: "उत्पादन", history: "इतिहास", profile: "प्रोफाइल" },
+                en: { home: "Home", scan: "Scan", crops: "Crops", ai: "AI", yield: "Yield", history: "History", profile: "Profile" }
             };
             const nl = navLabels[lang] || navLabels.mr;
             const elHome = document.getElementById('navHomeLabel'); if (elHome) elHome.innerText = nl.home;
             const elScan = document.getElementById('navScanLabel'); if (elScan) elScan.innerText = nl.scan;
+            const elCrops = document.getElementById('navCropsLabel'); if (elCrops) elCrops.innerText = nl.crops;
             const elAi = document.getElementById('navAiLabel'); if (elAi) elAi.innerText = nl.ai;
             const elYield = document.getElementById('navYieldLabel'); if (elYield) elYield.innerText = nl.yield;
+            const elHistory = document.getElementById('navHistoryLabel'); if (elHistory) elHistory.innerText = nl.history;
             const elProfile = document.getElementById('navProfileLabel'); if (elProfile) elProfile.innerText = nl.profile;
 
             const topLabels = document.querySelectorAll('#topLangLabel, #currentLangLabel, .top-lang-label');
             topLabels.forEach(el => {
-                el.innerText = lang === 'mr' ? 'मराठी' : 'EN';
+                el.innerText = lang === 'mr' ? 'मराठी' : (lang === 'hi' ? 'हिंदी' : 'EN');
             });
 
             const checkMr = document.querySelectorAll('.check-icon-mr');
@@ -201,8 +274,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const lang = localStorage.getItem('pikdrishti_lang') || 'mr';
+            const lang = localStorage.getItem('pikdrishti_lang') || 'en';
             updateGlobalLangBadges(lang);
+            window.dispatchEvent(new CustomEvent('pikdrishti_lang_changed', { detail: lang }));
         });
     </script>
 
