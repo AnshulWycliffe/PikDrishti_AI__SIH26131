@@ -1,64 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="d-flex justify-content-end mb-2" style="max-width: 420px; margin: 0 auto; width: 100%;">
+<div class="auth-wrapper register-auth-wrapper">
+    <div class="auth-language-row">
         <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white shadow-sm" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
         </button>
     </div>
-    <div class="card auth-card shadow-sm">
+    <div class="card auth-card">
         <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 56px; height: 56px; border-radius: 14px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(46,125,50,0.25);" alt="PikDrishti AI">
-            <h2 class="fw-bold mb-1">Create Account</h2>
-            <p class="text-muted small">Join PikDrishti AI today</p>
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="auth-brand-mark" alt="PikDrishti AI">
+            <h2 class="fw-bold auth-title mb-1">Create Account</h2>
+            <p class="auth-subtitle small">Set up your farmer profile</p>
         </div>
 
         <form method="POST" action="">
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                <label class="auth-field-label">Username</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-person"></i></span>
                     <input type="text" name="username" class="form-control border-start-0 ps-0" required
                         placeholder="farmer123">
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Email Address</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i
-                            class="bi bi-envelope text-muted"></i></span>
+                <label class="auth-field-label">Email Address</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-envelope"></i></span>
                     <input type="email" name="email" class="form-control border-start-0 ps-0" required
                         placeholder="farmer@example.com">
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Phone Number</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i
-                            class="bi bi-telephone text-muted"></i></span>
+                <label class="auth-field-label">Phone Number</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-telephone"></i></span>
                     <input type="tel" name="phone" class="form-control border-start-0 ps-0" required
                         placeholder="+91 9876543210" pattern="[\+]?[0-9\s\-\(\)]+">
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="form-label text-muted small fw-bold">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                <label class="auth-field-label">Password</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-lock"></i></span>
                     <input type="password" name="password" class="form-control border-start-0 ps-0" required
                         placeholder="••••••••">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 btn-lg rounded-pill mb-3">Register</button>
+            <button type="submit" class="btn auth-submit text-white w-100 btn-lg rounded-pill mb-3">Create Account</button>
         </form>
 
         <div class="text-center mt-3">
             <span class="text-muted small">Already have an account? </span>
-            <a href="{{ url_for('auth.login') }}" class="text-success text-decoration-none fw-bold small">Log In</a>
+            <a href="{{ url_for('auth.login') }}" class="auth-footer-link text-decoration-none small">Log In</a>
         </div>
     </div>
 </div>

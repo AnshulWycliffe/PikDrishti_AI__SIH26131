@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .admin-shell { max-width: 900px; margin: 0 auto; padding: 20px 16px calc(90px + env(safe-area-inset-bottom)); }
+    .admin-topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0 14px; }
+    .admin-brand { display:flex; align-items:center; gap:8px; min-width:0; text-decoration:none; }
+    .admin-brand-logo { width:36px; height:36px; border-radius:10px; object-fit:cover; box-shadow:0 4px 10px rgba(46,125,50,.25); flex:0 0 36px; }
+    .admin-brand-name { color:#1B5E20; font-size:1.18rem; font-weight:800; letter-spacing:-.3px; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .admin-header-actions { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+    .admin-profile-link { width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:#E8F5E9; border:1px solid #C8E6C9; color:#1B5E20; font-weight:800; text-decoration:none; }
+    .admin-profile-link:hover { background:#C8E6C9; color:#1B5E20; }
+    .gov-view-link { color:#1B5E20; background:#E8F5E9; border:1px solid #C8E6C9; border-radius:999px; padding:7px 11px; font-size:.7rem; font-weight:800; text-decoration:none; white-space:nowrap; }
+    .gov-view-link:hover { color:#1B5E20; background:#C8E6C9; }
+    .admin-header { margin-bottom:20px; }
+    .admin-title { color:#1B5E20; font-size:1.35rem; font-weight:800; margin:0; }
+    .admin-subtitle { color:#6C757D; font-size:.8rem; margin:4px 0 0; }
+    .case-card { display:flex; gap:14px; align-items:center; padding:14px; margin-bottom:10px; border:1px solid #E3EDE4; border-radius:14px; background:#FFF; text-decoration:none; color:inherit; }
+    .case-card:hover { border-color:#81C784; color:inherit; background:#F8FBF8; }
+    .case-icon { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:#E8F5E9; color:#2E7D32; flex:0 0 42px; }
+    .case-main { flex:1; min-width:0; }
+    .case-name { font-weight:800; color:#26352A; font-size:.9rem; overflow-wrap:anywhere; }
+    .case-meta { color:#6C757D; font-size:.74rem; margin-top:3px; overflow-wrap:anywhere; }
+    .queue-card { background:#FFF; border:1px solid #E3EDE4; border-radius:14px; padding:14px; margin-bottom:20px; }
+    .queue-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid #F0F3F1; text-decoration:none; color:inherit; }
+    .queue-row:first-child { border-top:0; }
+    .queue-row:hover { color:inherit; background:#F8FBF8; }
+    .queue-main { flex:1; min-width:0; }
+    .queue-title { color:#26352A; font-size:.8rem; font-weight:800; overflow-wrap:anywhere; }
+    .queue-meta { color:#6C757D; font-size:.7rem; margin-top:2px; overflow-wrap:anywhere; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; margin-bottom:20px; }
+    .kpi-card { background:#FFF; border:1px solid #E3EDE4; border-radius:14px; padding:13px 10px; min-width:0; }
+    .kpi-value { color:#1B5E20; font-size:1.35rem; font-weight:800; line-height:1; }
+    .kpi-label { color:#6C757D; font-size:.68rem; font-weight:700; line-height:1.2; margin-top:7px; }
+    .kpi-card.warning .kpi-value { color:#C77700; }
+    .kpi-card.danger .kpi-value { color:#C62828; }
+    @media (max-width: 700px) { .kpi-grid { grid-template-columns:repeat(3, 1fr); } }
+    @media (max-width: 420px) { .kpi-grid { grid-template-columns:repeat(2, 1fr); } }
+    .admin-bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 70px;
+        display: flex;
+        justify-content: space-around;
+        gap: 4px;
+        align-items: center;
+        background: rgba(255,255,255,.94);
+        border-top: 1px solid rgba(0,0,0,.06);
+        box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+        z-index: 1000;
+        padding: 4px 8px env(safe-area-inset-bottom);
+        box-sizing: border-box;
+    }
+    .admin-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; color:#6C757D; text-decoration:none; font-size:.72rem; font-weight:700; padding:7px 4px; border-radius:14px; text-align:center; }
+    .admin-nav-item:hover, .admin-nav-item.active { color:#2E7D32; background:#F1F8F2; }
+    .admin-nav-item i { font-size:1.25rem; }
+    @media (max-width: 560px) {
+        .admin-topbar { align-items:center; }
+        .admin-header-actions .btn { padding-left:10px !important; padding-right:10px !important; }
+        .admin-title { font-size:1.2rem; }
+        .kpi-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; }
+        .kpi-card { padding:12px; }
+    }
+    @media (max-width: 360px) {
+        .admin-shell { padding-left:12px; padding-right:12px; }
+        .admin-nav-item { font-size:.66rem; }
+        .admin-nav-item i { font-size:1.1rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+    <div class="admin-header">
+        <div class="admin-topbar">
+            <a href="{{ url_for('main.admin_dashboard') }}" class="admin-brand">
+                <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="admin-brand-logo" alt="PikDrishti AI">
+                <span class="admin-brand-name">PikDrishti AI</span>
+            </a>
+            <div class="admin-header-actions">
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+                <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
+            </button>
+                <a href="{{ url_for('main.government_dashboard') }}" class="gov-view-link"><i class="bi bi-bar-chart-steps me-1"></i>Government</a>
+                <a href="{{ url_for('main.admin_profile') }}" class="admin-profile-link" title="Officer profile" aria-label="Officer profile">A</a>
+            </div>
+        </div>
+        <h1 class="admin-title">Extension Worker Case Portal</h1>
+        <p class="admin-subtitle">Review disease analyses and coordinate farmer follow-up.</p>
+    </div>
+    <div class="kpi-grid" aria-label="Case workflow metrics">
+        <div class="kpi-card"><div class="kpi-value">{{ total_cases }}</div><div class="kpi-label">Total Cases</div></div>
+        <div class="kpi-card warning"><div class="kpi-value">{{ pending_reviews }}</div><div class="kpi-label">Pending Review</div></div>
+        <div class="kpi-card"><div class="kpi-value">{{ confirmed_cases }}</div><div class="kpi-label">Confirmed</div></div>
+        <div class="kpi-card danger"><div class="kpi-value">{{ lab_referrals }}</div><div class="kpi-label">Lab Referrals</div></div>
+        <div class="kpi-card warning"><div class="kpi-value">{{ active_follow_ups }}</div><div class="kpi-label">Active Follow-ups</div></div>
+    </div>
+    <div class="queue-card">
+        <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h6 fw-bold mb-0">Active follow-ups</h2><span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">{{ active_follow_ups }}</span></div>
+        {% if follow_up_queue %}
+            {% for follow_up in follow_up_queue %}
+            <a class="queue-row" href="{{ url_for('main.admin_case_detail', analysis_id=follow_up.review.analysis_id) }}">
+                <i class="bi bi-clipboard2-check text-success"></i>
+                <span class="queue-main"><span class="queue-title">{{ follow_up.review.analysis.crop_display }} · {{ follow_up.review.analysis.detected_disease or 'Case' }}</span><span class="queue-meta">{{ follow_up.status|replace('_', ' ')|title }} · {{ follow_up.priority|title }}{% if follow_up.due_date %} · Due {{ follow_up.due_date.strftime('%d %b %Y') }}{% endif %}</span></span>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted small mb-0">No active follow-up plans.</p>
+        {% endif %}
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h6 fw-bold mb-0">Recent cases</h2><span class="badge bg-success-subtle text-success rounded-pill">{{ cases|length }}</span></div>
+    {% if cases %}
+        {% for case in cases %}
+        <a href="{{ url_for('main.admin_case_detail', analysis_id=case.id) }}" class="case-card">
+            <div class="case-icon"><i class="bi bi-camera-fill"></i></div>
+            <div class="case-main"><div class="case-name">{{ case.crop_display }} · {{ case.detected_disease or 'Unclassified condition' }}</div><div class="case-meta">Confidence {{ ((case.confidence or 0) * 100)|round(0)|int }}% · Severity {{ case.severity or 'Unclassified' }} · {{ case.date.strftime('%d %b %Y') if case.date else 'Unknown date' }}</div></div>
+            <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-4 border"><i class="bi bi-inbox fs-1 text-success opacity-50"></i><p class="text-muted small mt-2 mb-0">No disease cases have been submitted yet.</p></div>
+    {% endif %}
+</div>
+<nav class="admin-bottom-nav" aria-label="Extension worker navigation">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="admin-nav-item active">
+        <i class="bi bi-grid-1x2-fill"></i><span>Cases</span>
+    </a>
+    <a href="{{ url_for('main.dashboard') }}" class="admin-nav-item">
+        <i class="bi bi-house-door"></i><span>Farmer App</span>
+    </a>
+    <a href="{{ url_for('main.admin_profile') }}" class="admin-nav-item">
+        <i class="bi bi-person-circle"></i><span>Profile</span>
+    </a>
+    <a href="{{ url_for('main.admin_logout') }}" class="admin-nav-item">
+        <i class="bi bi-box-arrow-right"></i><span>Log out</span>
+    </a>
+</nav>
+{% endblock %}

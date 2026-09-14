@@ -389,33 +389,60 @@
 
 <!-- Add Crop Modal -->
 <div class="modal fade" id="addCropModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header-green d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-plus-circle-fill me-2"></i>Add New Crop</h5>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-flower1 me-2"></i>My Crops</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
+            <div class="modal-body">
+                {% if crops and crops|length > 0 %}
+                <div class="d-flex flex-column gap-2 mb-3">
+                    {% for crop in crops %}
+                    <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-success">{{ crop.name }}</h6>
+                            <p class="small text-muted mb-0">Variety: {{ crop.variety or 'Standard' }}</p>
+                        </div>
+                        <span class="badge bg-success-subtle text-success rounded-pill">Active</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <h6 class="fw-bold mt-2 mb-2 text-dark">+ Add New Crop</h6>
                 <form id="addCropForm">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Crop Name</label>
-                        <input type="text" class="form-control" name="name" required placeholder="e.g. Tomato, Wheat, Onion">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Variety <span class="fw-normal text-muted">(optional)</span></label>
-                        <input type="text" class="form-control" name="variety" placeholder="e.g. Roma, HD-2967">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted">Farm</label>
-                        <select class="form-select" name="farm_id" required>
-                            <option value="" disabled selected>Select your farm…</option>
-                            {% for farm in farms %}
-                                <option value="{{ farm.id }}">{{ farm.name }}</option>
-                            {% endfor %}
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Crop Name *</label>
+                        <select class="form-select" name="name" required>
+                            <option value="Cotton">Cotton</option>
+                            <option value="Soybean">Soybean</option>
+                            <option value="Tomato">Tomato</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Pepper">Pepper</option>
+                            <option value="Tur">Tur / Pigeon Pea</option>
+                            <option value="Sugarcane">Sugarcane</option>
+                            <option value="Onion">Onion</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-submit-modal btn-green-grad">
-                        <i class="bi bi-check-lg me-1"></i> Save Crop
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted">Variety</label>
+                        <input type="text" class="form-control" name="variety" placeholder="e.g. BT Cotton / local variety">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Assign to Farm</label>
+                        <select class="form-select" name="farm_id" required>
+                            {% if farms and farms|length > 0 %}
+                                {% for farm in farms %}
+                                <option value="{{ farm.id }}">{{ farm.name }} ({{ farm.location or 'Maharashtra' }})</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="1">Default Farm</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold" id="btnSaveCrop">
+                        <i class="bi bi-check-lg me-1"></i> Register Crop
                     </button>
                 </form>
             </div>

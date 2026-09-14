@@ -126,7 +126,7 @@ Protected officer routes provide a first operational review workflow:
 - `/admin/cases/<id>` presents the submitted evidence and IPM action plan.
 - `/admin/cases/<id>/review` persists an official decision in `CaseReview`.
 
-Review decisions currently include `under_review`, `confirmed`, `uncertain`, `lab_referral`, and `rejected`. Each review can store the confirmed disease and officer notes. This creates a durable validation point that can later support follow-up assignments, laboratory results, and model-feedback datasets.
+Review decisions currently include `under_review`, `confirmed`, `uncertain`, `lab_referral`, and `rejected`. Each review can store the confirmed disease and officer notes. Laboratory referrals additionally store the laboratory name, sample ID, referral notes, referral timestamp, and returned result. This creates a durable validation point that can support follow-up assignments and model-feedback datasets.
 
 ```mermaid
 sequenceDiagram

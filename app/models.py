@@ -127,3 +127,41 @@ class PestTrap(db.Model):
     
     crop_id = db.Column(db.Integer, db.ForeignKey('crop.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
+class CaseReview(db.Model):
+    """Extension-worker decision attached to a disease analysis."""
+    id = db.Column(db.Integer, primary_key=True)
+    analysis_id = db.Column(db.Integer, db.ForeignKey('disease_analysis.id'), nullable=False, unique=True)
+    status = db.Column(db.String(30), nullable=False, default='under_review')
+    decision = db.Column(db.String(30), nullable=False, default='under_review')
+    confirmed_disease = db.Column(db.String(100))
+    notes = db.Column(db.Text)
+    expert_advisory = db.Column(db.Text)
+    lab_name = db.Column(db.String(150))
+    lab_sample_id = db.Column(db.String(100))
+    lab_notes = db.Column(db.Text)
+    lab_result = db.Column(db.Text)
+    lab_referred_at = db.Column(db.DateTime)
+    reviewed_by = db.Column(db.String(100))
+    reviewed_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    analysis = db.relationship('DiseaseAnalysis', backref=db.backref('case_review', uselist=False))
+
+
+class CaseFollowUp(db.Model):
+    """Current field follow-up plan for an extension-reviewed case."""
+    id = db.Column(db.Integer, primary_key=True)
+    analysis_id = db.Column(db.Integer, db.ForeignKey('disease_analysis.id'), nullable=False)
+    review_id = db.Column(db.Integer, db.ForeignKey('case_review.id'), nullable=False, unique=True)
+    assigned_to = db.Column(db.String(100), nullable=False, default='admin')
+    priority = db.Column(db.String(20), default='moderate')
+    status = db.Column(db.String(20), default='pending')
+    action = db.Column(db.Text, nullable=False, default='')
+    due_date = db.Column(db.Date)
+    next_action = db.Column(db.Text)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    review = db.relationship('CaseReview', backref=db.backref('follow_up', uselist=False))

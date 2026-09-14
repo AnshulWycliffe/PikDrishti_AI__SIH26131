@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from . import db
-from .models import Farm, Crop, DiseaseAnalysis,YieldPrediction, PestTrap, Conversation, ChatMessage, User
+from .models import Farm, Crop, DiseaseAnalysis,YieldPrediction, PestTrap, Conversation, ChatMessage, User, CaseReview, CaseFollowUp
 from .services.weather_service import WeatherService, MAHARASHTRA_HOTSPOT_CLUSTERS
 from .services.news_service import NewsService
 from .services.ipm_service import IPMService
@@ -44,6 +44,211 @@ def admin_login():
 def admin_logout():
     session.pop('is_admin', None)
     return redirect(url_for('main.admin_login'))
+
+
+@main_bp.route('/admin/profile')
+@admin_required
+def admin_profile():
+    return render_template('admin/profile.html', officer_name=ADMIN_USER)
+
+
+@main_bp.route('/government')
+@admin_required
+def government_dashboard():
+    """Demonstration dashboard for government surveillance and planning."""
+    government_metrics = {
+        'total_reports': '12,486',
+        'high_risk_cases': '1,243',
+        'farmers_reached': '8,752',
+        'active_workers': '326',
+        'active_hotspots': 12,
+        'open_follow_ups': 37,
+        'overdue_follow_ups': 9,
+        'coverage': 78,
+        'cases_this_month': 248,
+        'response_time': '6.4h',
+        'crop_loss_avoided': '18.4%',
+        'targeted_interventions': 64,
+    }
+    government_hotspots = [
+        {
+            'district': 'Nashik', 'cluster': 'Niphad tomato belt',
+            'lat': 20.0768, 'lon': 74.1082, 'risk': 'High', 'score': 88,
+            'threat': 'Late blight', 'cases': 42, 'trend': '+18%', 'color': '#D94841',
+        },
+        {
+            'district': 'Pune', 'cluster': 'Baramati vegetable zone',
+            'lat': 18.1517, 'lon': 74.5772, 'risk': 'High', 'score': 81,
+            'threat': 'Bacterial spot', 'cases': 31, 'trend': '+11%', 'color': '#D94841',
+        },
+        {
+            'district': 'Kolhapur', 'cluster': 'Sugarcane fringe farms',
+            'lat': 16.7050, 'lon': 74.2433, 'risk': 'Moderate', 'score': 59,
+            'threat': 'Leaf blight', 'cases': 24, 'trend': '+4%', 'color': '#E09F3E',
+        },
+        {
+            'district': 'Nagpur', 'cluster': 'Central orange belt',
+            'lat': 21.1458, 'lon': 79.0882, 'risk': 'Moderate', 'score': 52,
+            'threat': 'Mite pressure', 'cases': 18, 'trend': '-3%', 'color': '#E09F3E',
+        },
+        {
+            'district': 'Satara', 'cluster': 'Karad horticulture zone',
+            'lat': 17.2885, 'lon': 74.1813, 'risk': 'Low', 'score': 31,
+            'threat': 'Early blight', 'cases': 9, 'trend': '-8%', 'color': '#3B8C6E',
+        },
+        {
+            'district': 'Jalgaon', 'cluster': 'Banana production belt',
+            'lat': 21.0077, 'lon': 75.5626, 'risk': 'Low', 'score': 26,
+            'threat': 'Nutrient stress', 'cases': 7, 'trend': 'Stable', 'color': '#3B8C6E',
+        },
+    ]
+    government_follow_ups = [
+        {'case': 'Nashik-2408', 'district': 'Nashik', 'action': 'Collect lab sample', 'owner': 'A. Patil', 'due': 'Today', 'status': 'Urgent'},
+        {'case': 'PUN-1182', 'district': 'Pune', 'action': 'Verify treatment response', 'owner': 'S. Jadhav', 'due': 'Tomorrow', 'status': 'On track'},
+        {'case': 'KOL-0934', 'district': 'Kolhapur', 'action': 'Visit affected block', 'owner': 'R. More', 'due': '18 Sep', 'status': 'On track'},
+        {'case': 'NAG-0711', 'district': 'Nagpur', 'action': 'Review farmer images', 'owner': 'M. Wagh', 'due': '20 Sep', 'status': 'Waiting'},
+    ]
+    outcome_series = [
+        {'label': 'Jan', 'detections': 42, 'resolved': 29},
+        {'label': 'Feb', 'detections': 55, 'resolved': 38},
+        {'label': 'Mar', 'detections': 63, 'resolved': 47},
+        {'label': 'Apr', 'detections': 71, 'resolved': 58},
+        {'label': 'May', 'detections': 84, 'resolved': 70},
+        {'label': 'Jun', 'detections': 96, 'resolved': 82},
+    ]
+    risk_distribution = [
+        {'label': 'Nashik', 'score': 88, 'risk': 'High', 'color': '#d94841'},
+        {'label': 'Pune', 'score': 81, 'risk': 'High', 'color': '#d94841'},
+        {'label': 'Kolhapur', 'score': 59, 'risk': 'Moderate', 'color': '#e09f3e'},
+        {'label': 'Nagpur', 'score': 52, 'risk': 'Moderate', 'color': '#e09f3e'},
+        {'label': 'Satara', 'score': 31, 'risk': 'Low', 'color': '#3b8c6e'},
+    ]
+    disease_mix = [
+        {'label': 'Late blight', 'value': 34, 'color': '#d94841'},
+        {'label': 'Bacterial spot', 'value': 26, 'color': '#e09f3e'},
+        {'label': 'Leaf blight', 'value': 18, 'color': '#3b8c6e'},
+        {'label': 'Mite pressure', 'value': 13, 'color': '#6c8cba'},
+        {'label': 'Other conditions', 'value': 9, 'color': '#b6c3bb'},
+    ]
+    government_reports = [
+        {'crop': 'Tomato', 'disease': 'Early Blight', 'district': 'Nashik District', 'time': '2 hours ago', 'risk': 'High Risk', 'color': '#d94841'},
+        {'crop': 'Cotton', 'disease': 'Leaf Spot', 'district': 'Jalgaon District', 'time': '5 hours ago', 'risk': 'Medium', 'color': '#e09f3e'},
+        {'crop': 'Maize', 'disease': 'Fall Armyworm', 'district': 'Akola District', 'time': '1 day ago', 'risk': 'High Risk', 'color': '#d94841'},
+        {'crop': 'Soybean', 'disease': 'Rust', 'district': 'Latur District', 'time': '1 day ago', 'risk': 'Low Risk', 'color': '#3b8c6e'},
+        {'crop': 'Onion', 'disease': 'Thrips', 'district': 'Solapur District', 'time': '2 days ago', 'risk': 'Medium', 'color': '#e09f3e'},
+    ]
+    government_advisories = [
+        {'title': 'Manage Early Blight in Tomato', 'date': 'Issued on 14 Sep 2026', 'tone': 'green'},
+        {'title': 'Prevent Fall Armyworm in Maize', 'date': 'Issued on 12 Sep 2026', 'tone': 'amber'},
+        {'title': 'Control Sucking Pests in Cotton', 'date': 'Issued on 10 Sep 2026', 'tone': 'green'},
+    ]
+    government_announcements = [
+        {'tag': 'New', 'title': 'Monsoon Disease - Surveillance Drive 2026', 'detail': 'Special campaign from 1st Sep to 30th Oct 2026'},
+        {'tag': 'Update', 'title': 'New District Data Integrated', 'detail': 'Wardha and Gadchiroli districts now live'},
+        {'tag': 'Notice', 'title': 'Training Program for Extension Workers', 'detail': 'Scheduled from 20th to 25th Sep 2026'},
+    ]
+    return render_template(
+        'government/dashboard.html',
+        government_metrics=government_metrics,
+        government_hotspots=government_hotspots,
+        government_follow_ups=government_follow_ups,
+        outcome_series=outcome_series,
+        risk_distribution=risk_distribution,
+        disease_mix=disease_mix,
+        government_reports=government_reports,
+        government_advisories=government_advisories,
+        government_announcements=government_announcements,
+    )
+
+
+@main_bp.route('/admin')
+@admin_required
+def admin_dashboard():
+    cases = DiseaseAnalysis.query.order_by(DiseaseAnalysis.date.desc()).limit(50).all()
+    total_cases = DiseaseAnalysis.query.count()
+    reviewed_cases = CaseReview.query.count()
+    confirmed_cases = CaseReview.query.filter_by(decision='confirmed').count()
+    lab_referrals = CaseReview.query.filter_by(decision='lab_referral').count()
+    active_follow_ups = CaseFollowUp.query.filter(CaseFollowUp.status.in_(['pending', 'in_progress', 'escalated'])).count()
+    follow_up_queue = CaseFollowUp.query.filter(
+        CaseFollowUp.status.in_(['pending', 'in_progress', 'escalated'])
+    ).order_by(CaseFollowUp.due_date.asc().nullslast()).limit(8).all()
+    return render_template(
+        'admin/dashboard.html',
+        cases=cases,
+        total_cases=total_cases,
+        pending_reviews=max(total_cases - reviewed_cases, 0),
+        confirmed_cases=confirmed_cases,
+        lab_referrals=lab_referrals,
+        active_follow_ups=active_follow_ups,
+        follow_up_queue=follow_up_queue,
+    )
+
+
+@main_bp.route('/admin/cases/<int:analysis_id>', methods=['GET', 'POST'])
+@admin_required
+def admin_case_detail(analysis_id):
+    analysis = DiseaseAnalysis.query.get_or_404(analysis_id)
+    review = CaseReview.query.filter_by(analysis_id=analysis.id).first()
+
+    if request.method == 'POST':
+        decision = request.form.get('decision', 'under_review').strip()
+        allowed_decisions = {'under_review', 'confirmed', 'uncertain', 'lab_referral', 'rejected'}
+        if decision not in allowed_decisions:
+            flash('Invalid review decision.', 'danger')
+            return redirect(url_for('main.admin_case_detail', analysis_id=analysis.id))
+
+        if not review:
+            review = CaseReview(analysis_id=analysis.id)
+            db.session.add(review)
+        review.status = decision
+        review.decision = decision
+        review.confirmed_disease = request.form.get('confirmed_disease', '').strip() or None
+        review.notes = request.form.get('notes', '').strip() or None
+        review.expert_advisory = request.form.get('expert_advisory', '').strip() or None
+        review.lab_name = request.form.get('lab_name', '').strip() or None
+        review.lab_sample_id = request.form.get('lab_sample_id', '').strip() or None
+        review.lab_notes = request.form.get('lab_notes', '').strip() or None
+        review.lab_result = request.form.get('lab_result', '').strip() or None
+        if decision == 'lab_referral' and not review.lab_referred_at:
+            review.lab_referred_at = datetime.utcnow()
+        review.reviewed_by = ADMIN_USER
+        db.session.commit()
+        flash('Case review saved.', 'success')
+        return redirect(url_for('main.admin_case_detail', analysis_id=analysis.id))
+
+    return render_template('admin/case_detail.html', analysis=analysis, review=review)
+
+
+@main_bp.route('/admin/cases/<int:analysis_id>/follow-up', methods=['POST'])
+@admin_required
+def admin_case_follow_up(analysis_id):
+    analysis = DiseaseAnalysis.query.get_or_404(analysis_id)
+    review = CaseReview.query.filter_by(analysis_id=analysis.id).first()
+    if not review:
+        flash('Save a case review before creating a follow-up.', 'warning')
+        return redirect(url_for('main.admin_case_detail', analysis_id=analysis.id))
+
+    follow_up = CaseFollowUp.query.filter_by(review_id=review.id).first()
+    if not follow_up:
+        follow_up = CaseFollowUp(
+            analysis_id=analysis.id,
+            review_id=review.id,
+            assigned_to=ADMIN_USER,
+        )
+        db.session.add(follow_up)
+
+    follow_up.analysis_id = analysis.id
+    follow_up.assigned_to = ADMIN_USER
+    follow_up.priority = request.form.get('priority', 'moderate')
+    follow_up.status = request.form.get('status', 'pending')
+    follow_up.due_date = datetime.strptime(request.form['due_date'], '%Y-%m-%d').date() if request.form.get('due_date') else None
+    follow_up.next_action = request.form.get('next_action', '').strip() or None
+    follow_up.action = follow_up.next_action or ''
+    follow_up.notes = request.form.get('follow_up_notes', '').strip() or None
+    db.session.commit()
+    flash('Follow-up plan saved.', 'success')
+    return redirect(url_for('main.admin_case_detail', analysis_id=analysis.id))
 
 @main_bp.route('/')
 def index():

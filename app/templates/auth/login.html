@@ -2,41 +2,41 @@
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="d-flex justify-content-end mb-2" style="max-width: 420px; margin: 0 auto; width: 100%;">
+    <div class="auth-language-row">
         <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white shadow-sm" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">मराठी</span>
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
         </button>
     </div>
-    <div class="card auth-card shadow-sm">
+    <div class="card auth-card">
         <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" style="width: 56px; height: 56px; border-radius: 14px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(46,125,50,0.25);" alt="PikDrishti AI">
-            <h2 class="fw-bold mb-1">Welcome Back</h2>
-            <p class="text-muted small">Login to access your farm dashboard</p>
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="auth-brand-mark" alt="PikDrishti AI">
+            <h2 class="fw-bold auth-title mb-1">Welcome Back</h2>
+            <p class="auth-subtitle small">Sign in to access your farm dashboard</p>
         </div>
         
         <form method="POST" action="">
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Email Address or Phone Number</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person-badge text-muted"></i></span>
+                <label class="auth-field-label">Email Address or Phone Number</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-person-badge"></i></span>
                     <input type="text" name="login_id" class="form-control border-start-0 ps-0" required placeholder="Email or Phone">
                 </div>
             </div>
             
             <div class="mb-4">
-                <label class="form-label text-muted small fw-bold">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                <label class="auth-field-label">Password</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text border-end-0"><i class="bi bi-lock"></i></span>
                     <input type="password" name="password" class="form-control border-start-0 ps-0" required placeholder="••••••••">
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-primary w-100 btn-lg rounded-pill mb-3">Log In</button>
+            <button type="submit" class="btn auth-submit text-white w-100 btn-lg rounded-pill mb-3">Log In</button>
         </form>
         
         <div class="text-center mt-3">
             <span class="text-muted small">Don't have an account? </span>
-            <a href="{{ url_for('auth.register') }}" class="text-success text-decoration-none fw-bold small">Register</a>
+            <a href="{{ url_for('auth.register') }}" class="auth-footer-link text-decoration-none small">Register</a>
         </div>
     </div>
 </div>

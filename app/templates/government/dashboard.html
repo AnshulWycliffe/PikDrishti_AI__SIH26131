@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gov-ink: #13233d;
+        --gov-green: #08775a;
+        --gov-green-dark: #005946;
+        --gov-soft: #eaf7f2;
+        --gov-blue-soft: #edf5ff;
+        --gov-amber-soft: #fff7df;
+        --gov-red-soft: #fff0ef;
+        --gov-muted: #66758b;
+        --gov-line: #e2e9ef;
+        --gov-bg: #f5f9f8;
+    }
+
+    .gov-portal { min-height:100%; background:var(--gov-bg); color:var(--gov-ink); }
+    .gov-sidebar { position:fixed; inset:0 auto 0 0; z-index:10; width:206px; display:flex; flex-direction:column; background:#f7fbfa; border-right:1px solid var(--gov-line); }
+    .gov-dept { display:flex; align-items:center; gap:9px; min-height:58px; padding:9px 18px; border-bottom:1px solid var(--gov-line); }
+    .gov-dept-logo { width:36px; height:36px; object-fit:contain; flex:0 0 36px; }
+    .gov-dept-name { color:var(--gov-ink); font-size:.7rem; font-weight:800; line-height:1.2; }
+    .gov-dept-name small { display:block; color:var(--gov-muted); font-size:.56rem; font-weight:600; margin-top:3px; }
+    .gov-nav { display:grid; gap:4px; padding:15px 7px; }
+    .gov-nav-link { display:flex; align-items:center; gap:13px; padding:10px 14px; border-left:3px solid transparent; border-radius:0 8px 8px 0; color:#33485e; font-size:.72rem; font-weight:700; text-decoration:none; }
+    .gov-nav-link i { width:17px; color:var(--gov-green-dark); font-size:1rem; text-align:center; }
+    .gov-nav-link:hover, .gov-nav-link.active { color:var(--gov-green-dark); background:#d8f0e8; border-left-color:var(--gov-green); }
+    .gov-sidebar-foot { margin-top:auto; padding:20px 18px 22px; color:var(--gov-green-dark); font-size:.88rem; font-weight:800; line-height:1.15; font-style:italic; }
+    .gov-sidebar-foot small { display:block; font-size:.62rem; margin-top:5px; font-style:normal; }
+    .gov-main { min-height:100vh; margin-left:206px; }
+    .gov-topbar { height:58px; display:flex; align-items:center; justify-content:space-between; gap:18px; padding:0 24px; background:rgba(255,255,255,.9); border-bottom:1px solid var(--gov-line); }
+    .gov-brand { display:flex; align-items:center; gap:9px; text-decoration:none; min-width:230px; }
+    .gov-brand-logo { width:38px; height:38px; border-radius:10px; object-fit:cover; box-shadow:0 3px 9px rgba(8,119,90,.2); flex:0 0 38px; }
+    .gov-brand-name { color:var(--gov-green-dark); font-size:1.16rem; font-weight:800; letter-spacing:-.04em; }
+    .gov-brand-sub { color:var(--gov-muted); display:block; font-size:.62rem; margin-top:1px; }
+    .gov-search { width:min(310px, 34vw); display:flex; align-items:center; gap:9px; padding:8px 11px; border:1px solid #d8e2ea; border-radius:6px; background:#fff; color:var(--gov-muted); font-size:.68rem; }
+    .gov-search i { font-size:.8rem; }
+    .gov-user { display:flex; align-items:center; gap:10px; }
+    .gov-language-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border:1px solid #c9e5d8; border-radius:999px; background:var(--gov-soft); color:var(--gov-green-dark); font-size:.64rem; font-weight:800; white-space:nowrap; }
+    .gov-language-btn:hover { color:var(--gov-green-dark); background:#d8f0e8; }
+    .gov-notification { position:relative; color:var(--gov-ink); font-size:1.15rem; margin-right:4px; }
+    .gov-notification b { position:absolute; top:-7px; right:-8px; display:grid; place-items:center; width:15px; height:15px; border-radius:50%; background:#e62c32; color:white; font-size:.55rem; }
+    .gov-avatar { width:31px; height:31px; display:grid; place-items:center; border-radius:50%; background:#31445e; color:#fff; font-size:.7rem; font-weight:800; }
+    .gov-user-copy { color:var(--gov-ink); font-size:.7rem; font-weight:800; line-height:1.1; }
+    .gov-user-copy small { display:block; color:var(--gov-muted); font-size:.55rem; font-weight:600; margin-top:3px; }
+    .gov-user > i { color:var(--gov-ink); font-size:.7rem; }
+    .gov-content { max-width:1480px; margin:0 auto; padding:14px 24px 28px; }
+    .gov-welcome { display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:82px; padding:13px 20px; margin-bottom:10px; border:1px solid var(--gov-line); border-radius:7px; background:linear-gradient(100deg,#fff 0%,#f8fffc 70%,#eef8f2 100%); }
+    .gov-welcome-person { display:flex; align-items:center; gap:12px; }
+    .gov-welcome-avatar { width:40px; height:40px; display:grid; place-items:center; border-radius:50%; background:var(--gov-green-soft); color:var(--gov-green-dark); font-weight:800; }
+    .gov-welcome-copy { color:var(--gov-muted); font-size:.68rem; }
+    .gov-welcome-copy strong { display:block; color:var(--gov-ink); font-size:1.38rem; line-height:1.1; margin-top:4px; }
+    .gov-welcome-copy small { display:block; font-size:.6rem; margin-top:3px; }
+    .gov-welcome-message { color:var(--gov-green-dark); font-size:.76rem; font-weight:800; font-style:italic; max-width:230px; }
+    .gov-date { color:var(--gov-muted); min-width:130px; padding-left:17px; border-left:1px solid var(--gov-line); font-size:.62rem; }
+    .gov-date strong { display:block; color:var(--gov-ink); margin-bottom:7px; }
+    .gov-date b { color:var(--gov-ink); font-size:.9rem; margin-right:5px; }
+    .gov-section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; }
+    .gov-section-head h2 { color:var(--gov-ink); font-size:.79rem; font-weight:800; margin:0; }
+    .gov-view-all { color:var(--gov-green-dark); font-size:.62rem; font-weight:800; text-decoration:none; }
+    .gov-kpis { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:9px; margin-bottom:10px; }
+    .gov-kpi { display:flex; align-items:center; gap:11px; min-width:0; padding:12px; border:1px solid var(--gov-line); border-radius:7px; background:#fff; }
+    .gov-kpi-icon { width:38px; height:38px; display:grid; place-items:center; border-radius:10px; color:var(--gov-green); background:#c9f5df; font-size:1.15rem; flex:0 0 38px; }
+    .gov-kpi:nth-child(2) .gov-kpi-icon { color:#d82d2d; background:#ffe0df; }
+    .gov-kpi:nth-child(3) .gov-kpi-icon { color:#ae7300; background:#fff0be; }
+    .gov-kpi:nth-child(4) .gov-kpi-icon { color:#0c5fa8; background:#d9edff; }
+    .gov-kpi-label { color:var(--gov-muted); font-size:.6rem; font-weight:700; }
+    .gov-kpi-value { color:var(--gov-ink); font-size:1.32rem; font-weight:800; line-height:1; margin-top:4px; }
+    .gov-kpi-meta { color:var(--gov-green-dark); font-size:.58rem; margin-top:5px; }
+    .gov-kpi:nth-child(2) .gov-kpi-meta { color:#d82d2d; }
+    .gov-kpi:nth-child(3) .gov-kpi-meta, .gov-kpi:nth-child(4) .gov-kpi-meta { color:var(--gov-green-dark); }
+    .gov-columns { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(245px,.78fr) minmax(220px,.75fr); gap:9px; align-items:start; }
+    .gov-card { min-width:0; border:1px solid var(--gov-line); border-radius:7px; background:#fff; overflow:hidden; }
+    .gov-card-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid var(--gov-line); }
+    .gov-card-title { display:flex; align-items:center; gap:8px; color:var(--gov-ink); font-size:.76rem; font-weight:800; margin:0; }
+    .gov-card-title i { color:var(--gov-green-dark); font-size:.95rem; }
+    .gov-card-link { color:var(--gov-green-dark); font-size:.57rem; font-weight:800; text-decoration:none; white-space:nowrap; }
+    .gov-map-wrap { padding:10px; }
+    .gov-map-image { width:100%; height:258px; display:block; object-fit:cover; border-radius:5px; background:#eaf2ee; }
+    .gov-map-caption { display:flex; justify-content:flex-end; gap:10px; padding:8px 2px 1px; color:var(--gov-muted); font-size:.56rem; }
+    .gov-map-caption span { display:flex; align-items:center; gap:4px; }
+    .gov-map-caption i { width:7px; height:7px; border-radius:50%; display:inline-block; }
+    .gov-reports { padding:0 12px 5px; }
+    .gov-report { display:grid; grid-template-columns:31px minmax(0,1fr) auto; gap:8px; align-items:center; padding:9px 0; border-bottom:1px solid #edf1f3; }
+    .gov-report:last-child { border-bottom:0; }
+    .gov-report-thumb { width:31px; height:31px; display:grid; place-items:center; border-radius:5px; background:#dcefe6; color:var(--gov-green-dark); font-size:.86rem; }
+    .gov-report-title { color:var(--gov-ink); font-size:.67rem; font-weight:800; }
+    .gov-report-meta { color:var(--gov-muted); font-size:.57rem; margin-top:3px; }
+    .gov-risk-pill { border-radius:999px; padding:5px 7px; font-size:.54rem; font-weight:800; white-space:nowrap; }
+    .gov-risk-high { color:#c52929; background:#ffe7e5; }
+    .gov-risk-medium { color:#a96a00; background:#fff1c8; }
+    .gov-risk-low { color:#187150; background:#e2f5ea; }
+    .gov-crop-content { padding:14px 13px; }
+    .gov-donut-row { display:flex; align-items:center; gap:14px; }
+    .gov-donut { width:105px; height:105px; flex:0 0 105px; border-radius:50%; background:conic-gradient(#28a972 0 28%, #a9d46f 28% 50%, #ffd33e 50% 68%, #fb9d22 68% 80%, #ee5b5b 80% 88%, #aaa 88% 100%); display:grid; place-items:center; }
+    .gov-donut::after { content:'12,486\\A Reports'; white-space:pre; display:grid; place-items:center; width:61px; height:61px; border-radius:50%; background:#fff; color:var(--gov-ink); font-size:.62rem; font-weight:800; text-align:center; }
+    .gov-crop-legend { display:grid; gap:7px; min-width:0; flex:1; }
+    .gov-crop-item { display:grid; grid-template-columns:7px minmax(0,1fr) auto; gap:6px; align-items:center; color:var(--gov-muted); font-size:.59rem; }
+    .gov-crop-item i { width:7px; height:7px; border-radius:50%; }
+    .gov-crop-item strong { color:var(--gov-ink); font-size:.6rem; }
+    .gov-sub-card { margin-top:9px; }
+    .gov-district-list { padding:7px 12px 10px; }
+    .gov-district { display:grid; grid-template-columns:63px minmax(0,1fr) 28px; gap:7px; align-items:center; padding:5px 0; color:var(--gov-muted); font-size:.58rem; }
+    .gov-district strong { color:var(--gov-ink); font-size:.6rem; text-align:right; }
+    .gov-district-track { height:8px; border-radius:99px; background:#edf0f2; overflow:hidden; }
+    .gov-district-fill { height:100%; border-radius:inherit; background:#ed4a43; }
+    .gov-district:nth-child(2) .gov-district-fill { background:#fb8e1d; }
+    .gov-district:nth-child(3) .gov-district-fill { background:#ffb928; }
+    .gov-district:nth-child(4) .gov-district-fill { background:#f5d337; }
+    .gov-district:nth-child(5) .gov-district-fill { background:#4db879; }
+    .gov-bottom { display:grid; grid-template-columns:1fr 1fr .95fr; gap:9px; margin-top:9px; }
+    .gov-list { padding:0 12px 5px; }
+    .gov-list-item { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #edf1f3; }
+    .gov-list-item:last-child { border-bottom:0; }
+    .gov-list-icon { width:24px; height:24px; display:grid; place-items:center; border-radius:50%; color:var(--gov-green); background:var(--gov-soft); font-size:.75rem; flex:0 0 24px; }
+    .gov-list-item:nth-child(2) .gov-list-icon { color:#bc7a00; background:#fff2cb; }
+    .gov-list-title { color:var(--gov-ink); font-size:.64rem; font-weight:800; }
+    .gov-list-meta { color:var(--gov-muted); font-size:.56rem; margin-top:3px; }
+    .gov-announcement-tag { border-radius:999px; padding:5px 7px; color:#1c65a0; background:#e2efff; font-size:.52rem; font-weight:800; flex:0 0 auto; }
+    .gov-announcement-tag.update { color:#17724d; background:#dcf7e8; }
+    .gov-announcement-tag.notice { color:#bd6723; background:#fff0d9; }
+    .gov-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:11px; }
+    .gov-action { display:grid; place-items:center; gap:6px; min-height:58px; padding:7px 4px; border-radius:7px; color:var(--gov-green-dark); background:#e2f7ee; font-size:.57rem; font-weight:800; text-align:center; text-decoration:none; }
+    .gov-action i { font-size:1.05rem; }
+    .gov-action:nth-child(2), .gov-action:nth-child(5) { color:#1c65a0; background:#e3f1ff; }
+    .gov-action:nth-child(3) { color:#b97900; background:#fff5d9; }
+    .gov-action:nth-child(4) { color:#6759a4; background:#f0edff; }
+    .gov-action:nth-child(6) { color:#c43d38; background:#ffe9e7; }
+    .gov-footer { color:var(--gov-muted); font-size:.58rem; padding-top:13px; }
+    @media (max-width:1100px) { .gov-columns { grid-template-columns:1.2fr .8fr; } .gov-crop-card { grid-column:span 2; } .gov-bottom { grid-template-columns:1fr 1fr; } .gov-actions-card { grid-column:span 2; } }
+    @media (max-width:780px) { .gov-sidebar { position:relative; width:100%; height:auto; display:block; } .gov-dept { min-height:52px; } .gov-nav { display:flex; overflow-x:auto; padding:7px; } .gov-nav-link { flex:0 0 auto; border-left:0; border-bottom:3px solid transparent; border-radius:7px; padding:9px 11px; } .gov-nav-link:hover, .gov-nav-link.active { border-bottom-color:var(--gov-green); } .gov-sidebar-foot { display:none; } .gov-main { margin-left:0; } .gov-topbar { height:auto; flex-wrap:wrap; padding:12px; } .gov-brand { min-width:0; flex:1 1 200px; } .gov-search { order:3; width:100%; } .gov-user-copy, .gov-user > i { display:none; } .gov-content { padding:10px 12px 24px; } .gov-welcome { align-items:flex-start; flex-wrap:wrap; padding:13px; } .gov-welcome-message { display:none; } .gov-date { margin-left:auto; } .gov-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } .gov-columns, .gov-bottom { grid-template-columns:1fr; } .gov-crop-card, .gov-actions-card { grid-column:auto; } }
+    @media (max-width:430px) { .gov-brand-name { font-size:1rem; } .gov-kpi { align-items:flex-start; flex-direction:column; gap:7px; } .gov-kpi-value { font-size:1.16rem; } .gov-kpi-icon { width:32px; height:32px; flex-basis:32px; } .gov-date { min-width:110px; padding-left:10px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gov-portal">
+    <aside class="gov-sidebar">
+        <div class="gov-dept"><img class="gov-dept-logo" src="" alt="Government of Maharashtra emblem"><span class="gov-dept-name">Government of Maharashtra<small>Department of Agriculture</small></span></div>
+        <nav class="gov-nav" aria-label="Government portal navigation">
+            <a class="gov-nav-link active" href="{{ url_for('main.government_dashboard') }}"><i class="bi bi-house-fill"></i>Dashboard</a>
+            <a class="gov-nav-link" href="#surveillance"><i class="bi bi-leaf-fill"></i>Disease Surveillance</a>
+            <a class="gov-nav-link" href="#hotspot-map"><i class="bi bi-geo-alt-fill"></i>Geospatial Map</a>
+            <a class="gov-nav-link" href="#analytics"><i class="bi bi-bar-chart-fill"></i>Reports &amp; Analytics</a>
+            <a class="gov-nav-link" href="#advisories"><i class="bi bi-file-earmark-text-fill"></i>Advisories</a>
+            <a class="gov-nav-link" href="#outreach"><i class="bi bi-people-fill"></i>Farmers &amp; Outreach</a>
+            <a class="gov-nav-link" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i>Extension Workers</a>
+            <a class="gov-nav-link" href="#resources"><i class="bi bi-book-fill"></i>Resource Library</a>
+            <a class="gov-nav-link" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-gear-fill"></i>Settings</a>
+        </nav>
+        <div class="gov-sidebar-foot">शेतकऱ्यांच्या सेवेसाठी,<br>समृद्ध महाराष्ट्रासाठी<small>Healthy Crops<br>Prosperous Maharashtra</small></div>
+    </aside>
+
+    <main class="gov-main">
+        <header class="gov-topbar">
+            <a class="gov-brand" href="{{ url_for('main.government_dashboard') }}"><img class="gov-brand-logo" src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="PikDrishti AI"><span><span class="gov-brand-name">PikDrishti AI</span><span class="gov-brand-sub">Crop Health Surveillance &amp; Advisory Portal</span></span></a>
+            <div class="gov-search"><i class="bi bi-search"></i><span>Search districts, crops, diseases, reports...</span></div>
+            <div class="gov-user"><button class="gov-language-btn" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal"><i class="bi bi-translate"></i><span class="top-lang-label">English</span></button><span class="gov-notification"><i class="bi bi-bell-fill"></i><b>3</b></span><span class="gov-avatar">DO</span><span class="gov-user-copy">Demo Officer<small>Demo Agriculture Official</small></span><i class="bi bi-chevron-down"></i></div>
+        </header>
+
+        <div class="gov-content">
+            <section class="gov-welcome"><div class="gov-welcome-person"><span class="gov-welcome-avatar">DO</span><div class="gov-welcome-copy">Welcome back,<strong>Demo Officer</strong><small>Demo Agriculture Official</small></div></div><div class="gov-welcome-message">Data-Driven Agriculture<br>for a Stronger Maharashtra</div><div class="gov-date"><strong>Monday<br>15 September 2026</strong><b>☀</b> 28°C<br>Mumbai, Maharashtra</div></section>
+
+            <section aria-label="Government programme indicators"><div class="gov-section-head"><h2>Programme overview</h2><span class="gov-section-head-note">Live demonstration data</span></div><div class="gov-kpis">
+                <div class="gov-kpi"><span class="gov-kpi-icon"><i class="bi bi-leaf-fill"></i></span><div><div class="gov-kpi-label">Total Reports</div><div class="gov-kpi-value">{{ government_metrics.total_reports }}</div><div class="gov-kpi-meta">↑ +12% <span>vs last month</span></div></div></div>
+                <div class="gov-kpi"><span class="gov-kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></span><div><div class="gov-kpi-label">High Risk Cases</div><div class="gov-kpi-value">{{ government_metrics.high_risk_cases }}</div><div class="gov-kpi-meta">↑ +18% <span>vs last month</span></div></div></div>
+                <div class="gov-kpi"><span class="gov-kpi-icon"><i class="bi bi-people-fill"></i></span><div><div class="gov-kpi-label">Farmers Reached</div><div class="gov-kpi-value">{{ government_metrics.farmers_reached }}</div><div class="gov-kpi-meta">↑ +27% <span>vs last month</span></div></div></div>
+                <div class="gov-kpi"><span class="gov-kpi-icon"><i class="bi bi-person-fill"></i></span><div><div class="gov-kpi-label">Active Extension Workers</div><div class="gov-kpi-value">{{ government_metrics.active_workers }}</div><div class="gov-kpi-meta">↑ +5% <span>vs last month</span></div></div></div>
+            </div></section>
+
+            <section class="gov-columns" id="surveillance">
+                <article class="gov-card" id="hotspot-map"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-map-fill"></i>Disease Hotspot Map</h2><a class="gov-card-link" href="#hotspot-map">View Full Map →</a></div><div class="gov-map-wrap"><img class="gov-map-image" src="{{ url_for('static', filename='images/dummy_map.png') }}" alt="Demonstration disease hotspot map of Maharashtra"><div class="gov-map-caption"><span><i style="background:#ed3636"></i>High Risk</span><span><i style="background:#f2a313"></i>Medium Risk</span><span><i style="background:#22a35c"></i>Low Risk</span></div></div></article>
+                <article class="gov-card"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-clipboard2-text"></i>Recent Reports</h2><a class="gov-card-link" href="#reports">View All →</a></div><div class="gov-reports" id="reports">{% for report in government_reports %}<div class="gov-report"><span class="gov-report-thumb"><i class="bi bi-image"></i></span><div><div class="gov-report-title">{{ report.crop }} - {{ report.disease }}</div><div class="gov-report-meta">{{ report.district }}<br>{{ report.time }}</div></div><span class="gov-risk-pill gov-risk-{{ report.risk|lower|replace(' ', '-') }}">{{ report.risk }}</span></div>{% endfor %}</div></article>
+                <div class="gov-crop-card"><article class="gov-card"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-pie-chart-fill"></i>Crop-wise Reports</h2><span class="gov-card-link">This Month⌄</span></div><div class="gov-crop-content"><div class="gov-donut-row"><div class="gov-donut"></div><div class="gov-crop-legend"><div class="gov-crop-item"><i style="background:#28a972"></i><span>Cotton</span><strong>28%</strong></div><div class="gov-crop-item"><i style="background:#a9d46f"></i><span>Soybean</span><strong>22%</strong></div><div class="gov-crop-item"><i style="background:#ffd33e"></i><span>Maize</span><strong>18%</strong></div><div class="gov-crop-item"><i style="background:#fb9d22"></i><span>Tomato</span><strong>12%</strong></div><div class="gov-crop-item"><i style="background:#ee5b5b"></i><span>Onion</span><strong>8%</strong></div><div class="gov-crop-item"><i style="background:#aaa"></i><span>Others</span><strong>12%</strong></div></div></div></div></article><article class="gov-card gov-sub-card"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-bar-chart-fill"></i>District-wise Risk</h2><span class="gov-card-link">Top 5 Districts⌄</span></div><div class="gov-district-list">{% for item in risk_distribution %}<div class="gov-district"><span>{{ item.label }}</span><span class="gov-district-track"><i class="gov-district-fill" style="width:{{ item.score }}%"></i></span><strong>{{ item.score }}</strong></div>{% endfor %}</div></article></div>
+            </section>
+
+            <section class="gov-bottom" id="analytics">
+                <article class="gov-card" id="advisories"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-megaphone-fill"></i>Latest Advisories</h2><a class="gov-card-link" href="#advisories">View All →</a></div><div class="gov-list">{% for item in government_advisories %}<div class="gov-list-item"><span class="gov-list-icon"><i class="bi bi-leaf-fill"></i></span><div><div class="gov-list-title">{{ item.title }}</div><div class="gov-list-meta">{{ item.date }}</div></div></div>{% endfor %}</div></article>
+                <article class="gov-card" id="outreach"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-bell-fill"></i>System Announcements</h2><a class="gov-card-link" href="#outreach">View All →</a></div><div class="gov-list">{% for item in government_announcements %}<div class="gov-list-item"><span class="gov-announcement-tag {{ item.tag|lower }}">{{ item.tag }}</span><div><div class="gov-list-title">{{ item.title }}</div><div class="gov-list-meta">{{ item.detail }}</div></div></div>{% endfor %}</div></article>
+                <article class="gov-card gov-actions-card" id="resources"><div class="gov-card-head"><h2 class="gov-card-title"><i class="bi bi-lightning-charge-fill"></i>Quick Actions</h2></div><div class="gov-actions"><a class="gov-action" href="#analytics"><i class="bi bi-bar-chart-fill"></i>Generate Report</a><a class="gov-action" href="#advisories"><i class="bi bi-send-fill"></i>Send Advisory</a><a class="gov-action" href="#outreach"><i class="bi bi-people-fill"></i>Manage Users</a><a class="gov-action" href="#reports"><i class="bi bi-download"></i>Data Export</a><a class="gov-action" href="#hotspot-map"><i class="bi bi-geo-alt-fill"></i>Add Field Visit</a><a class="gov-action" href="#analytics"><i class="bi bi-graph-up-arrow"></i>View Analytics</a></div></article>
+            </section>
+            <p class="gov-footer"><i class="bi bi-shield-check me-1"></i>Demonstration data only. Connect verified district reports, sensor feeds, and confirmed field outcomes before operational use.</p>
+        </div>
+    </main>
+</div>
+{% endblock %}

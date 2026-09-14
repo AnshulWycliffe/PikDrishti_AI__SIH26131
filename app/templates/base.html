@@ -83,16 +83,13 @@
                 <i class="bi bi-house-door"></i>
                 <span id="navHomeLabel">Home</span>
             </a>
-            <a href="{{ url_for('main.scan') }}"
-                class="nav-item {% if request.endpoint == 'main.scan' %}active{% endif %}">
-                <i class="bi bi-camera"></i>
-                <span id="navScanLabel">Scan</span>
+
+            <a href="{{ url_for('main.yield_prediction') }}"
+                class="nav-item {% if request.endpoint == 'main.yield_prediction' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span id="navYieldLabel">Yield</span>
             </a>
-            <a href="{{ url_for('main.crops') }}"
-                class="nav-item {% if request.endpoint == 'main.crops' %}active{% endif %}">
-                <i class="bi bi-flower1"></i>
-                <span id="navCropsLabel">Crops</span>
-            </a>
+            
             <!-- Floating Center AI Button -->
             <a href="{{ url_for('main.assistant') }}"
                 class="nav-item nav-item-floating {% if request.endpoint == 'main.assistant' %}active{% endif %}">
@@ -102,11 +99,7 @@
                 </div>
                 <span id="navAiLabel">AI</span>
             </a>
-            <a href="{{ url_for('main.yield_prediction') }}"
-                class="nav-item {% if request.endpoint == 'main.yield_prediction' %}active{% endif %}">
-                <i class="bi bi-graph-up-arrow"></i>
-                <span id="navYieldLabel">Yield</span>
-            </a>
+            
             <a href="{{ url_for('main.history') }}"
                 class="nav-item {% if request.endpoint == 'main.history' %}active{% endif %}">
                 <i class="bi bi-clock-history"></i>
@@ -238,13 +231,11 @@
 
             // Translate bottom navigation labels
             const navLabels = {
-                mr: { home: "मुख्य", scan: "स्कॅन", crops: "पिके", ai: "AI", yield: "उत्पादन", history: "इतिहास", profile: "प्रोफाइल" },
-                en: { home: "Home", scan: "Scan", crops: "Crops", ai: "AI", yield: "Yield", history: "History", profile: "Profile" }
+                mr: { home: "मुख्य", ai: "AI", yield: "उत्पादन", history: "इतिहास", profile: "प्रोफाइल" },
+                en: { home: "Home", ai: "AI", yield: "Yield", history: "History", profile: "Profile" }
             };
             const nl = navLabels[lang] || navLabels.mr;
             const elHome = document.getElementById('navHomeLabel'); if (elHome) elHome.innerText = nl.home;
-            const elScan = document.getElementById('navScanLabel'); if (elScan) elScan.innerText = nl.scan;
-            const elCrops = document.getElementById('navCropsLabel'); if (elCrops) elCrops.innerText = nl.crops;
             const elAi = document.getElementById('navAiLabel'); if (elAi) elAi.innerText = nl.ai;
             const elYield = document.getElementById('navYieldLabel'); if (elYield) elYield.innerText = nl.yield;
             const elHistory = document.getElementById('navHistoryLabel'); if (elHistory) elHistory.innerText = nl.history;

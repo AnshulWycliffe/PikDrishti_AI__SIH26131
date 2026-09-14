@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .admin-shell { max-width:760px; margin:0 auto; padding:20px 16px 90px; }
+    .admin-back { color:#2E7D32; text-decoration:none; font-size:.82rem; }
+    .admin-title { color:#1B5E20; font-size:1.3rem; font-weight:800; margin:12px 0 4px; }
+    .admin-subtitle { color:#6C757D; font-size:.8rem; margin-bottom:18px; }
+    .admin-card { background:#FFF; border:1px solid #E3EDE4; border-radius:14px; padding:16px; margin-bottom:14px; }
+    .admin-card h2 { color:#26352A; font-size:.95rem; font-weight:800; margin:0 0 12px; }
+    .evidence-image { width:100%; max-height:300px; object-fit:cover; border-radius:12px; background:#F1F8E9; }
+    .label-small { color:#4B5B50; font-size:.75rem; font-weight:700; margin-bottom:5px; }
+    .lab-referral-fields { display:none; padding:14px; margin-bottom:16px; border:1px solid #FFE0B2; border-radius:12px; background:#FFF8E8; }
+    .lab-referral-fields.is-visible { display:block; }
+    .lab-referral-heading { color:#8A5700; font-size:.85rem; font-weight:800; margin:0 0 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="admin-back"><i class="bi bi-arrow-left me-1"></i>Back to case queue</a>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
+        </button>
+    </div>
+    <h1 class="admin-title">{{ analysis.crop_display }} · {{ analysis.detected_disease or 'Unclassified condition' }}</h1>
+    <p class="admin-subtitle">Case #{{ analysis.id }} · Submitted {{ analysis.date.strftime('%d %b %Y, %I:%M %p') if analysis.date else 'unknown date' }}</p>
+
+    <div class="admin-card">
+        <h2>Submitted evidence</h2>
+        {% if analysis.image_path %}<img class="evidence-image mb-3" src="{{ url_for('static', filename=analysis.image_path) }}" alt="Submitted crop evidence">{% endif %}
+        <div class="row g-2 small"><div class="col-6"><strong>Confidence</strong><br>{{ ((analysis.confidence or 0) * 100)|round(1) }}%</div><div class="col-6"><strong>Severity</strong><br>{{ analysis.severity or 'Unclassified' }}</div></div>
+        {% if analysis.farmer_observation %}<p class="small text-muted mt-3 mb-0"><strong>Farmer observation:</strong> {{ analysis.farmer_observation }}</p>{% endif %}
+    </div>
+
+    <div class="admin-card">
+        <h2>Expert advisory</h2>
+        {% set ipm = analysis.gemini_parsed.get('ipm_plan', {}) %}
+        {% if ipm.risk_summary %}<div class="alert alert-warning-subtle border-0 small"><strong>Risk:</strong> {{ ipm.risk_summary }}</div>{% endif %}
+        {% if ipm.referral %}<div class="alert alert-info-subtle border-0 small"><strong>Referral:</strong> {{ ipm.referral|join(' ') }}</div>{% endif %}
+        <div class="small text-muted mb-2">Use the structured IPM guidance below when preparing farmer advice.</div>
+        {% for section_name, section_key in [('Cultural controls', 'cultural'), ('Mechanical controls', 'mechanical'), ('Biological controls', 'biological'), ('Chemical controls', 'chemical'), ('Monitoring plan', 'monitoring'), ('Safety', 'safety')] %}
+            {% if ipm.get(section_key) %}<div class="small mb-2"><strong>{{ section_name }}</strong><ul class="mb-0">{% for item in ipm[section_key] %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="admin-card">
+        <h2>Extension review</h2>
+        <form method="POST">
+            <div class="mb-3"><label class="label-small">Decision</label><select class="form-select" name="decision"><option value="under_review" {% if review and review.decision == 'under_review' %}selected{% endif %}>Under review</option><option value="confirmed" {% if review and review.decision == 'confirmed' %}selected{% endif %}>Confirmed</option><option value="uncertain" {% if review and review.decision == 'uncertain' %}selected{% endif %}>Uncertain</option><option value="lab_referral" {% if review and review.decision == 'lab_referral' %}selected{% endif %}>Refer to laboratory</option><option value="rejected" {% if review and review.decision == 'rejected' %}selected{% endif %}>Rejected</option></select></div>
+            <div class="mb-3"><label class="label-small">Confirmed disease, if different</label><input class="form-control" name="confirmed_disease" value="{{ review.confirmed_disease if review else '' }}" placeholder="Optional confirmed diagnosis"></div>
+            <div class="lab-referral-fields {% if review and review.decision == 'lab_referral' %}is-visible{% endif %}" id="labReferralFields">
+                <h3 class="lab-referral-heading"><i class="bi bi-beaker me-1"></i>Laboratory referral</h3>
+                <div class="mb-3"><label class="label-small" for="labName">Laboratory</label><input class="form-control" id="labName" name="lab_name" value="{{ review.lab_name if review else '' }}" placeholder="Laboratory or diagnostic center"></div>
+                <div class="mb-3"><label class="label-small" for="labSampleId">Sample ID</label><input class="form-control" id="labSampleId" name="lab_sample_id" value="{{ review.lab_sample_id if review else '' }}" placeholder="Enter the submitted sample number"></div>
+                <div class="mb-3"><label class="label-small" for="labNotes">Referral notes</label><textarea class="form-control" id="labNotes" name="lab_notes" rows="2" placeholder="Symptoms, requested tests, or collection instructions">{{ review.lab_notes if review else '' }}</textarea></div>
+                <div><label class="label-small" for="labResult">Laboratory result</label><textarea class="form-control" id="labResult" name="lab_result" rows="2" placeholder="Add the result when the laboratory responds">{{ review.lab_result if review else '' }}</textarea></div>
+            </div>
+            <div class="mb-3"><label class="label-small">Officer notes</label><textarea class="form-control" name="notes" rows="3" placeholder="Record evidence, treatment guidance, or referral reason">{{ review.notes if review else '' }}</textarea></div>
+            <div class="mb-3"><label class="label-small">Expert advisory to farmer</label><textarea class="form-control" name="expert_advisory" rows="3" placeholder="Write the final farmer-facing guidance">{{ review.expert_advisory if review else '' }}</textarea></div>
+            <button class="btn btn-success rounded-pill w-100 fw-bold" type="submit">Save Review</button>
+        </form>
+    </div>
+
+    {% if review %}
+    <div class="admin-card">
+        <h2>Follow-up plan</h2>
+        <form method="POST" action="{{ url_for('main.admin_case_follow_up', analysis_id=analysis.id) }}">
+            <div class="row g-2"><div class="col-6 mb-3"><label class="label-small">Priority</label><select class="form-select" name="priority"><option>low</option><option {% if review.follow_up and review.follow_up.priority == 'moderate' %}selected{% endif %}>moderate</option><option {% if review.follow_up and review.follow_up.priority == 'high' %}selected{% endif %}>high</option><option {% if review.follow_up and review.follow_up.priority == 'critical' %}selected{% endif %}>critical</option></select></div><div class="col-6 mb-3"><label class="label-small">Status</label><select class="form-select" name="status"><option>pending</option><option {% if review.follow_up and review.follow_up.status == 'in_progress' %}selected{% endif %}>in_progress</option><option {% if review.follow_up and review.follow_up.status == 'completed' %}selected{% endif %}>completed</option><option {% if review.follow_up and review.follow_up.status == 'escalated' %}selected{% endif %}>escalated</option></select></div></div>
+            <div class="mb-3"><label class="label-small">Due date</label><input class="form-control" type="date" name="due_date" value="{{ review.follow_up.due_date.isoformat() if review.follow_up and review.follow_up.due_date else '' }}"></div>
+            <div class="mb-3"><label class="label-small">Next action</label><input class="form-control" name="next_action" value="{{ review.follow_up.next_action if review.follow_up else '' }}" placeholder="Call farmer, request lab sample, revisit field..."></div>
+            <div class="mb-3"><label class="label-small">Follow-up notes</label><textarea class="form-control" name="follow_up_notes" rows="3">{{ review.follow_up.notes if review.follow_up else '' }}</textarea></div>
+            <button class="btn btn-outline-success rounded-pill w-100 fw-bold" type="submit">Save Follow-up Plan</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const decisionField = document.querySelector('select[name="decision"]');
+        const referralFields = document.getElementById('labReferralFields');
+        if (!decisionField || !referralFields) return;
+        const updateReferralFields = () => referralFields.classList.toggle('is-visible', decisionField.value === 'lab_referral');
+        decisionField.addEventListener('change', updateReferralFields);
+        updateReferralFields();
+    });
+</script>
+{% endblock %}

@@ -35,8 +35,8 @@ body {
 
 .main-content {
     flex: 1;
-    overflow-y: auto;
-    padding-bottom: 70px;
+    overflow: auto;
+    padding-bottom: 80px;
     /* Space for bottom nav */
 }
 
@@ -223,14 +223,100 @@ h6 {
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 24px;
-    background: linear-gradient(135deg, #F5F7F5 0%, #E8F5E9 100%);
+    min-height: calc(100vh - 70px);
+    padding: 20px 16px 32px;
+    background: linear-gradient(145deg, #F7FAF7 0%, #E8F5E9 100%);
+}
+
+.register-auth-wrapper {
+    min-height: 100%;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .auth-card {
     width: 100%;
-    padding: 32px 24px;
-    border-radius: 24px;
+    max-width: 420px;
+    padding: 28px 24px 24px;
+    border: 1px solid rgba(46, 125, 50, 0.12);
+    border-radius: 18px;
+    box-shadow: 0 14px 34px rgba(27, 94, 32, 0.10) !important;
+    position: relative;
+    overflow: auto;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: #2E7D32;
+}
+
+.auth-language-row {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.auth-brand-mark {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 16px rgba(46, 125, 50, 0.20);
+}
+
+.auth-title {
+    color: #1B5E20;
+    font-size: 1.45rem;
+    letter-spacing: -0.1px;
+}
+
+.auth-subtitle {
+    color: #6C757D;
+    margin-bottom: 0;
+}
+
+.auth-field-label {
+    color: #4B5B50;
+    font-size: .76rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.auth-input-group .input-group-text {
+    background: #F8FBF8;
+    border-color: #DCE8DE;
+    color: #2E7D32;
+}
+
+.auth-input-group .form-control {
+    border-color: #DCE8DE;
+    background: #FFFFFF;
+}
+
+.auth-input-group:focus-within .input-group-text,
+.auth-input-group:focus-within .form-control {
+    border-color: #2E7D32;
+}
+
+.auth-submit {
+    background: #2E7D32;
+    border: 0;
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(46, 125, 50, 0.22);
+}
+
+.auth-submit:hover {
+    background: #1B5E20;
+}
+
+.auth-footer-link {
+    color: #2E7D32;
+    font-weight: 700;
 }
 
 .auth-logo {

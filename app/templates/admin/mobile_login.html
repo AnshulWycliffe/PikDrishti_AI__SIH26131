@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-language-row">
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white shadow-sm" data-bs-toggle="modal" data-bs-target="#globalLangModal">
+            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
+        </button>
+    </div>
+    <div class="card auth-card">
+        <div class="text-center mb-4">
+            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="auth-brand-mark" alt="PikDrishti AI">
+            <h2 class="fw-bold auth-title mb-1">Extension Worker Portal</h2>
+            <p class="auth-subtitle small">Review crop-health cases and plan follow-up action.</p>
+        </div>
+        {% if error %}<div class="alert alert-danger small">{{ error }}</div>{% endif %}
+        <form method="POST">
+            <div class="mb-3">
+                <label class="auth-field-label">Officer username</label>
+                <input class="form-control" name="username" required autocomplete="username">
+            </div>
+            <div class="mb-4">
+                <label class="auth-field-label">Password</label>
+                <input class="form-control" type="password" name="password" required autocomplete="current-password">
+            </div>
+            <button class="btn auth-submit text-white w-100 btn-lg rounded-pill" type="submit">Open Case Portal</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
