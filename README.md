@@ -16,6 +16,8 @@
 
 PikDrishti AI is a mobile-first crop-health and agricultural advisory platform for farmers, extension workers, and government agriculture teams. It combines image-based disease identification, farm records, weather risk signals, pest-trap monitoring, integrated pest and disease management guidance, multilingual assistance, expert validation, laboratory referral, field follow-up, and a government surveillance dashboard.
 
+> **Important disclaimer:** PikDrishti AI is **not official software of the Government of Maharashtra or any other government department**. It is a project idea and working prototype created for the **Smart India Hackathon**. The government-style portal, branding references, dashboards, reports, maps, and metrics are included only to demonstrate a possible solution concept. They do not represent official government systems, endorsements, datasets, reports, or statistics.
+
 | Farmer | Government Portal |
 | ------------- | ------------- |
 | <img src="mobile.png" style="vertical-align: middle; height:500px;"> | <img src="laptop.png" style="vertical-align: middle; height:500px;">|
@@ -32,23 +34,55 @@ The application is suitable for local demonstration, prototyping, evaluation, an
 
 - [Problem and intended outcome](#problem-and-intended-outcome)
 - [Current capabilities](#current-capabilities)
+  - [Farmer capabilities](#farmer-capabilities)
+  - [Extension-worker capabilities](#extension-worker-capabilities)
+  - [Government demonstration portal](#government-demonstration-portal)
 - [User experiences](#user-experiences)
+  - [Farmer flow](#farmer-flow)
+  - [Extension-worker flow](#extension-worker-flow)
+  - [Government dashboard flow](#government-dashboard-flow)
 - [Disease analysis pipeline](#disease-analysis-pipeline)
 - [IPM and safe-input guidance](#ipm-and-safe-input-guidance)
 - [Expert validation and laboratory referral](#expert-validation-and-laboratory-referral)
 - [Government portal](#government-portal)
+  - [Route and access](#route-and-access)
+  - [Prototype and non-affiliation](#prototype-and-non-affiliation)
+  - [Wireframe-inspired structure](#wireframe-inspired-structure)
+  - [Demonstration data boundary](#demonstration-data-boundary)
 - [Architecture](#architecture)
+  - [Application factory](#application-factory)
+  - [External services](#external-services)
 - [Repository layout](#repository-layout)
 - [Technology stack](#technology-stack)
 - [Requirements](#requirements)
+  - [Local requirements](#local-requirements)
+  - [Optional credentials](#optional-credentials)
 - [Installation](#installation)
+  - [Windows PowerShell](#windows-powershell)
+  - [macOS or Linux](#macos-or-linux)
 - [Configuration](#configuration)
+  - [Configuration notes](#configuration-notes)
 - [Running the application](#running-the-application)
+  - [Main login areas](#main-login-areas)
 - [Routes and APIs](#routes-and-apis)
+  - [Farmer pages](#farmer-pages)
+  - [Extension and government pages](#extension-and-government-pages)
+  - [Farmer APIs](#farmer-apis)
 - [Data model](#data-model)
+  - [CaseReview referral fields](#casereview-referral-fields)
+  - [CaseFollowUp fields](#casefollowup-fields)
 - [Disease model and dataset](#disease-model-and-dataset)
 - [Testing and validation](#testing-and-validation)
+  - [Python compilation](#python-compilation)
+  - [Application factory check](#application-factory-check)
+  - [Template checks](#template-checks)
+  - [Government portal smoke check](#government-portal-smoke-check)
+  - [Static asset check](#static-asset-check)
+  - [Manual checks](#manual-checks)
 - [Operational limitations](#operational-limitations)
+  - [Data limitations](#data-limitations)
+  - [Model limitations](#model-limitations)
+  - [Workflow limitations](#workflow-limitations)
 - [Safety and privacy](#safety-and-privacy)
 - [Future production work](#future-production-work)
 - [License](#license)
@@ -229,6 +263,12 @@ http://127.0.0.1:5000/government
 ```
 
 It uses the existing development admin session. The development login is available at `/admin/login`.
+
+### Prototype and non-affiliation
+
+This portal is a **Smart India Hackathon project prototype**, not an official government application. It is not developed, operated, maintained, endorsed, or authenticated by the Government of Maharashtra, the Department of Agriculture, or any other public authority.
+
+The use of government-style layout patterns, a Maharashtra Government emblem image, department wording, district names, and official-looking dashboard elements is for demonstration and presentation of the proposed solution only. The portal must not be used as a source of official advisories, outbreak reports, public alerts, administrative decisions, or government statistics.
 
 ### Wireframe-inspired structure
 
