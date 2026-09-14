@@ -17,6 +17,10 @@
 
 PikDrishti AI is a mobile-first crop-health and agricultural advisory platform for farmers, extension workers, and agriculture officials. It combines image-based disease identification, weather risk signals, farm records, pest-trap inputs, expert validation, laboratory referral, follow-up monitoring, geospatial hotspot views, and multilingual advisories in one workflow.
 
+| Login Portal |
+| ------------- |
+| <img src="doc/index.png" style="vertical-align: middle; height:500px;"> |
+
 | Farmer | Extension Worker |
 | ------------- | ------------- |
 | <img src="doc/mobile.png" style="vertical-align: middle; height:500px;"> | <img src="doc/extension.png" style="vertical-align: middle; height:500px;"> |
