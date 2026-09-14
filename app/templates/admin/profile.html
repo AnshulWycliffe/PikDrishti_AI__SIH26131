@@ -2,46 +2,54 @@
 
 {% block extra_css %}
 <style>
-    .admin-shell { max-width:620px; margin:0 auto; padding:20px 16px 90px; }
-    .admin-back { color:#2E7D32; text-decoration:none; font-size:.82rem; }
-    .profile-card { background:#FFF; border:1px solid #E3EDE4; border-radius:16px; padding:22px; margin-top:18px; text-align:center; }
-    .profile-avatar { width:70px; height:70px; margin:0 auto 12px; border-radius:50%; display:grid; place-items:center; background:#E8F5E9; color:#2E7D32; font-size:2rem; }
-    .profile-name { color:#1B5E20; font-size:1.2rem; font-weight:800; }
-    .profile-role { color:#6C757D; font-size:.8rem; margin-top:4px; }
-    .profile-row { display:flex; justify-content:space-between; gap:12px; padding:13px 0; border-top:1px solid #F0F3F1; text-align:left; font-size:.82rem; }
-    .profile-row strong { color:#26352A; }
-    .profile-row span { color:#6C757D; }
-    .admin-bottom-nav { position:fixed; left:0; right:0; bottom:0; height:70px; display:flex; justify-content:center; gap:28px; align-items:center; background:rgba(255,255,255,.94); border-top:1px solid rgba(0,0,0,.06); box-shadow:0 -4px 20px rgba(0,0,0,.06); z-index:1000; }
-    .admin-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#6C757D; text-decoration:none; font-size:.72rem; font-weight:700; padding:7px 10px; border-radius:14px; }
-    .admin-nav-item:hover, .admin-nav-item.active { color:#2E7D32; background:#F1F8F2; }
-    .admin-nav-item i { font-size:1.25rem; }
+    .worker-profile-page { min-height:100%; background:#f4faf7; padding:12px 16px calc(82px + env(safe-area-inset-bottom)); }
+    .worker-profile-shell { width:min(100%,600px); margin:0 auto; }
+    .worker-profile-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 15px; }
+    .worker-profile-back, .worker-profile-action { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d4e8dc; border-radius:50%; color:#145c3a; background:#fff; text-decoration:none; }
+    .worker-profile-actions { display:flex; gap:7px; }
+    .worker-profile-heading { color:#183629; font-size:1.12rem; font-weight:800; margin:0; }
+    .worker-profile-card { display:flex; align-items:center; gap:13px; padding:16px; border:1px solid #d9ebe0; border-radius:14px; background:#fff; box-shadow:0 5px 16px rgba(30,93,61,.06); }
+    .worker-profile-avatar { width:62px; height:62px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#08775a; font-size:1rem; font-weight:800; flex:0 0 62px; }
+    .worker-profile-name { color:#183629; font-size:1.05rem; font-weight:800; }
+    .worker-profile-role { color:#718279; font-size:.65rem; line-height:1.4; margin-top:4px; }
+    .worker-profile-location { color:#08775a; font-size:.6rem; margin-top:6px; }
+    .worker-profile-notification { position:relative; margin-left:auto; align-self:flex-start; color:#718279; font-size:1rem; }
+    .worker-profile-notification b { position:absolute; top:-6px; right:-7px; display:grid; place-items:center; width:14px; height:14px; border-radius:50%; color:#fff; background:#e62c32; font-size:.5rem; }
+    .worker-profile-section { margin-top:16px; }
+    .worker-profile-section h2 { color:#183629; font-size:.8rem; font-weight:800; margin:0 0 8px; }
+    .worker-profile-menu { overflow:hidden; border:1px solid #d9ebe0; border-radius:12px; background:#fff; }
+    .worker-profile-row { display:flex; align-items:center; gap:11px; min-height:49px; padding:9px 12px; border-bottom:1px solid #edf3ef; color:inherit; text-decoration:none; }
+    .worker-profile-row:last-child { border-bottom:0; }
+    .worker-profile-row:hover { color:inherit; background:#f1fbf5; }
+    .worker-profile-row-icon { width:30px; height:30px; display:grid; place-items:center; border-radius:9px; color:#08775a; background:#dcf6e8; font-size:.86rem; flex:0 0 30px; }
+    .worker-profile-row:nth-child(2) .worker-profile-row-icon { color:#2666a2; background:#e0efff; }
+    .worker-profile-row:nth-child(3) .worker-profile-row-icon { color:#b77900; background:#fff1c9; }
+    .worker-profile-row:nth-child(4) .worker-profile-row-icon { color:#6a5ba7; background:#efebff; }
+    .worker-profile-row:nth-child(5) .worker-profile-row-icon { color:#08775a; background:#dcf6e8; }
+    .worker-profile-row-copy { min-width:0; flex:1; }
+    .worker-profile-row-title { display:block; color:#183629; font-size:.7rem; font-weight:800; }
+    .worker-profile-row-meta { display:block; color:#718279; font-size:.57rem; margin-top:3px; }
+    .worker-profile-row-chevron { color:#a0aaa4; font-size:.72rem; }
+    .worker-profile-logout { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; height:44px; margin-top:16px; border:1px solid #f0b6b2; border-radius:9px; color:#d6322f; background:#fff5f4; font-size:.74rem; font-weight:800; text-decoration:none; }
+    .worker-profile-logout:hover { color:#b32825; background:#ffeae8; }
+    .worker-profile-footer { color:#9aa69f; font-size:.58rem; text-align:center; margin:16px 0 0; }
+    .worker-profile-nav { position:fixed; left:0; right:0; bottom:0; z-index:1000; min-height:67px; display:flex; align-items:center; justify-content:space-around; gap:3px; padding:4px 8px env(safe-area-inset-bottom); box-sizing:border-box; border-top:1px solid #d9ebe0; background:rgba(255,255,255,.96); box-shadow:0 -5px 18px rgba(30,93,61,.08); }
+    .worker-profile-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; padding:7px 3px; border-radius:11px; color:#718279; font-size:.63rem; font-weight:800; text-decoration:none; text-align:center; }
+    .worker-profile-nav-item i { font-size:1.1rem; }
+    .worker-profile-nav-item.active, .worker-profile-nav-item:hover { color:#08775a; background:#e8f7ef; }
+    @media (max-width:380px) { .worker-profile-page { padding-left:11px; padding-right:11px; } .worker-profile-nav-item { font-size:.55rem; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-shell">
-    <div class="d-flex justify-content-between align-items-center">
-        <a href="{{ url_for('main.admin_dashboard') }}" class="admin-back"><i class="bi bi-arrow-left me-1"></i>Back to cases</a>
-        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
-        </button>
-    </div>
-    <div class="profile-card">
-        <div class="profile-avatar"><i class="bi bi-person-badge"></i></div>
-        <div class="profile-name">{{ officer_name|title }}</div>
-        <div class="profile-role">Extension Worker · Case Review Portal</div>
-        <div class="mt-4">
-            <div class="profile-row"><strong>Access</strong><span>Case review and follow-up</span></div>
-            <div class="profile-row"><strong>Portal status</strong><span class="text-success">Active</span></div>
-            <div class="profile-row"><strong>Language</strong><span>English / Marathi / Hindi</span></div>
-        </div>
-        <a href="{{ url_for('main.admin_logout') }}" class="btn btn-outline-danger rounded-pill w-100 mt-3">Log out</a>
+<div class="worker-profile-page">
+    <div class="worker-profile-shell">
+        <header class="worker-profile-topbar"><a class="worker-profile-back" href="{{ url_for('main.admin_dashboard') }}" aria-label="Back to dashboard"><i class="bi bi-arrow-left"></i></a><h1 class="worker-profile-heading">My Profile</h1><div class="worker-profile-actions"><button class="worker-profile-action" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal" aria-label="Select language"><i class="bi bi-translate"></i></button><a class="worker-profile-action" href="{{ url_for('main.admin_profile') }}" aria-label="Profile settings"><i class="bi bi-gear-fill"></i></a></div></header>
+        <section class="worker-profile-card"><span class="worker-profile-avatar">DO</span><div><div class="worker-profile-name">{{ officer_name|title }}</div><div class="worker-profile-role">Extension Worker<br>Crop Health Surveillance</div><div class="worker-profile-location"><i class="bi bi-geo-alt-fill me-1"></i>Maharashtra District</div></div><span class="worker-profile-notification"><i class="bi bi-bell-fill"></i><b>3</b></span></section>
+        <section class="worker-profile-section"><h2>Account</h2><div class="worker-profile-menu"><a class="worker-profile-row" href="{{ url_for('main.admin_profile') }}"><span class="worker-profile-row-icon"><i class="bi bi-person-badge"></i></span><span class="worker-profile-row-copy"><span class="worker-profile-row-title">My Profile</span><span class="worker-profile-row-meta">View officer information</span></span><i class="worker-profile-row-chevron bi bi-chevron-right"></i></a><a class="worker-profile-row" href="#notifications"><span class="worker-profile-row-icon"><i class="bi bi-bell"></i></span><span class="worker-profile-row-copy"><span class="worker-profile-row-title">Notifications</span><span class="worker-profile-row-meta">3 new updates</span></span><i class="worker-profile-row-chevron bi bi-chevron-right"></i></a><button class="worker-profile-row border-0 w-100 text-start" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal"><span class="worker-profile-row-icon"><i class="bi bi-translate"></i></span><span class="worker-profile-row-copy"><span class="worker-profile-row-title">Language</span><span class="worker-profile-row-meta top-lang-label">English</span></span><i class="worker-profile-row-chevron bi bi-chevron-right"></i></button><a class="worker-profile-row" href="#settings"><span class="worker-profile-row-icon"><i class="bi bi-gear"></i></span><span class="worker-profile-row-copy"><span class="worker-profile-row-title">App Settings</span><span class="worker-profile-row-meta">Preferences and access</span></span><i class="worker-profile-row-chevron bi bi-chevron-right"></i></a><a class="worker-profile-row" href="mailto:admin@pikdrishti.local"><span class="worker-profile-row-icon"><i class="bi bi-question-circle"></i></span><span class="worker-profile-row-copy"><span class="worker-profile-row-title">Help &amp; Support</span><span class="worker-profile-row-meta">Contact district administrator</span></span><i class="worker-profile-row-chevron bi bi-chevron-right"></i></a></div></section>
+        <a class="worker-profile-logout" href="{{ url_for('main.admin_logout') }}"><i class="bi bi-box-arrow-right"></i>Log out</a>
+        <p class="worker-profile-footer">PikDrishti AI · Extension Worker Portal · Prototype</p>
     </div>
 </div>
-<nav class="admin-bottom-nav" aria-label="Extension worker navigation">
-    <a href="{{ url_for('main.admin_dashboard') }}" class="admin-nav-item"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a>
-    <a href="{{ url_for('main.dashboard') }}" class="admin-nav-item"><i class="bi bi-house-door"></i><span>Farmer App</span></a>
-    <a href="{{ url_for('main.admin_profile') }}" class="admin-nav-item active"><i class="bi bi-person-circle"></i><span>Profile</span></a>
-    <a href="{{ url_for('main.admin_logout') }}" class="admin-nav-item"><i class="bi bi-box-arrow-right"></i><span>Log out</span></a>
-</nav>
+<nav class="worker-profile-nav" aria-label="Extension worker navigation"><a class="worker-profile-nav-item" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-house-fill"></i><span>Home</span></a><a class="worker-profile-nav-item" href="{{ url_for('main.admin_cases') }}"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a><a class="worker-profile-nav-item" href="{{ url_for('main.admin_hotspots') }}"><i class="bi bi-geo-alt-fill"></i><span>Map</span></a><a class="worker-profile-nav-item" href="{{ url_for('main.admin_farmers') }}"><i class="bi bi-people-fill"></i><span>Farmers</span></a><a class="worker-profile-nav-item active" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a></nav>
 {% endblock %}

@@ -1,19 +1,67 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="auth-wrapper">
-    <div class="text-center mb-5">
-        <div class="auth-logo mb-3 shadow-sm">
-            <img src="{{url_for('static',filename='images/icons/icon-192.png')}}" height="50px" alt="">
-        </div>
-        <h1 class="h2 fw-bold text-success">PikDrishti AI</h1>
-        <p class="text-muted">Your intelligent farming assistant.</p>
-    </div>
+{% block extra_css %}
+<style>
+    .main-content { padding-bottom:0; }
+    .flash-messages { display:none !important; }
+    .landing-page { position:relative; min-height:100%; box-sizing:border-box; display:grid; place-items:center; overflow:hidden; padding:28px 18px 42px; background:linear-gradient(145deg,#f7fbf7 0%,#eef8f0 55%,#fffaf0 100%); }
+    .landing-page::before { content:''; position:absolute; inset:0; background-image:linear-gradient(90deg,rgba(247, 251, 247, 0.283) 0%,rgba(247, 251, 247, 0.675) 46%,rgba(255, 250, 240, 0.107) 100%),url("{{ url_for('static', filename='images/background.png') }}"); background-size:cover; background-position:center; opacity:0; animation:landing-background-fade 1.2s ease-out .08s forwards; }
+    .landing-page::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.08); pointer-events:none; }
+    .landing-shell { position:relative; z-index:1; width:min(960px,100%); display:grid; grid-template-columns:minmax(0,1.08fr) minmax(300px,.82fr); gap:28px; align-items:center; }
+    @keyframes landing-background-fade { from { opacity:0; transform:scale(1.03); } to { opacity:1; transform:scale(1); } }
+    @media (prefers-reduced-motion:reduce) { .landing-page::before { animation:none; opacity:1; } }
+    .landing-copy { padding:18px 8px; }
+    .landing-brand { display:flex; align-items:center; gap:11px; color:#1B5E20; text-decoration:none; margin-bottom:30px; }
+    .landing-brand img { width:48px; height:48px; border-radius:14px; box-shadow:0 6px 16px rgba(46,125,50,.2); }
+    .landing-brand span { font-size:1.25rem; font-weight:800; letter-spacing:-.03em; }
+    .landing-eyebrow { color:#2E7D32; font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px; }
+    .landing-title { color:#17231d; font-size:clamp(2rem,5vw,3.5rem); font-weight:800; letter-spacing:-.05em; line-height:1.02; margin:0; max-width:560px; }
+    .landing-description { color:#020202; font-size:1rem; line-height:1.7; max-width:520px; margin:18px 0 25px; }
+    .landing-points { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; max-width:520px; }
+    .landing-point { display:flex; align-items:center; gap:8px; color:#0d0d0d; font-size:.78rem; font-weight:700; }
+    .landing-point i { color:#040404; }
+    .landing-card { background:rgba(255,255,255,.92); border:1px solid rgba(46,125,50,.12); border-radius:22px; padding:28px; box-shadow:0 18px 42px rgba(27,94,32,.1); }
+    .landing-card h2 { color:#17231d; font-size:1.2rem; font-weight:800; margin:0 0 7px; }
+    .landing-card p { color:#718075; font-size:.8rem; margin:0 0 21px; }
+    .landing-language { display:flex; justify-content:flex-end; margin-bottom:14px; }
+    .landing-language button { background:#fff; }
+    .landing-actions { display:grid; gap:10px; }
+    .landing-actions .btn { padding:12px 20px; font-weight:700; }
+    .official-access { margin-top:20px; padding-top:18px; border-top:1px solid #e5eee7; }
+    .official-access-label { color:#718075; font-size:.68rem; font-weight:800; text-align:center; margin-bottom:10px; }
+    .official-access-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .official-access-btn { display:flex; align-items:center; justify-content:center; gap:6px; min-width:0; padding:10px 7px; border:1px solid #cfe2d3; border-radius:12px; color:#28583a; background:#f5fbf6; font-size:.7rem; font-weight:800; text-decoration:none; text-align:center; }
+    .official-access-btn:hover { color:#1B5E20; background:#e8f5e9; border-color:#a9d4b0; }
+    .ecosystem-strip { margin-top:24px; padding-top:16px; border-top:1px solid #e5eee7; }
+    .ecosystem-label { color:#718075; font-size:.64rem; font-weight:800; text-align:center; margin-bottom:11px; }
+    .ecosystem-logos { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; align-items:center; }
+    .ecosystem-logo { min-width:0; height:36px; width:100%; object-fit:contain; mix-blend-mode:multiply; filter:saturate(.85); opacity:.86; }
+    .ecosystem-logo:hover { filter:none; opacity:1; }
+    .landing-note { color:#839087; font-size:.68rem; line-height:1.5; margin:18px 0px 0px !important; text-align:center; }
+    @media (max-width:760px) { .landing-page { padding:22px 16px 35px; } .landing-shell { grid-template-columns:1fr; gap:8px; max-width:520px; } .landing-copy { padding:0 2px 4px; } .landing-brand { margin-bottom:24px; } .landing-title { font-size:2.45rem; } .landing-description { font-size:.9rem; margin:14px 0 19px; } .landing-card { padding:23px 20px; } }
+    @media (max-width:390px) { .landing-title { font-size:2.1rem; } .landing-points { grid-template-columns:1fr; gap:7px; } }
+</style>
+{% endblock %}
 
-    <div class="d-grid gap-3 w-100" style="max-width: 300px;">
-        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Log In</a>
-        <a href="{{ url_for('auth.register') }}"
-            class="btn btn-outline-success btn-lg rounded-pill bg-white shadow-sm">Register</a>
+{% block content %}
+<div class="landing-page">
+    <div class="landing-shell">
+        <section class="landing-copy">
+            <a class="landing-brand" href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="PikDrishti AI"><span>PikDrishti AI</span></a>
+            <div class="landing-eyebrow">Crop health intelligence</div>
+            <h1 class="landing-title">See risk earlier. Grow with confidence.</h1>
+            <p class="landing-description">A practical agricultural assistant for crop image analysis, weather-aware guidance, pest monitoring, and safer field decisions.</p>
+            <div class="landing-points"><span class="landing-point"><i class="bi bi-camera-fill"></i>Image-based diagnosis</span><span class="landing-point"><i class="bi bi-cloud-sun-fill"></i>Weather risk signals</span><span class="landing-point"><i class="bi bi-shield-check"></i>Structured IPM guidance</span><span class="landing-point"><i class="bi bi-translate"></i>Local-language support</span></div>
+        </section>
+        <section class="landing-card">
+            <div class="landing-language"><button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#globalLangModal"><i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span></button></div>
+            <h2>Start your farm journey</h2>
+            <p>Sign in to continue, or create a profile to organize your farms and crop health records.</p>
+            <div class="landing-actions"><a href="{{ url_for('auth.login') }}" class="btn btn-success btn-lg rounded-pill">Log In</a><a href="{{ url_for('auth.register') }}" class="btn btn-outline-success btn-lg rounded-pill">Create an account</a></div>
+            <div class="official-access"><div class="official-access-label">Official access</div><div class="official-access-actions"><a href="{{ url_for('main.admin_login') }}" class="official-access-btn"><i class="bi bi-person-badge"></i>Extension Worker</a><a href="{{ url_for('main.government_dashboard') }}" class="official-access-btn"><i class="bi bi-building"></i>Government Official</a></div></div>
+            <div class="ecosystem-strip"><div class="ecosystem-label">Indian Technology ecosystem used in this prototype</div><div class="ecosystem-logos"><img class="ecosystem-logo" src="{{ url_for('static', filename='images/logos/aadhaar.jpg') }}" alt="Aadhaar ecosystem"><img class="ecosystem-logo" src="{{ url_for('static', filename='images/logos/agristack.jpg') }}" alt="AgriStack ecosystem"><img class="ecosystem-logo" src="{{ url_for('static', filename='images/logos/bhasini.png') }}" alt="Bhashini language services"><img class="ecosystem-logo" src="{{ url_for('static', filename='images/logos/bhuvan.png') }}" alt="Bhuvan geospatial services"><img class="ecosystem-logo" src="{{ url_for('static', filename='images/logos/mappls.png') }}" alt="Mappls mapping services"></div></div>
+            <p class="landing-note">Advice is decision support. Confirm uncertain or high-risk cases with an agriculture professional.</p>
+        </section>
     </div>
 </div>
 {% endblock %}

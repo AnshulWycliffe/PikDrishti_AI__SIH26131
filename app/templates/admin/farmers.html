@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .farmers-page { min-height:100%; background:#f4faf7; padding:12px 16px calc(82px + env(safe-area-inset-bottom)); }
+    .farmers-shell { width:min(100%,600px); margin:0 auto; }
+    .farmers-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 15px; }
+    .farmers-back, .farmers-top-action { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d4e8dc; border-radius:50%; color:#145c3a; background:#fff; text-decoration:none; }
+    .farmers-heading { color:#183629; font-size:1.12rem; font-weight:800; margin:0; }
+    .farmers-top-actions { display:flex; align-items:center; gap:7px; }
+    .farmers-search { display:flex; align-items:center; gap:8px; height:42px; padding:0 12px; margin-bottom:12px; border:1px solid #d9ebe0; border-radius:10px; background:#fff; color:#718279; }
+    .farmers-search input { min-width:0; flex:1; height:100%; border:0; outline:0; color:#183629; background:transparent; font-size:.72rem; }
+    .farmers-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:13px; }
+    .farmers-summary-card { padding:11px 7px; border:1px solid #d9ebe0; border-radius:10px; background:#fff; text-align:center; }
+    .farmers-summary-value { color:#08775a; font-size:1.2rem; font-weight:800; }
+    .farmers-summary-label { color:#718279; font-size:.57rem; margin-top:4px; }
+    .farmers-count { color:#718279; font-size:.64rem; margin:0 1px 8px; }
+    .farmers-list { display:grid; gap:8px; }
+    .farmer-item { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #d9ebe0; border-radius:12px; background:#fff; color:inherit; text-decoration:none; }
+    .farmer-item:hover { color:inherit; background:#f1fbf5; border-color:#a9d4b0; }
+    .farmer-avatar { width:43px; height:43px; display:grid; place-items:center; border-radius:50%; color:#08775a; background:#dcf6e8; font-size:.78rem; font-weight:800; flex:0 0 43px; }
+    .farmer-copy { min-width:0; flex:1; }
+    .farmer-name { display:block; color:#183629; font-size:.78rem; font-weight:800; }
+    .farmer-meta { display:block; color:#718279; font-size:.6rem; line-height:1.4; margin-top:4px; overflow-wrap:anywhere; }
+    .farmer-case-count { color:#08775a; font-size:.62rem; font-weight:800; text-align:right; white-space:nowrap; }
+    .farmer-case-count small { display:block; color:#718279; font-size:.53rem; font-weight:600; margin-top:3px; }
+    .farmers-empty { padding:28px 15px; border:1px dashed #cfe2d6; border-radius:11px; color:#718279; background:#fff; font-size:.72rem; text-align:center; }
+    .farmers-bottom-nav { position:fixed; left:0; right:0; bottom:0; z-index:1000; min-height:67px; display:flex; align-items:center; justify-content:space-around; gap:3px; padding:4px 8px env(safe-area-inset-bottom); box-sizing:border-box; border-top:1px solid #d9ebe0; background:rgba(255,255,255,.96); box-shadow:0 -5px 18px rgba(30,93,61,.08); }
+    .farmers-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; padding:7px 3px; border-radius:11px; color:#718279; font-size:.63rem; font-weight:800; text-decoration:none; text-align:center; }
+    .farmers-nav-item i { font-size:1.1rem; }
+    .farmers-nav-item.active, .farmers-nav-item:hover { color:#08775a; background:#e8f7ef; }
+    @media (max-width:380px) { .farmers-page { padding-left:11px; padding-right:11px; } .farmers-heading { font-size:1rem; } .farmers-nav-item { font-size:.55rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="farmers-page">
+    <div class="farmers-shell">
+        <header class="farmers-topbar"><a class="farmers-back" href="{{ url_for('main.admin_dashboard') }}" aria-label="Back to dashboard"><i class="bi bi-arrow-left"></i></a><h1 class="farmers-heading">Farmers</h1><div class="farmers-top-actions"><button class="farmers-top-action" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal" aria-label="Select language"><i class="bi bi-translate"></i></button><a class="farmers-top-action" href="{{ url_for('main.admin_profile') }}" aria-label="Officer profile"><i class="bi bi-person-fill"></i></a></div></header>
+        <form class="farmers-search" method="GET"><i class="bi bi-search"></i><input name="q" value="{{ search_query }}" placeholder="Search farmers by name, phone..." aria-label="Search farmers"></form>
+        <section class="farmers-summary" aria-label="Farmer directory summary"><div class="farmers-summary-card"><div class="farmers-summary-value">{{ farmer_cards|length }}</div><div class="farmers-summary-label">Farmers shown</div></div><div class="farmers-summary-card"><div class="farmers-summary-value">{{ farmer_cards|selectattr('farm_count', 'gt', 0)|list|length }}</div><div class="farmers-summary-label">With farms</div></div><div class="farmers-summary-card"><div class="farmers-summary-value">{{ farmer_cards|selectattr('case_count', 'gt', 0)|list|length }}</div><div class="farmers-summary-label">With cases</div></div></section>
+        <p class="farmers-count">{{ farmer_cards|length }} farmer{% if farmer_cards|length != 1 %}s{% endif %} shown</p>
+        <div class="farmers-list">{% if farmer_cards %}{% for item in farmer_cards %}<a class="farmer-item" href="{{ url_for('main.admin_farmer_detail', user_id=item.farmer.id) }}"><span class="farmer-avatar">{{ item.farmer.username[:2]|upper }}</span><span class="farmer-copy"><span class="farmer-name">{{ item.farmer.username|title }}</span><span class="farmer-meta">{{ item.location }}<br>{{ item.crop_count }} crop{% if item.crop_count != 1 %}s{% endif %} · {{ item.farm_count }} farm{% if item.farm_count != 1 %}s{% endif %}</span></span><span class="farmer-case-count">{{ item.case_count }}<small>cases</small></span><i class="bi bi-chevron-right text-muted"></i></a>{% endfor %}{% else %}<div class="farmers-empty"><i class="bi bi-people d-block fs-3 mb-2"></i>No farmers match your search.</div>{% endif %}</div>
+    </div>
+</div>
+<nav class="farmers-bottom-nav" aria-label="Extension worker navigation"><a class="farmers-nav-item" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-house-fill"></i><span>Home</span></a><a class="farmers-nav-item" href="{{ url_for('main.admin_cases') }}"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a><a class="farmers-nav-item" href="{{ url_for('main.admin_hotspots') }}"><i class="bi bi-geo-alt-fill"></i><span>Map</span></a><a class="farmers-nav-item active" href="{{ url_for('main.admin_farmers') }}"><i class="bi bi-people-fill"></i><span>Farmers</span></a><a class="farmers-nav-item" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a></nav>
+{% endblock %}

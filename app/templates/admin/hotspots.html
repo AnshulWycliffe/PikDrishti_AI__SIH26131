@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .hotspots-page { min-height:100%; background:#f4faf7; padding:12px 16px calc(82px + env(safe-area-inset-bottom)); }
+    .hotspots-shell { width:min(100%,600px); margin:0 auto; }
+    .hotspots-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 15px; }
+    .hotspots-back, .hotspots-action { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d4e8dc; border-radius:50%; color:#145c3a; background:#fff; text-decoration:none; }
+    .hotspots-actions { display:flex; gap:7px; }
+    .hotspots-heading { color:#183629; font-size:1.12rem; font-weight:800; margin:0; }
+    .hotspots-subtitle { color:#718279; font-size:.64rem; margin:0 0 10px; }
+    .hotspot-map-card { overflow:hidden; border:1px solid #d9ebe0; border-radius:13px; background:#fff; box-shadow:0 5px 16px rgba(30,93,61,.06); }
+    .hotspot-map-stage { position:relative; height:310px; overflow:hidden; background:#e8f3ec; }
+    .hotspot-map-fallback { position:absolute; inset:0; width:100%; height:100%; display:none; object-fit:cover; }
+    #hotspotMap { position:absolute; inset:0; z-index:1; }
+    .hotspot-map-note { position:absolute; left:10px; bottom:10px; z-index:2; padding:6px 8px; border-radius:7px; color:#718279; background:rgba(255,255,255,.9); font-size:.57rem; }
+    .hotspot-map-error { display:none; position:absolute; inset:10px 10px auto; z-index:3; padding:8px 10px; border-radius:8px; color:#8d3b32; background:rgba(255,241,238,.95); font-size:.6rem; }
+    .hotspot-map-legend { display:flex; flex-wrap:wrap; gap:11px; padding:10px 12px; border-top:1px solid #e4eee8; color:#718279; font-size:.59rem; }
+    .hotspot-map-legend span { display:flex; align-items:center; gap:5px; }
+    .hotspot-map-legend i { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .hotspots-section { margin-top:15px; }
+    .hotspots-section-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 1px 8px; }
+    .hotspots-section-head h2 { color:#183629; font-size:.8rem; font-weight:800; margin:0; }
+    .hotspots-section-head span { color:#718279; font-size:.6rem; }
+    .hotspot-list { display:grid; gap:8px; }
+    .hotspot-row { display:flex; align-items:center; gap:10px; padding:11px; border:1px solid #d9ebe0; border-radius:11px; background:#fff; }
+    .hotspot-dot { width:10px; height:10px; border-radius:50%; flex:0 0 10px; }
+    .hotspot-copy { min-width:0; flex:1; }
+    .hotspot-name { display:block; color:#183629; font-size:.72rem; font-weight:800; }
+    .hotspot-meta { display:block; color:#718279; font-size:.59rem; margin-top:4px; overflow-wrap:anywhere; }
+    .hotspot-score { color:#183629; font-size:.9rem; font-weight:800; text-align:right; }
+    .hotspot-risk { color:#a96a00; font-size:.55rem; font-weight:800; margin-top:3px; text-align:right; text-transform:uppercase; }
+    .hotspot-risk.high { color:#c52929; }
+    .hotspot-risk.low { color:#187150; }
+    .hotspots-bottom-nav { position:fixed; left:0; right:0; bottom:0; z-index:1000; min-height:67px; display:flex; align-items:center; justify-content:space-around; gap:3px; padding:4px 8px env(safe-area-inset-bottom); box-sizing:border-box; border-top:1px solid #d9ebe0; background:rgba(255,255,255,.96); box-shadow:0 -5px 18px rgba(30,93,61,.08); }
+    .hotspots-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; padding:7px 3px; border-radius:11px; color:#718279; font-size:.63rem; font-weight:800; text-decoration:none; text-align:center; }
+    .hotspots-nav-item i { font-size:1.1rem; }
+    .hotspots-nav-item.active, .hotspots-nav-item:hover { color:#08775a; background:#e8f7ef; }
+    @media (max-width:380px) { .hotspots-page { padding-left:11px; padding-right:11px; } .hotspot-map-stage { height:280px; } .hotspots-nav-item { font-size:.55rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hotspots-page">
+    <div class="hotspots-shell">
+        <header class="hotspots-topbar"><a class="hotspots-back" href="{{ url_for('main.admin_dashboard') }}" aria-label="Back to dashboard"><i class="bi bi-arrow-left"></i></a><h1 class="hotspots-heading">Disease Hotspot Map</h1><div class="hotspots-actions"><button class="hotspots-action" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal" aria-label="Select language"><i class="bi bi-translate"></i></button><a class="hotspots-action" href="{{ url_for('main.admin_profile') }}" aria-label="Officer profile"><i class="bi bi-person-fill"></i></a></div></header>
+        <p class="hotspots-subtitle">Dummy surveillance clusters for extension-worker triage</p>
+        <section class="hotspot-map-card"><div class="hotspot-map-stage"><img class="hotspot-map-fallback" src="{{ url_for('static', filename='images/dummy_map.png') }}" alt="Demonstration disease hotspot map"><div id="hotspotMap" aria-label="Interactive Mappls disease hotspot map"></div><div class="hotspot-map-error" id="hotspotMapError">Interactive Mappls map could not load. Showing the demonstration map.</div><span class="hotspot-map-note" id="hotspotMapNote">Loading interactive Mappls map...</span></div><div class="hotspot-map-legend"><span><i style="background:#d94841"></i>High risk</span><span><i style="background:#e09f3e"></i>Moderate</span><span><i style="background:#3b8c6e"></i>Low</span><span><i class="bi bi-fire"></i>Nashik disease pressure</span></div></section>
+        <section class="hotspots-section"><div class="hotspots-section-head"><h2>Priority districts</h2><span>Ranked by dummy risk score</span></div><div class="hotspot-list">{% for hotspot in hotspots %}<div class="hotspot-row"><i class="hotspot-dot" style="background:{{ '#d94841' if hotspot.threat_level == 'High' else '#e09f3e' if hotspot.threat_level == 'Moderate' else '#3b8c6e' }}"></i><div class="hotspot-copy"><span class="hotspot-name">{{ hotspot.cluster_name }}</span><span class="hotspot-meta">{{ hotspot.district }} · {{ hotspot.primary_threat }} · {{ hotspot.reported_cases }} reported cases</span></div><div><div class="hotspot-score">{{ hotspot.risk_score }}</div><div class="hotspot-risk {{ hotspot.threat_level|lower }}">{{ hotspot.threat_level }}</div></div></div>{% endfor %}</div></section>
+    </div>
+</div>
+<nav class="hotspots-bottom-nav" aria-label="Extension worker navigation"><a class="hotspots-nav-item" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-house-fill"></i><span>Home</span></a><a class="hotspots-nav-item" href="{{ url_for('main.admin_cases') }}"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a><a class="hotspots-nav-item active" href="{{ url_for('main.admin_hotspots') }}"><i class="bi bi-geo-alt-fill"></i><span>Map</span></a><a class="hotspots-nav-item" href="{{ url_for('main.admin_farmers') }}"><i class="bi bi-people-fill"></i><span>Farmers</span></a><a class="hotspots-nav-item" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a></nav>
+{% endblock %}
+
+{% block extra_js %}
+{% if mappls_token %}
+<script>
+    const workerHotspots = {{ hotspots|tojson }};
+    const nashikHeatPoints = {{ nashik_heat_points|tojson }};
+    function showMapFallback(message) {
+        document.querySelector('.hotspot-map-fallback').style.display = 'block';
+        document.getElementById('hotspotMapError').style.display = 'block';
+        document.getElementById('hotspotMapNote').textContent = message || 'Demonstration map';
+    }
+    function initWorkerMap() {
+        if (!window.mappls || !window.mappls.Map) {
+            showMapFallback('Mappls SDK unavailable');
+            return;
+        }
+        try {
+            const map = new mappls.Map('hotspotMap', { center: [20.0768, 74.1082], zoom: 9, zoomControl: true, location: true });
+            document.getElementById('hotspotMapNote').textContent = 'Mappls map · dummy hotspot data';
+            new mappls.HeatmapLayer({
+                map: map,
+                data: nashikHeatPoints,
+                gradient: [
+                    'rgba(0, 255, 255, 0)', 'rgba(0, 255, 255, 1)',
+                    'rgba(0, 191, 255, 1)', 'rgba(0, 127, 255, 1)',
+                    'rgba(0, 63, 255, 1)', 'rgba(0, 0, 191, 1)',
+                    'rgba(127, 0, 63, 1)', 'rgba(191, 0, 31, 1)', 'brown'
+                ],
+                fitbounds: false,
+            });
+            workerHotspots.forEach((hotspot) => {
+                new mappls.Marker({
+                    map: map,
+                    position: { lat: hotspot.lat, lng: hotspot.lon },
+                    popupHtml: `<strong>${hotspot.district}</strong><br>${hotspot.primary_threat}<br>Risk score: ${hotspot.risk_score}`,
+                });
+            });
+        } catch (error) {
+            showMapFallback('Mappls initialization failed');
+        }
+    }
+    window.setTimeout(() => {
+        if (!window.mappls || !window.mappls.Map) showMapFallback('Mappls authorization or SDK failed');
+    }, 8000);
+</script>
+<script src="https://sdk.mappls.com/map/sdk/web?v=3.0&access_token={{ mappls_token }}&callback=initWorkerMap" onerror="showMapFallback('Mappls SDK request failed')"></script>
+{% else %}
+<script>showMapFallback('Mappls token is not configured');</script>
+{% endif %}
+{% endblock %}

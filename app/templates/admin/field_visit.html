@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .field-visit-page { min-height:100%; background:#f4faf7; padding:12px 16px calc(82px + env(safe-area-inset-bottom)); }
+    .field-visit-shell { width:min(100%,600px); margin:0 auto; }
+    .field-visit-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 15px; }
+    .field-visit-back, .field-visit-action { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d4e8dc; border-radius:50%; color:#145c3a; background:#fff; text-decoration:none; }
+    .field-visit-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:14px; }
+    .field-visit-title { color:#183629; font-size:1.15rem; font-weight:800; }
+    .field-visit-meta { color:#718279; font-size:.68rem; }
+    .field-visit-card { padding:15px; border:1px solid #d9ebe0; border-radius:15px; background:#fff; box-shadow:0 5px 16px rgba(30,93,61,.06); }
+    .field-visit-form { display:grid; gap:12px; }
+    .field-visit-field { display:grid; gap:6px; }
+    .field-visit-label { color:#183629; font-size:.68rem; font-weight:800; }
+    .field-visit-input, .field-visit-select, .field-visit-textarea {
+        width:100%; border:1px solid #d9ebe0; border-radius:10px; background:#f8fbf9; color:#183629; padding:10px 12px; font-size:.75rem; outline:none;
+    }
+    .field-visit-input:focus, .field-visit-select:focus, .field-visit-textarea:focus { border-color:#2d9d77; box-shadow:0 0 0 3px rgba(45,157,119,.12); }
+    .field-visit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .field-visit-list { display:grid; gap:8px; }
+    .field-visit-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid #d9ebe0; border-radius:11px; background:#f9fdfb; }
+    .field-visit-row strong { color:#183629; font-size:.72rem; }
+    .field-visit-row small { color:#718279; font-size:.58rem; }
+    .field-visit-tag { padding:5px 7px; border-radius:999px; font-size:.55rem; font-weight:800; }
+    .tag-green { color:#08775a; background:#dcf6e8; }
+    .tag-amber { color:#a96a00; background:#fff1c9; }
+    .field-visit-actions { display:flex; gap:8px; margin-top:6px; }
+    .field-visit-submit { flex:1; height:44px; border:0; border-radius:10px; background:#08775a; color:#fff; font-weight:800; }
+    .field-visit-cancel { flex:1; height:44px; border:1px solid #d9ebe0; border-radius:10px; background:#fff; color:#145c3a; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+    .field-visit-empty { padding:14px; text-align:center; border:1px dashed #cfe2d6; border-radius:11px; color:#718279; background:#fff; font-size:.68rem; }
+    .field-visit-nav { position:fixed; left:0; right:0; bottom:0; z-index:1000; min-height:67px; display:flex; align-items:center; justify-content:space-around; gap:3px; padding:4px 8px env(safe-area-inset-bottom); box-sizing:border-box; border-top:1px solid #d9ebe0; background:rgba(255,255,255,.96); box-shadow:0 -5px 18px rgba(30,93,61,.08); }
+    .field-visit-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; padding:7px 3px; border-radius:11px; color:#718279; font-size:.63rem; font-weight:800; text-decoration:none; text-align:center; }
+    .field-visit-nav-item i { font-size:1.1rem; }
+    .field-visit-nav-item.active, .field-visit-nav-item:hover { color:#08775a; background:#e8f7ef; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="field-visit-page">
+    <div class="field-visit-shell">
+        <header class="field-visit-topbar">
+            <a class="field-visit-back" href="{{ url_for('main.admin_farmer_detail', user_id=farmer.id) }}" aria-label="Back to farmer detail"><i class="bi bi-arrow-left"></i></a>
+            <div class="field-visit-head" style="flex:1; margin:0; justify-content:space-between;">
+                <div>
+                    <div class="field-visit-title">Field Visit</div>
+                    <div class="field-visit-meta">Visit records for {{ farmer.username|title }}</div>
+                </div>
+                <button class="field-visit-action" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal" aria-label="Select language"><i class="bi bi-translate"></i></button>
+            </div>
+        </header>
+
+        <section class="field-visit-card">
+            <form class="field-visit-form" method="post">
+                <div class="field-visit-field">
+                    <label class="field-visit-label" for="visit_date">Visit date</label>
+                    <input class="field-visit-input" id="visit_date" type="date" name="visit_date" value="{{ (current_date if current_date else '') }}" required>
+                </div>
+
+                <div class="field-visit-grid">
+                    <div class="field-visit-field">
+                        <label class="field-visit-label" for="farm_id">Farm</label>
+                        <select class="field-visit-select" id="farm_id" name="farm_id">
+                            {% if farms %}
+                                {% for farm in farms %}
+                                <option value="{{ farm.id }}" {% if selected_farm and selected_farm.id == farm.id %}selected{% endif %}>{{ farm.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">No farms added</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="field-visit-field">
+                        <label class="field-visit-label" for="crop_name">Crop</label>
+                        <select class="field-visit-select" id="crop_name" name="crop_name">
+                            {% if crops %}
+                                {% for crop in crops %}
+                                <option value="{{ crop.name }}">{{ crop.name }}{% if crop.variety %} · {{ crop.variety }}{% endif %}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">No crop records</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-visit-field">
+                    <label class="field-visit-label" for="visit_status">Visit outcome</label>
+                    <select class="field-visit-select" id="visit_status" name="visit_status">
+                        <option value="Pending review">Pending review</option>
+                        <option value="Healthy">Healthy</option>
+                        <option value="Needs attention">Needs attention</option>
+                        <option value="Escalated">Escalated</option>
+                    </select>
+                </div>
+
+                <div class="field-visit-field">
+                    <label class="field-visit-label" for="condition_summary">Field observations</label>
+                    <textarea class="field-visit-textarea" id="condition_summary" name="condition_summary" rows="4" placeholder="Leaf colour, growth, pest presence, moisture, irrigation notes...">{{ farmer.username|title }} field review notes.</textarea>
+                </div>
+
+                <div class="field-visit-field">
+                    <label class="field-visit-label" for="action_recommendation">Recommended action</label>
+                    <textarea class="field-visit-textarea" id="action_recommendation" name="action_recommendation" rows="3" placeholder="Treatment or follow-up actions for the farmer">- Remove affected leaves and maintain field sanitation
+- Follow recommended spray schedule
+- Revisit in 5–7 days</textarea>
+                </div>
+
+                <div class="field-visit-list">
+                    <div class="field-visit-row">
+                        <div>
+                            <strong>Stage</strong><br>
+                            <small>Crop growth phase</small>
+                        </div>
+                        <span class="field-visit-tag tag-green">Vegetative</span>
+                    </div>
+                    <div class="field-visit-row">
+                        <div>
+                            <strong>Risk</strong><br>
+                            <small>Field risk level</small>
+                        </div>
+                        <span class="field-visit-tag tag-amber">Medium</span>
+                    </div>
+                </div>
+
+                <div class="field-visit-actions">
+                    <a class="field-visit-cancel" href="{{ url_for('main.admin_farmer_detail', user_id=farmer.id) }}">Cancel</a>
+                    <button class="field-visit-submit" type="submit">Save Visit</button>
+                </div>
+            </form>
+        </section>
+
+        {% if not farms and not crops %}
+        <div class="field-visit-empty" style="margin-top:12px;">This farmer has no farm or crop records yet. Add farm details first to create a field visit.</div>
+        {% endif %}
+    </div>
+</div>
+
+<nav class="field-visit-nav" aria-label="Extension worker navigation">
+    <a class="field-visit-nav-item" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-house-fill"></i><span>Home</span></a>
+    <a class="field-visit-nav-item" href="{{ url_for('main.admin_cases') }}"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a>
+    <a class="field-visit-nav-item" href="{{ url_for('main.admin_hotspots') }}"><i class="bi bi-geo-alt-fill"></i><span>Map</span></a>
+    <a class="field-visit-nav-item active" href="{{ url_for('main.admin_farmers') }}"><i class="bi bi-people-fill"></i><span>Farmers</span></a>
+    <a class="field-visit-nav-item" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a>
+</nav>
+{% endblock %}

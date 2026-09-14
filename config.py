@@ -14,6 +14,7 @@ class Config:
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     GEMINI_MODEL = os.environ.get('GEMINI_MODEL') or 'gemini-2.5-flash'
     WEATHER_API_KEY = os.environ.get('WEATHER_API_KEY')
+    MAPPLS_MAP_API = os.environ.get('MAPPLS_MAP_API') or os.environ.get('MAPPLS_API_KEY')
     
     # Bhashini (NLTM / ULCA) Speech & Language API
     BHASHINI_USER_ID = os.environ.get('BHASHINI_USER_ID') or os.environ.get('BHASINI_USER_ID')

@@ -1,30 +1,61 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    .main-content { padding-bottom:0; }
+    .worker-login-page { position:relative; min-height:100%; display:grid; place-items:center; overflow:hidden; padding:24px 18px 36px; background:linear-gradient(145deg,#f5fbf7 0%,#e8f6ef 100%); }
+    .worker-login-page::before { content:''; position:absolute; inset:0; background-image:linear-gradient(90deg,rgba(247,251,247,.9) 0%,rgba(247,251,247,.72) 50%,rgba(255,250,240,.62) 100%),url("{{ url_for('static', filename='images/background.png') }}"); background-size:cover; background-position:center; opacity:0; animation:worker-auth-background-fade 1.2s ease-out .08s forwards; }
+    .worker-login-shell { position:relative; z-index:1; width:min(100%,390px); }
+    @keyframes worker-auth-background-fade { from { opacity:0; transform:scale(1.03); } to { opacity:1; transform:scale(1); } }
+    @media (prefers-reduced-motion:reduce) { .worker-login-page::before { animation:none; opacity:1; } }
+    .worker-login-brand { display:flex; align-items:center; gap:10px; margin-bottom:28px; text-decoration:none; }
+    .worker-login-brand img { width:43px; height:43px; border-radius:12px; box-shadow:0 5px 14px rgba(27,94,32,.17); }
+    .worker-login-brand-name { color:#145c3a; font-size:1.18rem; font-weight:800; letter-spacing:-.04em; }
+    .worker-login-brand-sub { display:block; color:#688176; font-size:.57rem; font-weight:600; margin-top:2px; }
+    .worker-login-card { background:rgba(255,255,255,.94); border:1px solid #d9ebe0; border-radius:20px; padding:26px 22px 22px; box-shadow:0 16px 34px rgba(30,93,61,.11); }
+    .worker-login-heading { color:#183629; font-size:1.45rem; font-weight:800; letter-spacing:-.03em; margin:0 0 6px; }
+    .worker-login-subtitle { color:#718279; font-size:.76rem; line-height:1.5; margin:0 0 23px; }
+    .worker-login-field { position:relative; margin-bottom:14px; }
+    .worker-login-field i { position:absolute; left:14px; top:50%; z-index:2; color:#6a8576; transform:translateY(-50%); }
+    .worker-login-field input { width:100%; box-sizing:border-box; height:47px; padding:0 14px 0 40px; border:1px solid #d5e3da; border-radius:10px; color:#183629; background:#fff; font-size:.8rem; outline:0; }
+    .worker-login-field input:focus { border-color:#2e8b61; box-shadow:0 0 0 3px rgba(46,139,97,.12); }
+    .worker-login-options { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:1px 0 19px; color:#718279; font-size:.67rem; }
+    .worker-login-options label { display:flex; align-items:center; gap:6px; }
+    .worker-login-options input { accent-color:#08775a; }
+    .worker-login-options a { color:#08775a; font-weight:800; text-decoration:none; }
+    .worker-login-submit { width:100%; height:46px; border:0; border-radius:9px; color:#fff; background:#08775a; font-size:.82rem; font-weight:800; box-shadow:0 6px 14px rgba(8,119,90,.2); }
+    .worker-login-submit:hover { background:#005946; }
+    .worker-login-divider { display:flex; align-items:center; gap:10px; margin:20px 0 15px; color:#a2afa7; font-size:.65rem; }
+    .worker-login-divider::before, .worker-login-divider::after { content:''; height:1px; flex:1; background:#e3ece6; }
+    .worker-login-sso { width:100%; height:42px; border:1px solid #cfe2d6; border-radius:9px; color:#28583a; background:#f8fcf9; font-size:.74rem; font-weight:800; }
+    .worker-login-sso:hover { background:#eaf7ef; }
+    .worker-login-help { color:#819087; font-size:.64rem; line-height:1.5; text-align:center; margin:19px 0 0; }
+    .worker-login-help a { color:#08775a; font-weight:800; text-decoration:none; }
+    .worker-login-error { padding:9px 11px; margin-bottom:14px; border-radius:8px; color:#a33a32; background:#fff0ee; font-size:.7rem; }
+    .worker-login-language { display:flex; justify-content:flex-end; margin-bottom:10px; }
+    @media (max-width:390px) { .worker-login-page { padding-left:14px; padding-right:14px; } .worker-login-card { padding-left:18px; padding-right:18px; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-language-row">
-        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white shadow-sm" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
-        </button>
-    </div>
-    <div class="card auth-card">
-        <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="auth-brand-mark" alt="PikDrishti AI">
-            <h2 class="fw-bold auth-title mb-1">Extension Worker Portal</h2>
-            <p class="auth-subtitle small">Review crop-health cases and plan follow-up action.</p>
-        </div>
-        {% if error %}<div class="alert alert-danger small">{{ error }}</div>{% endif %}
-        <form method="POST">
-            <div class="mb-3">
-                <label class="auth-field-label">Officer username</label>
-                <input class="form-control" name="username" required autocomplete="username">
-            </div>
-            <div class="mb-4">
-                <label class="auth-field-label">Password</label>
-                <input class="form-control" type="password" name="password" required autocomplete="current-password">
-            </div>
-            <button class="btn auth-submit text-white w-100 btn-lg rounded-pill" type="submit">Open Case Portal</button>
-        </form>
+<div class="worker-login-page">
+    <div class="worker-login-shell">
+        <div class="worker-login-language"><button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white" data-bs-toggle="modal" data-bs-target="#globalLangModal"><i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span></button></div>
+        <a class="worker-login-brand" href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="PikDrishti AI"><span><span class="worker-login-brand-name">PikDrishti AI</span><span class="worker-login-brand-sub">For Healthy Crops, Prosperous Maharashtra</span></span></a>
+        <section class="worker-login-card">
+            <h1 class="worker-login-heading">Extension Worker Portal</h1>
+            <p class="worker-login-subtitle">Connect, validate cases, and empower farmers with timely crop-health action.</p>
+            {% if error %}<div class="worker-login-error" role="alert"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endif %}
+            <form method="POST">
+                <div class="worker-login-field"><i class="bi bi-person"></i><input name="username" required autocomplete="username" placeholder="Mobile Number / Email" aria-label="Mobile number or email"></div>
+                <div class="worker-login-field"><i class="bi bi-lock"></i><input type="password" name="password" required autocomplete="current-password" placeholder="Password" aria-label="Password"></div>
+                <div class="worker-login-options"><label><input type="checkbox" name="remember"> Remember me</label><a href="{{ url_for('main.admin_login') }}">Forgot?</a></div>
+                <button class="worker-login-submit" type="submit">Login</button>
+            </form>
+            <div class="worker-login-divider">or</div>
+            <button class="worker-login-sso" type="button"><i class="bi bi-shield-lock me-1"></i> Login with SSO (Maha)</button>
+            <p class="worker-login-help">Need access? <a href="mailto:admin@pikdrishti.local">Contact your district admin</a></p>
+        </section>
     </div>
 </div>
 {% endblock %}

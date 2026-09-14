@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .farmer-detail-page { min-height:100%; background:#f4faf7; padding:12px 16px calc(82px + env(safe-area-inset-bottom)); }
+    .farmer-detail-shell { width:min(100%,600px); margin:0 auto; }
+    .farmer-detail-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0 15px; }
+    .farmer-detail-back, .farmer-detail-action { width:32px; height:32px; display:grid; place-items:center; border:1px solid #d4e8dc; border-radius:50%; color:#145c3a; background:#fff; text-decoration:none; }
+    .farmer-detail-actions { display:flex; gap:7px; }
+    .farmer-detail-profile { display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #d9ebe0; border-radius:14px; background:#fff; box-shadow:0 5px 16px rgba(30,93,61,.06); }
+    .farmer-detail-avatar { width:56px; height:56px; display:grid; place-items:center; border-radius:50%; color:#08775a; background:#dcf6e8; font-size:1rem; font-weight:800; flex:0 0 56px; }
+    .farmer-detail-name { color:#183629; font-size:1.15rem; font-weight:800; }
+    .farmer-detail-role { color:#718279; font-size:.65rem; margin-top:4px; }
+    .farmer-detail-contact { color:#08775a; font-size:.62rem; margin-top:7px; }
+    .farmer-detail-section { margin-top:15px; }
+    .farmer-detail-section h2 { color:#183629; font-size:.8rem; font-weight:800; margin:0 0 8px; }
+    .farmer-info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .farmer-info-card { padding:12px; border:1px solid #d9ebe0; border-radius:11px; background:#fff; }
+    .farmer-info-label { color:#718279; font-size:.58rem; }
+    .farmer-info-value { display:block; color:#183629; font-size:.78rem; font-weight:800; margin-top:5px; overflow-wrap:anywhere; }
+    .farmer-crops { display:flex; flex-wrap:wrap; gap:7px; padding:12px; border:1px solid #d9ebe0; border-radius:11px; background:#fff; }
+    .farmer-crop-pill { padding:6px 9px; border-radius:999px; color:#08775a; background:#dcf6e8; font-size:.61rem; font-weight:800; }
+    .farmer-case-list { display:grid; gap:8px; }
+    .farmer-case { display:flex; align-items:center; gap:9px; padding:11px; border:1px solid #d9ebe0; border-radius:11px; color:inherit; background:#fff; text-decoration:none; }
+    .farmer-case:hover { color:inherit; background:#f1fbf5; }
+    .farmer-case-thumb { width:39px; height:39px; display:grid; place-items:center; overflow:hidden; border-radius:9px; color:#08775a; background:#dcf6e8; flex:0 0 39px; }
+    .farmer-case-thumb img { width:100%; height:100%; object-fit:cover; }
+    .farmer-case-copy { min-width:0; flex:1; }
+    .farmer-case-title { display:block; color:#183629; font-size:.7rem; font-weight:800; }
+    .farmer-case-meta { display:block; color:#718279; font-size:.58rem; margin-top:4px; }
+    .farmer-case-status { color:#a96a00; background:#fff1c9; border-radius:999px; padding:5px 7px; font-size:.54rem; font-weight:800; white-space:nowrap; }
+    .farmer-field-action { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:45px; border:0; border-radius:9px; color:#fff; background:#08775a; font-size:.75rem; font-weight:800; text-decoration:none; }
+    .farmer-field-action:hover { color:#fff; background:#005946; }
+    .farmer-detail-empty { padding:17px; border:1px dashed #cfe2d6; border-radius:11px; color:#718279; background:#fff; font-size:.68rem; text-align:center; }
+    .farmer-detail-nav { position:fixed; left:0; right:0; bottom:0; z-index:1000; min-height:67px; display:flex; align-items:center; justify-content:space-around; gap:3px; padding:4px 8px env(safe-area-inset-bottom); box-sizing:border-box; border-top:1px solid #d9ebe0; background:rgba(255,255,255,.96); box-shadow:0 -5px 18px rgba(30,93,61,.08); }
+    .farmer-detail-nav-item { display:flex; flex:1 1 0; min-width:0; flex-direction:column; align-items:center; gap:3px; padding:7px 3px; border-radius:11px; color:#718279; font-size:.63rem; font-weight:800; text-decoration:none; text-align:center; }
+    .farmer-detail-nav-item i { font-size:1.1rem; }
+    .farmer-detail-nav-item.active, .farmer-detail-nav-item:hover { color:#08775a; background:#e8f7ef; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="farmer-detail-page">
+    <div class="farmer-detail-shell">
+        <header class="farmer-detail-topbar"><a class="farmer-detail-back" href="{{ url_for('main.admin_farmers') }}" aria-label="Back to farmers"><i class="bi bi-arrow-left"></i></a><div class="farmer-detail-actions"><button class="farmer-detail-action" type="button" data-bs-toggle="modal" data-bs-target="#globalLangModal" aria-label="Select language"><i class="bi bi-translate"></i></button><a class="farmer-detail-action" href="{{ url_for('main.admin_profile') }}" aria-label="Officer profile"><i class="bi bi-person-fill"></i></a></div></header>
+        <section class="farmer-detail-profile"><span class="farmer-detail-avatar">{{ farmer.username[:2]|upper }}</span><div><div class="farmer-detail-name">{{ farmer.username|title }}</div><div class="farmer-detail-role">Farmer profile · {{ farms[0].location if farms and farms[0].location else 'Location not added' }}</div>{% if farmer.phone %}<div class="farmer-detail-contact"><i class="bi bi-telephone me-1"></i>{{ farmer.phone }}</div>{% endif %}</div></section>
+        <section class="farmer-detail-section"><h2>Farm overview</h2><div class="farmer-info-grid"><div class="farmer-info-card"><span class="farmer-info-label">Farm size</span><strong class="farmer-info-value">{{ farms[0].area if farms and farms[0].area else 'Not added' }}{% if farms and farms[0].area %} acres{% endif %}</strong></div><div class="farmer-info-card"><span class="farmer-info-label">Primary crop</span><strong class="farmer-info-value">{{ crops[0].name if crops else 'Not added' }}</strong></div><div class="farmer-info-card"><span class="farmer-info-label">Soil type</span><strong class="farmer-info-value">{{ farms[0].soil_type if farms and farms[0].soil_type else 'Not added' }}</strong></div><div class="farmer-info-card"><span class="farmer-info-label">Crop records</span><strong class="farmer-info-value">{{ crops|length }}</strong></div></div></section>
+        <section class="farmer-detail-section"><h2>Registered crops</h2><div class="farmer-crops">{% if crops %}{% for crop in crops %}<span class="farmer-crop-pill">{{ crop.name }}{% if crop.variety %} · {{ crop.variety }}{% endif %}</span>{% endfor %}{% else %}<span class="farmer-detail-empty w-100">No crop records added.</span>{% endif %}</div></section>
+        <section class="farmer-detail-section"><h2>Recent cases</h2><div class="farmer-case-list">{% if analyses %}{% for case in analyses %}{% set case_status = case.case_review.status if case.case_review and case.case_review.status else (case.case_review.decision if case.case_review else 'under_review') %}<a class="farmer-case" href="{{ url_for('main.admin_case_detail', analysis_id=case.id) }}"><span class="farmer-case-thumb">{% if case.image_path %}<img src="{{ url_for('static', filename=case.image_path) }}" alt="{{ case.crop_display }} leaf evidence">{% else %}<i class="bi bi-leaf-fill"></i>{% endif %}</span><span class="farmer-case-copy"><span class="farmer-case-title">{{ case.crop_display }} - {{ case.detected_disease or 'Unclassified condition' }}</span><span class="farmer-case-meta">{{ case.date.strftime('%d %b %Y') if case.date else 'Recent' }} · Confidence {{ ((case.confidence or 0) * 100)|round(0)|int }}%</span></span><span class="farmer-case-status">{{ case_status|replace('_', ' ')|title }}</span></a>{% endfor %}{% else %}<div class="farmer-detail-empty">No disease cases recorded for this farmer.</div>{% endif %}</div></section>
+        <section class="farmer-detail-section"><a class="farmer-field-action" href="{{ url_for('main.admin_field_visit', user_id=farmer.id) }}"><i class="bi bi-geo-alt-fill"></i>Add Field Visit</a></section>
+    </div>
+</div>
+<nav class="farmer-detail-nav" aria-label="Extension worker navigation"><a class="farmer-detail-nav-item" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-house-fill"></i><span>Home</span></a><a class="farmer-detail-nav-item" href="{{ url_for('main.admin_cases') }}"><i class="bi bi-grid-1x2-fill"></i><span>Cases</span></a><a class="farmer-detail-nav-item" href="{{ url_for('main.admin_hotspots') }}"><i class="bi bi-geo-alt-fill"></i><span>Map</span></a><a class="farmer-detail-nav-item active" href="{{ url_for('main.admin_farmers') }}"><i class="bi bi-people-fill"></i><span>Farmers</span></a><a class="farmer-detail-nav-item" href="{{ url_for('main.admin_profile') }}"><i class="bi bi-person-fill"></i><span>Profile</span></a></nav>
+{% endblock %}

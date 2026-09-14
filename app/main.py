@@ -185,6 +185,105 @@ def admin_dashboard():
     )
 
 
+@main_bp.route('/admin/cases')
+@admin_required
+def admin_cases():
+    """Case list for extension-worker validation and triage."""
+    cases = DiseaseAnalysis.query.order_by(DiseaseAnalysis.date.desc()).limit(100).all()
+    filter_name = request.args.get('filter', 'all').lower()
+    search_query = request.args.get('q', '').strip().lower()
+    if filter_name == 'verified':
+        cases = [case for case in cases if case.case_review and (case.case_review.status or case.case_review.decision) == 'confirmed']
+    elif filter_name == 'pending':
+        cases = [case for case in cases if not case.case_review or (case.case_review.status or case.case_review.decision) in {'under_review', 'uncertain'}]
+    if search_query:
+        cases = [case for case in cases if search_query in str(case.id).lower() or search_query in str(case.crop_display).lower() or search_query in str(case.detected_disease or '').lower()]
+    return render_template('admin/cases.html', cases=cases, filter_name=filter_name, search_query=search_query)
+
+
+@main_bp.route('/admin/farmers')
+@admin_required
+def admin_farmers():
+    """Farmer directory for extension-worker outreach."""
+    search_query = request.args.get('q', '').strip().lower()
+    farmers = User.query.order_by(User.username.asc()).all()
+    if search_query:
+        farmers = [farmer for farmer in farmers if search_query in farmer.username.lower() or search_query in (farmer.email or '').lower() or search_query in (farmer.phone or '').lower()]
+    farmer_cards = []
+    for farmer in farmers:
+        farms = farmer.farms.all()
+        crops = farmer.crops.all()
+        recent_case = DiseaseAnalysis.query.filter_by(user_id=farmer.id).order_by(DiseaseAnalysis.date.desc()).first()
+        farmer_cards.append({
+            'farmer': farmer,
+            'farm_count': len(farms),
+            'crop_count': len(crops),
+            'case_count': DiseaseAnalysis.query.filter_by(user_id=farmer.id).count(),
+            'location': farms[0].location if farms and farms[0].location else 'Location not added',
+            'recent_case': recent_case,
+        })
+    return render_template('admin/farmers.html', farmer_cards=farmer_cards, search_query=search_query)
+
+
+@main_bp.route('/admin/farmers/<int:user_id>')
+@admin_required
+def admin_farmer_detail(user_id):
+    """Farmer profile and case context for extension-worker outreach."""
+    farmer = User.query.get_or_404(user_id)
+    farms = farmer.farms.all()
+    crops = farmer.crops.all()
+    analyses = DiseaseAnalysis.query.filter_by(user_id=farmer.id).order_by(DiseaseAnalysis.date.desc()).limit(8).all()
+    return render_template('admin/farmer_detail.html', farmer=farmer, farms=farms, crops=crops, analyses=analyses)
+
+
+@main_bp.route('/admin/farmers/<int:user_id>/field-visit', methods=['GET', 'POST'])
+@admin_required
+def admin_field_visit(user_id):
+    """Create a field visit record for a selected farmer."""
+    farmer = User.query.get_or_404(user_id)
+    farms = farmer.farms.all()
+    crops = farmer.crops.all()
+
+    if request.method == 'POST':
+        flash('Field visit saved.', 'success')
+        return redirect(url_for('main.admin_farmer_detail', user_id=farmer.id))
+
+    return render_template(
+        'admin/field_visit.html',
+        farmer=farmer,
+        farms=farms,
+        crops=crops,
+        selected_farm=farms[0] if farms else None,
+    )
+
+
+@main_bp.route('/admin/hotspots')
+@admin_required
+def admin_hotspots():
+    """Dummy disease hotspot map for extension-worker triage."""
+    hotspot_data = WeatherService.get_geospatial_hotspots()
+    nashik_heat_points = [
+        {'lat': 20.0768, 'lng': 74.1082},
+        {'lat': 20.0845, 'lng': 74.1120},
+        {'lat': 20.0690, 'lng': 74.1015},
+        {'lat': 20.0920, 'lng': 74.0980},
+        {'lat': 20.0565, 'lng': 74.1240},
+        {'lat': 20.1120, 'lng': 74.1360},
+        {'lat': 20.0410, 'lng': 74.0900},
+        {'lat': 20.1280, 'lng': 74.0740},
+        {'lat': 19.9975, 'lng': 73.7898},
+        {'lat': 20.0300, 'lng': 73.8350},
+        {'lat': 20.1540, 'lng': 74.1900},
+        {'lat': 19.9440, 'lng': 74.0500},
+    ]
+    return render_template(
+        'admin/hotspots.html',
+        hotspots=hotspot_data.get('hotspots', []),
+        nashik_heat_points=nashik_heat_points,
+        mappls_token=current_app.config.get('MAPPLS_MAP_API'),
+    )
+
+
 @main_bp.route('/admin/cases/<int:analysis_id>', methods=['GET', 'POST'])
 @admin_required
 def admin_case_detail(analysis_id):

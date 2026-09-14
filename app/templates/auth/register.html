@@ -1,63 +1,56 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    .main-content { padding-bottom:0; }
+    .farmer-register-page { position:relative; min-height:100%; display:grid; place-items:center; overflow:hidden; padding:22px 18px 34px; background:linear-gradient(145deg,#f5fbf7 0%,#e8f6ef 100%); }
+    .farmer-register-page::before { content:''; position:absolute; inset:0; background-image:linear-gradient(90deg,rgba(247,251,247,.9) 0%,rgba(247,251,247,.72) 50%,rgba(255,250,240,.62) 100%),url("{{ url_for('static', filename='images/background.png') }}"); background-size:cover; background-position:center; opacity:0; animation:farmer-auth-background-fade 1.2s ease-out .08s forwards; }
+    .farmer-register-shell { position:relative; z-index:1; width:min(100%,390px); }
+    @keyframes farmer-auth-background-fade { from { opacity:0; transform:scale(1.03); } to { opacity:1; transform:scale(1); } }
+    @media (prefers-reduced-motion:reduce) { .farmer-register-page::before { animation:none; opacity:1; } }
+    .farmer-register-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; color:#145c3a; text-decoration:none; }
+    .farmer-register-brand img { width:40px; height:40px; border-radius:11px; box-shadow:0 5px 14px rgba(27,94,32,.17); }
+    .farmer-register-brand-name { font-size:1.12rem; font-weight:800; letter-spacing:-.04em; }
+    .farmer-register-brand-sub { display:block; color:#688176; font-size:.55rem; font-weight:600; margin-top:2px; }
+    .farmer-register-language { display:flex; justify-content:flex-end; margin-bottom:9px; }
+    .farmer-register-card { background:rgba(255,255,255,.94); border:1px solid #d9ebe0; border-radius:20px; padding:24px 22px 21px; box-shadow:0 16px 34px rgba(30,93,61,.11); }
+    .farmer-register-heading { color:#183629; font-size:1.38rem; font-weight:800; letter-spacing:-.03em; margin:0 0 5px; }
+    .farmer-register-subtitle { color:#718279; font-size:.75rem; line-height:1.5; margin:0 0 19px; }
+    .farmer-register-field { position:relative; margin-bottom:11px; }
+    .farmer-register-field i { position:absolute; left:14px; top:50%; z-index:2; color:#6a8576; transform:translateY(-50%); }
+    .farmer-register-field input { width:100%; box-sizing:border-box; height:44px; padding:0 14px 0 40px; border:1px solid #d5e3da; border-radius:10px; color:#183629; background:#fff; font-size:.78rem; outline:0; }
+    .farmer-register-field input:focus { border-color:#2e8b61; box-shadow:0 0 0 3px rgba(46,139,97,.12); }
+    .farmer-register-submit { width:100%; height:45px; margin-top:5px; border:0; border-radius:9px; color:#fff; background:#08775a; font-size:.81rem; font-weight:800; box-shadow:0 6px 14px rgba(8,119,90,.2); }
+    .farmer-register-submit:hover { background:#005946; }
+    .farmer-register-divider { display:flex; align-items:center; gap:10px; margin:18px 0 14px; color:#a2afa7; font-size:.64rem; }
+    .farmer-register-divider::before, .farmer-register-divider::after { content:''; height:1px; flex:1; background:#e3ece6; }
+    .farmer-register-sso { width:100%; height:41px; border:1px solid #cfe2d6; border-radius:9px; color:#28583a; background:#f8fcf9; font-size:.73rem; font-weight:800; }
+    .farmer-register-sso:hover { background:#eaf7ef; }
+    .farmer-register-help { color:#819087; font-size:.64rem; text-align:center; margin:17px 0 0; }
+    .farmer-register-help a { color:#08775a; font-weight:800; text-decoration:none; }
+    @media (max-width:390px) { .farmer-register-page { padding-left:14px; padding-right:14px; } .farmer-register-card { padding-left:18px; padding-right:18px; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="auth-wrapper register-auth-wrapper">
-    <div class="auth-language-row">
-        <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white shadow-sm" data-bs-toggle="modal" data-bs-target="#globalLangModal">
-            <i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span>
-        </button>
-    </div>
-    <div class="card auth-card">
-        <div class="text-center mb-4">
-            <img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" class="auth-brand-mark" alt="PikDrishti AI">
-            <h2 class="fw-bold auth-title mb-1">Create Account</h2>
-            <p class="auth-subtitle small">Set up your farmer profile</p>
-        </div>
-
-        <form method="POST" action="">
-            <div class="mb-3">
-                <label class="auth-field-label">Username</label>
-                <div class="input-group auth-input-group">
-                    <span class="input-group-text border-end-0"><i class="bi bi-person"></i></span>
-                    <input type="text" name="username" class="form-control border-start-0 ps-0" required
-                        placeholder="farmer123">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="auth-field-label">Email Address</label>
-                <div class="input-group auth-input-group">
-                    <span class="input-group-text border-end-0"><i class="bi bi-envelope"></i></span>
-                    <input type="email" name="email" class="form-control border-start-0 ps-0" required
-                        placeholder="farmer@example.com">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="auth-field-label">Phone Number</label>
-                <div class="input-group auth-input-group">
-                    <span class="input-group-text border-end-0"><i class="bi bi-telephone"></i></span>
-                    <input type="tel" name="phone" class="form-control border-start-0 ps-0" required
-                        placeholder="+91 9876543210" pattern="[\+]?[0-9\s\-\(\)]+">
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label class="auth-field-label">Password</label>
-                <div class="input-group auth-input-group">
-                    <span class="input-group-text border-end-0"><i class="bi bi-lock"></i></span>
-                    <input type="password" name="password" class="form-control border-start-0 ps-0" required
-                        placeholder="••••••••">
-                </div>
-            </div>
-
-            <button type="submit" class="btn auth-submit text-white w-100 btn-lg rounded-pill mb-3">Create Account</button>
-        </form>
-
-        <div class="text-center mt-3">
-            <span class="text-muted small">Already have an account? </span>
-            <a href="{{ url_for('auth.login') }}" class="auth-footer-link text-decoration-none small">Log In</a>
-        </div>
+<div class="farmer-register-page">
+    <div class="farmer-register-shell">
+        <div class="farmer-register-language"><button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold bg-white" data-bs-toggle="modal" data-bs-target="#globalLangModal"><i class="bi bi-translate me-1"></i><span class="top-lang-label">English</span></button></div>
+        <a class="farmer-register-brand" href="{{ url_for('main.index') }}"><img src="{{ url_for('static', filename='images/icons/icon-192.png') }}" alt="PikDrishti AI"><span><span class="farmer-register-brand-name">PikDrishti AI</span><span class="farmer-register-brand-sub">For Healthy Crops, Prosperous Maharashtra</span></span></a>
+        <section class="farmer-register-card">
+            <h1 class="farmer-register-heading">Create Account</h1>
+            <p class="farmer-register-subtitle">Set up your farmer profile to organize farms and crop-health records.</p>
+            <form method="POST" action="">
+                <div class="farmer-register-field"><i class="bi bi-person"></i><input type="text" name="username" required autocomplete="username" placeholder="Your name or username" aria-label="Username"></div>
+                <div class="farmer-register-field"><i class="bi bi-envelope"></i><input type="email" name="email" required autocomplete="email" placeholder="Email address" aria-label="Email address"></div>
+                <div class="farmer-register-field"><i class="bi bi-telephone"></i><input type="tel" name="phone" required autocomplete="tel" placeholder="Mobile number" pattern="[\+]?[0-9\s\-\(\)]+" aria-label="Phone number"></div>
+                <div class="farmer-register-field"><i class="bi bi-lock"></i><input type="password" name="password" required autocomplete="new-password" placeholder="Create a password" aria-label="Password"></div>
+                <button class="farmer-register-submit" type="submit">Create Account</button>
+            </form>
+            <div class="farmer-register-divider">or</div>
+            <button class="farmer-register-sso" type="button"><i class="bi bi-shield-lock me-1"></i> Register with SSO (Maha)</button>
+            <p class="farmer-register-help">Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
+        </section>
     </div>
 </div>
 {% endblock %}
